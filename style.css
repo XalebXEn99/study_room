@@ -135,6 +135,17 @@ a:hover { text-decoration: underline; }
 .markdown-body a { color: #0969da; }
 .markdown-body strong { font-weight: 600; }
 
+/* ===== Math (KaTeX) ===== */
+.markdown-body .math-inline { white-space: normal; }
+.markdown-body .math-block { display: block; margin: 0.35rem 0; }
+.markdown-body .katex { font-size: 1.06em; line-height: 1.35; }
+.markdown-body .katex-display { margin: 0.9rem 0; overflow-x: auto; overflow-y: hidden; }
+.markdown-body .katex-display > .katex { white-space: nowrap; text-align: left; }
+.markdown-body .katex-display > .katex > .katex-html { white-space: nowrap; }
+.markdown-body td .katex, .markdown-body th .katex { font-size: 1.02em; }
+.markdown-body td .katex-display, .markdown-body th .katex-display { margin: 0.2rem 0; }
+.markdown-body .math-error { color: #cf222e; }
+
 /* ===== AI Float Button ===== */
 .ai-float-btn {
   position: fixed; z-index: 90;
@@ -373,6 +384,13 @@ body[data-theme="office"] .ai-response { background: #f5f0e8; border-color: #d4c
 body[data-theme="office"] .settings-label { color: #2c2416; }
 body[data-theme="office"] .settings-hint { color: #7a6b55; }
 body[data-theme="office"] .settings-saved { color: #6b4c2a; }
+
+/* Math on dark themes: KaTeX inherits currentColor, only errors need a lift */
+body[data-theme="scifi"] .markdown-body .katex-error,
+body[data-theme="pixel"] .markdown-body .katex-error,
+body[data-theme="scifi"] .markdown-body .math-error,
+body[data-theme="pixel"] .markdown-body .math-error { color: #ff7b72 !important; }
+body[data-theme="pixel"] .markdown-body .katex { font-size: 1.12em; }
 
 /* ===== Responsive ===== */
 @media (max-width: 640px) {

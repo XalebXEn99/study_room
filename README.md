@@ -14,6 +14,7 @@ Live at: **https://xalebxen99.github.io/MD-Reader/**
   - **Pixel Art** -- Retro 8-bit aesthetic with pixel fonts and chunky borders
   - **Office** -- Warm paper tones with serif fonts, like writing on quality paper
 - **AI Text Analysis** -- Highlight any text in the rendered Markdown and click "Ask AI" to ask questions about the selection (powered by Google Gemini)
+- **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
 - **Syntax Highlighting** -- Code blocks are highlighted with highlight.js, theme-matched
 - **Fully Client-Side** -- No server, no backend. Everything runs in your browser.
 
@@ -40,5 +41,6 @@ The AI feature uses the Google Gemini API (free tier).
 - HTML / CSS / Vanilla JavaScript
 - [marked](https://github.com/markedjs/marked) -- Markdown parsing
 - [highlight.js](https://highlightjs.org/) -- Code syntax highlighting
+- [KaTeX](https://katex.org/) -- LaTeX math rendering
 - [Google Fonts](https://fonts.google.com/) -- Orbitron, Press Start 2P, Outfit, Lora, Inter
 - Google Gemini API -- AI text analysis

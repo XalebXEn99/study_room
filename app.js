@@ -35,6 +35,88 @@
     gfm: true,
   });
 
+  // ===== Math (KaTeX) =====
+  // Math is lifted out of the Markdown before marked runs: marked would
+  // otherwise consume the backslashes of \( \) and \[ \] as escape sequences,
+  // HTML-escape "<" inside formulas, and italicise subscripts like x_i.
+  // Code fences and inline code are lifted out first, so they are never
+  // scanned for math.
+  var CODE_TOKEN = "%%MDCODE%%";
+  var MATH_TOKEN = "%%MDMATH%%";
+  var FENCE_RE = /^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?^[ \t]*\1[ \t]*$/gm;
+  var INLINE_CODE_RE = /(`+)(?:[^\n`]|(?!\1)`)+\1/g;
+  var MATH_RULES = [
+    { display: true, re: /\\\[([\s\S]+?)\\\]/g },
+    { display: true, re: /\$\$([\s\S]+?)\$\$/g },
+    { display: false, re: /\\\(([\s\S]+?)\\\)/g },
+    { display: false, re: /\$([^\s$][^$\n]*?[^\s$]|[^\s$])\$/g }
+  ];
+
+  function stashMatches(text, regex, bucket) {
+    return text.replace(regex, function (match) {
+      bucket.push(match);
+      return CODE_TOKEN + (bucket.length - 1) + CODE_TOKEN;
+    });
+  }
+
+  function restoreStashed(text, bucket) {
+    return text.replace(new RegExp(CODE_TOKEN + "(\\d+)" + CODE_TOKEN, "g"), function (match, i) {
+      return bucket[+i];
+    });
+  }
+
+  function stashMath(text, bucket) {
+    MATH_RULES.forEach(function (rule) {
+      text = text.replace(rule.re, function (match, body) {
+        var tex = String(body);
+        if (!tex.trim() || tex.length > 8000) return match;
+        if (!rule.display && /\n\s*\n/.test(tex)) return match;
+        bucket.push({ tex: tex, display: rule.display });
+        return MATH_TOKEN + (bucket.length - 1) + MATH_TOKEN;
+      });
+    });
+    return text;
+  }
+
+  function renderMarkdown(raw) {
+    var code = [];
+    var math = [];
+    var text = stashMatches(raw, FENCE_RE, code);
+    text = stashMatches(text, INLINE_CODE_RE, code);
+    text = stashMath(text, math);
+    text = restoreStashed(text, code);
+    return injectMathSpans(marked.parse(text), math);
+  }
+
+  function injectMathSpans(html, math) {
+    return html.replace(new RegExp(MATH_TOKEN + "(\\d+)" + MATH_TOKEN, "g"), function (match, i) {
+      var item = math[+i];
+      if (!item) return match;
+      var cls = item.display ? "math-block" : "math-inline";
+      return '<span class="' + cls + '">' + escapeHtml(item.tex) + "</span>";
+    });
+  }
+
+  function typesetMath(root) {
+    if (typeof katex === "undefined") return;
+    var nodes = root.querySelectorAll(".math-inline, .math-block");
+    Array.prototype.forEach.call(nodes, function (el) {
+      var tex = el.textContent;
+      if (!tex.trim() || el.getAttribute("data-typeset")) return;
+      el.setAttribute("data-typeset", "1");
+      try {
+        katex.render(tex, el, {
+          displayMode: el.classList.contains("math-block"),
+          throwOnError: false,
+          strict: "ignore",
+          output: "html"
+        });
+      } catch (err) {
+        el.classList.add("math-error");
+      }
+    });
+  }
+
   var tabBar = document.getElementById("tab-bar");
   var uploadScreen = document.getElementById("upload-screen");
   var viewerScreen = document.getElementById("viewer-screen");
@@ -81,7 +163,7 @@
       if (raw) {
         var parsed = JSON.parse(raw);
         parsed.forEach(function (f) {
-          f.html = marked.parse(f.raw);
+          f.html = renderMarkdown(f.raw);
           files.push(f);
           if (f.id >= nextId) nextId = f.id + 1;
         });
@@ -93,7 +175,7 @@
 
   function addFile(name, raw) {
     var id = nextId++;
-    var html = marked.parse(raw);
+    var html = renderMarkdown(raw);
     files.push({ id: id, name: name, raw: raw, html: html });
     activeFileId = id;
     saveState();
@@ -146,6 +228,7 @@
     var f = getActiveFile();
     if (!f) return;
     markdownOutput.innerHTML = f.html;
+    typesetMath(markdownOutput);
     uploadScreen.classList.add("hidden");
     viewerScreen.classList.remove("hidden");
     setTimeout(renderMermaidDiagrams, 50);
@@ -183,7 +266,11 @@
     if (mTheme !== currentMermaidTheme) {
       currentMermaidTheme = mTheme;
       mermaid.initialize({ startOnLoad: false, theme: currentMermaidTheme, securityLevel: "loose" });
-      if (getActiveFile()) { markdownOutput.innerHTML = getActiveFile().html; renderMermaidDiagrams(); }
+      if (getActiveFile()) {
+        markdownOutput.innerHTML = getActiveFile().html;
+        typesetMath(markdownOutput);
+        renderMermaidDiagrams();
+      }
     }
     try { localStorage.setItem("md-reader-theme", theme); } catch (e) {}
   }
