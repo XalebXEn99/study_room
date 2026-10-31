@@ -1,8 +1,8 @@
-# MD Reader
+# Study Room
 
-A browser-based Markdown reader with multiple themes, multi-file tabs, and AI-powered text analysis.
+A browser-based study room with a Markdown reader, multiple themes, multi-file tabs, floating media players, and AI-powered text analysis.
 
-Live at: **https://xalebxen99.github.io/MD-Reader/**
+Live at: **https://xalebxen99.github.io/study_room/**
 
 ## Features
 
@@ -17,6 +17,9 @@ Live at: **https://xalebxen99.github.io/MD-Reader/**
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
 - **Syntax Highlighting** -- Code blocks are highlighted with highlight.js, theme-matched
 - **Fully Client-Side** -- No server, no backend. Everything runs in your browser.
+- **Floating Media Players** -- Music is fixed to the bottom-left corner and YouTube to the bottom-right. Both start collapsed and expand upward and inward at the same compact 320px maximum width, including the video. Neither icons nor panels can be dragged.
+
+For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
 
 ## AI Setup
 
