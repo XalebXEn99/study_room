@@ -1,15 +1,8 @@
 (function () {
   "use strict";
 
-  // ===== Mermaid config =====
-  var mermaidThemes = {
-    "default": "default",
-    "scifi": "dark",
-    "pixel": "dark",
-    "office": "base"
-  };
-  var currentMermaidTheme = "default";
-  mermaid.initialize({ startOnLoad: false, theme: currentMermaidTheme, securityLevel: "loose" });
+  // ===== Mermaid (theme is (re)configured in the Theme section below) =====
+  var currentMermaidTheme = null;
 
   function renderMermaidDiagrams() {
     var blocks = markdownOutput.querySelectorAll("code.language-mermaid");
@@ -142,16 +135,28 @@
   var hljsLink = document.getElementById("hljs-theme");
   var addTabBtn = document.getElementById("add-tab-btn");
   var fileInput2 = document.getElementById("file-input-2");
+  var createBtn = document.getElementById("create-btn");
+  var editorBar = document.getElementById("editor-bar");
+  var editModeBtn = document.getElementById("edit-mode-btn");
+  var previewModeBtn = document.getElementById("preview-mode-btn");
+  var editorHint = document.getElementById("editor-hint");
+  var downloadBtn = document.getElementById("download-btn");
+  var helpBtn = document.getElementById("help-btn");
+  var editorInput = document.getElementById("editor-input");
+  var helpModal = document.getElementById("help-modal");
+  var helpModalClose = document.getElementById("help-modal-close");
 
   var files = [];
   var activeFileId = null;
   var selectedText = "";
   var nextId = 1;
+  var isEditing = false;      // editor mode for the active tab (transient UI state)
+  var saveTimer = null;
 
   function saveState() {
     try {
       localStorage.setItem("md-files", JSON.stringify(files.map(function (f) {
-        return { id: f.id, name: f.name, raw: f.raw };
+        return { id: f.id, name: f.name, raw: f.raw, theme: f.theme };
       })));
       localStorage.setItem("md-active-id", String(activeFileId || ""));
     } catch (e) {}
@@ -164,6 +169,7 @@
         var parsed = JSON.parse(raw);
         parsed.forEach(function (f) {
           f.html = renderMarkdown(f.raw);
+          if (validThemes.indexOf(f.theme) === -1) f.theme = lastSavedGlobal;
           files.push(f);
           if (f.id >= nextId) nextId = f.id + 1;
         });
@@ -176,7 +182,9 @@
   function addFile(name, raw) {
     var id = nextId++;
     var html = renderMarkdown(raw);
-    files.push({ id: id, name: name, raw: raw, html: html });
+    var active = getActiveFile();
+    // New tabs inherit the active tab's theme; the first tab uses the last theme used
+    files.push({ id: id, name: name, raw: raw, html: html, theme: active ? active.theme : lastAppliedTheme });
     activeFileId = id;
     saveState();
     renderTabs();
@@ -184,18 +192,29 @@
   }
 
   function removeFile(id) {
+    flushActiveEdit();
     files = files.filter(function (f) { return f.id !== id; });
     if (activeFileId === id) {
       activeFileId = files.length > 0 ? files[files.length - 1].id : null;
     }
     saveState();
     renderTabs();
-    if (activeFileId) { showViewer(); } else { showUpload(); }
+    if (activeFileId) {
+      var f = getActiveFile();
+      if (f) applyTheme(f.theme);
+      showViewer();
+    } else {
+      applyTheme(lastAppliedTheme);
+      showUpload();
+    }
   }
 
   function switchFile(id) {
+    flushActiveEdit();
     activeFileId = id;
     saveState();
+    var f = getActiveFile();
+    if (f) applyTheme(f.theme);
     renderTabs();
     showViewer();
   }
@@ -212,7 +231,8 @@
     files.forEach(function (f) {
       var tab = document.createElement("button");
       tab.className = "tab" + (f.id === activeFileId ? " active" : "");
-      tab.innerHTML = '<span class="tab-name">' + escapeHtml(f.name) + '</span><span class="tab-close">&times;</span>';
+      tab.innerHTML = '<span class="tab-dot" style="background:' + (themeAccents[f.theme] || themeAccents["default"]) + '"></span>'
+        + '<span class="tab-name">' + escapeHtml(f.name) + '</span><span class="tab-close">&times;</span>';
       tab.addEventListener("click", function (e) {
         if (e.target.classList.contains("tab-close")) {
           removeFile(f.id);
@@ -227,19 +247,27 @@
   function showViewer() {
     var f = getActiveFile();
     if (!f) return;
+    isEditing = false;
+    editorInput.classList.add("hidden");
+    markdownOutput.classList.remove("hidden");
     markdownOutput.innerHTML = f.html;
     typesetMath(markdownOutput);
     uploadScreen.classList.add("hidden");
     viewerScreen.classList.remove("hidden");
     setTimeout(renderMermaidDiagrams, 50);
     addTabBtn.classList.remove("hidden");
+    refreshEditorBar();
   }
 
   function showUpload() {
     uploadScreen.classList.remove("hidden");
     viewerScreen.classList.add("hidden");
     addTabBtn.classList.add("hidden");
+    isEditing = false;
+    editorInput.classList.add("hidden");
+    applyTheme(lastAppliedTheme);
     markdownOutput.innerHTML = "";
+    refreshEditorBar();
   }
 
   function escapeHtml(str) {
@@ -249,19 +277,67 @@
   }
 
   // ===== Theme =====
+  // Themes are per-tab: each file object carries its own `theme`, and the
+  // body attribute / hljs stylesheet / mermaid config follow the active tab.
   var hljsThemes = {
     "default": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css",
+    "office": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-light.min.css",
+    "sepia": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-light.min.css",
+    "notion": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css",
+    "midnight": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/tokyo-night-dark.min.css",
+    "nord": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/base16/nord.min.css",
+    "dracula": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/dracula.min.css",
     "scifi": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/tokyo-night-dark.min.css",
+    "synthwave": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.min.css",
     "pixel": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/arta.min.css",
-    "office": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-light.min.css"
+    "terminal": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/monokai.min.css",
+    "gameboy": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/arta.min.css"
   };
 
-  function setTheme(theme) {
+  var mermaidThemes = {
+    "default": "default", "office": "base", "sepia": "base", "notion": "default",
+    "midnight": "dark", "nord": "dark", "dracula": "dark",
+    "scifi": "dark", "synthwave": "dark",
+    "pixel": "forest", "terminal": "dark", "gameboy": "forest"
+  };
+
+  // Accent color shown as a dot on each tab
+  var themeAccents = {
+    "default": "#0969da", "office": "#6b4c2a", "sepia": "#9c5c28", "notion": "#3183f8",
+    "midnight": "#8b9dcf", "nord": "#88c0d0", "dracula": "#bd93f9",
+    "scifi": "#00e5ff", "synthwave": "#ff6ec7",
+    "pixel": "#f7d54a", "terminal": "#33ff66", "gameboy": "#0f3e1e"
+  };
+
+  var validThemes = Object.keys(hljsThemes);
+  var lastAppliedTheme = "default";
+
+  // Collapsible group sections in the theme popup
+  var themeGroups = document.querySelectorAll(".theme-group");
+  var groupOfTheme = {};
+  themeGroups.forEach(function (group) {
+    group.querySelectorAll(".theme-option").forEach(function (opt) {
+      groupOfTheme[opt.getAttribute("data-theme")] = group;
+    });
+  });
+
+  function updateGroupStates(theme) {
+    var activeGroup = groupOfTheme[theme];
+    if (!activeGroup) return;
+    themeGroups.forEach(function (g) {
+      g.classList.toggle("collapsed", g !== activeGroup);
+    });
+  }
+
+  function applyTheme(theme) {
+    if (validThemes.indexOf(theme) === -1) theme = "default";
+    lastAppliedTheme = theme;
     document.body.setAttribute("data-theme", theme);
-    hljsLink.href = hljsThemes[theme] || hljsThemes["default"];
+    hljsLink.href = hljsThemes[theme];
     themeOptions.forEach(function (btn) {
       btn.classList.toggle("active", btn.getAttribute("data-theme") === theme);
     });
+    updateGroupStates(theme);
     var mTheme = mermaidThemes[theme] || "default";
     if (mTheme !== currentMermaidTheme) {
       currentMermaidTheme = mTheme;
@@ -272,12 +348,32 @@
         renderMermaidDiagrams();
       }
     }
+  }
+
+  // Changes the theme of the active tab only; persisted per tab via saveState.
+  function setTheme(theme) {
+    var f = getActiveFile();
+    if (f) {
+      f.theme = theme;
+      saveState();
+    }
     try { localStorage.setItem("md-reader-theme", theme); } catch (e) {}
+    applyTheme(theme);
+    renderTabs();
   }
 
   themeToggle.addEventListener("click", function (e) {
     e.stopPropagation();
     themeMenu.classList.toggle("hidden");
+    // Re-sync: the active theme's group is always expanded when opening
+    if (!themeMenu.classList.contains("hidden")) updateGroupStates(lastAppliedTheme);
+  });
+
+  document.querySelectorAll(".theme-group-header").forEach(function (header) {
+    header.addEventListener("click", function (e) {
+      e.stopPropagation();
+      this.parentNode.classList.toggle("collapsed");
+    });
   });
 
   themeOptions.forEach(function (btn) {
@@ -451,11 +547,145 @@
   addTabBtn.addEventListener("click", function () { fileInput2.click(); });
   fileInput2.addEventListener("change", function () { handleFile(this.files[0]); this.value = ""; });
 
+  // ===== Editor (create / edit Markdown with live LaTeX) =====
+  var starterDoc = [
+    "# My Document",
+    "",
+    "Write in **Edit** mode, then press **Preview**. Click the **?** button for the full syntax guide.",
+    "",
+    "## Formatting",
+    "",
+    "- **bold**, *italic*, ~~strike~~, `inline code`",
+    "- [links](https://example.com) and tables like the one below",
+    "",
+    "| Fruit | Color |",
+    "|-------|-------|",
+    "| Apple | Red   |",
+    "",
+    "## Math (LaTeX)",
+    "",
+    "Inline: \\( E = mc^2 \\) or $a^2 + b^2 = c^2$",
+    "",
+    "Display:",
+    "",
+    "\\[",
+    "\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}",
+    "\\]",
+    "",
+    "## Code",
+    "",
+    "```js",
+    "function greet(name) {",
+    "  return 'Hello, ' + name;",
+    "}",
+    "```",
+    "",
+    "## Diagram",
+    "",
+    "```mermaid",
+    "graph TD; A-->B; B-->C;",
+    "```"
+  ].join("\n");
+
+  function refreshEditorBar() {
+    var f = getActiveFile();
+    if (!f) { editorBar.classList.add("hidden"); return; }
+    editorBar.classList.remove("hidden");
+    editModeBtn.classList.toggle("active", isEditing);
+    previewModeBtn.classList.toggle("active", !isEditing);
+    editorHint.textContent = isEditing ? "Editing “" + f.name + "”" : "";
+  }
+
+  // Persist any in-progress typing from the textarea into the active file.
+  function flushActiveEdit() {
+    if (!isEditing) return;
+    var f = getActiveFile();
+    if (f) {
+      f.raw = editorInput.value;
+      f.html = renderMarkdown(f.raw);
+      saveState();
+    }
+  }
+
+  function enterEditor() {
+    var f = getActiveFile();
+    if (!f) return;
+    isEditing = true;
+    editorInput.value = f.raw;
+    uploadScreen.classList.add("hidden");
+    viewerScreen.classList.remove("hidden");
+    addTabBtn.classList.remove("hidden");
+    markdownOutput.classList.add("hidden");
+    editorInput.classList.remove("hidden");
+    refreshEditorBar();
+    editorInput.focus();
+  }
+
+  function enterPreview() {
+    var f = getActiveFile();
+    if (!f) return;
+    // Only flush the textarea while actually editing; otherwise it may be
+    // empty (e.g. right after a reload) and clicking Preview would wipe the doc.
+    if (isEditing) {
+      f.raw = editorInput.value;
+      f.html = renderMarkdown(f.raw);
+      saveState();
+    }
+    showViewer();
+  }
+
+  function createDoc() {
+    addFile("Untitled.md", starterDoc);
+    enterEditor();
+  }
+
+  function downloadDoc() {
+    var f = getActiveFile();
+    if (!f) return;
+    var src = isEditing ? editorInput.value : f.raw;
+    var base = String(f.name || "document").replace(/\.md$/i, "").replace(/[\\/:*?"<>|]/g, "_");
+    var blob = new Blob([src], { type: "text/markdown;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = (base || "document") + ".md";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  editorInput.addEventListener("input", function () {
+    var f = getActiveFile();
+    if (!f || !isEditing) return;
+    f.raw = editorInput.value;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      f.html = renderMarkdown(f.raw);
+      saveState();
+    }, 400);
+  });
+
+  createBtn.addEventListener("click", createDoc);
+  editModeBtn.addEventListener("click", enterEditor);
+  previewModeBtn.addEventListener("click", enterPreview);
+  downloadBtn.addEventListener("click", downloadDoc);
+  helpBtn.addEventListener("click", function () { helpModal.classList.remove("hidden"); });
+  helpModalClose.addEventListener("click", function () { helpModal.classList.add("hidden"); });
+  helpModal.addEventListener("click", function (e) {
+    if (e.target === helpModal) helpModal.classList.add("hidden");
+  });
+
+  // ===== Spotify player =====
+  // Full-playback logic lives in spotify.js (loaded after app.js).
+
   // ===== Init =====
   var savedTheme = "default";
   try { savedTheme = localStorage.getItem("md-reader-theme") || "default"; } catch (e) {}
-  setTheme(savedTheme);
+  var lastSavedGlobal = validThemes.indexOf(savedTheme) !== -1 ? savedTheme : "default";
   loadState();
+  var initialFile = getActiveFile();
+  applyTheme(initialFile ? initialFile.theme : lastSavedGlobal);
   renderTabs();
-  if (activeFileId && getActiveFile()) { showViewer(); } else { showUpload(); }
+  if (initialFile) { showViewer(); } else { showUpload(); }
 })();
