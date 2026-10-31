@@ -442,10 +442,24 @@
   }
 
   function positionAiButton(e) {
-    var x = e.clientX + 10;
-    var y = e.clientY - 40;
-    if (x + 100 > window.innerWidth) x = window.innerWidth - 110;
-    if (y < 0) y = e.clientY + 15;
+    var sel = window.getSelection();
+    var rect = (sel && sel.rangeCount) ? sel.getRangeAt(0).getBoundingClientRect() : null;
+    var btnW = aiFloatBtn.offsetWidth || 110;
+    var btnH = aiFloatBtn.offsetHeight || 32;
+    var x, y;
+    if (rect && rect.width) {
+      // Sit just below the highlight: the browser's native selection flyout
+      // rides over the TOP edge, so staying underneath keeps this button clear.
+      x = rect.left;
+      y = rect.bottom + 8;
+      if (x + btnW > window.innerWidth) x = window.innerWidth - btnW - 8;
+      if (y + btnH > window.innerHeight) y = rect.top - btnH - 8;
+    } else {
+      x = e.clientX + 10;
+      y = e.clientY + 15;
+    }
+    if (x < 8) x = 8;
+    if (y < 8) y = 8;
     aiFloatBtn.style.left = x + "px";
     aiFloatBtn.style.top = y + "px";
   }

@@ -3,7 +3,7 @@
 
   // ===== Study Room — Spotify full playback =====
   // Self-contained: OAuth (PKCE, no secret) + Web Playback SDK device +
-  // library browsing + a draggable floating panel. Premium only.
+  // a draggable floating panel that plays a pasted Spotify link. Premium only.
   // Everything is client-side; tokens live in localStorage like the Gemini key.
 
   var AUTH_URL = "https://accounts.spotify.com/authorize";
@@ -21,7 +21,7 @@
     verifier: "md-spotify-verifier",
     state: "md-spotify-state",
     url: "md-spotify-url",
-    pos: "md-spotify-pos",
+    pos: "md-spotify-pos-v2",
     collapsed: "md-spotify-collapsed"
   };
 
@@ -48,15 +48,11 @@
   var pill = document.getElementById("spotify-pill");
   var handle = document.getElementById("sp-drag-handle");
   var actionsEl = document.getElementById("sp-actions");
-  var refreshBtn = document.getElementById("sp-refresh-btn");
   var logoutBtn = document.getElementById("sp-logout-btn");
   var collapseBtn = document.getElementById("sp-collapse-btn");
   var authView = document.getElementById("sp-auth");
   var authHint = document.getElementById("sp-auth-hint");
   var loginBtn = document.getElementById("sp-login-btn");
-  var libraryView = document.getElementById("sp-library");
-  var listEl = document.getElementById("sp-list");
-  var tabs = Array.prototype.slice.call(document.querySelectorAll(".sp-tab"));
   var urlInput = document.getElementById("sp-url-input");
   var loadBtn = document.getElementById("sp-load-btn");
   var npBar = document.getElementById("sp-nowplaying");
@@ -73,8 +69,6 @@
   var sdkReady = false;
   var spotifyObj = null;   // the Spotify.Player instance
   var premiumOk = false;
-  var libCache = { playlists: null, albums: null };
-  var currentTab = "playlists";
 
   function showError(msg) {
     errEl.textContent = msg;
@@ -181,7 +175,6 @@
     erase(K.token);
     premiumOk = false;
     deviceId = null;
-    libCache = { playlists: null, albums: null };
   }
 
   // ===== Web Playback SDK =====
@@ -237,51 +230,6 @@
     npBar.classList.remove("hidden");
   }
 
-  // ===== Library =====
-  function loadLibrary(force) {
-    if (currentTab === "playlists" && (force || !libCache.playlists)) {
-      api("/me/playlists?limit=50").then(function (r) { return r.json(); }).then(function (d) {
-        libCache.playlists = (d.items || []).map(function (p) {
-          return { uri: p.uri, name: p.name, sub: (p.owner && p.owner.display_name ? p.owner.display_name + " · " : "") + (p.tracks ? p.tracks.total : 0) + " tracks", kind: "playlist", img: p.images && p.images[0] ? p.images[0].url : "" };
-        });
-        renderList();
-      }).catch(function (e) { showError(e.message); });
-    } else if (currentTab === "albums" && (force || !libCache.albums)) {
-      api("/me/albums?limit=50").then(function (r) { return r.json(); }).then(function (d) {
-        libCache.albums = (d.items || []).map(function (it) {
-          var a = it.album;
-          return { uri: a.uri, name: a.name, sub: (a.artists || []).map(function (x) { return x.name; }).join(", "), kind: "album", img: a.images && a.images[0] ? a.images[0].url : "" };
-        });
-        renderList();
-      }).catch(function (e) { showError(e.message); });
-    } else {
-      renderList();
-    }
-  }
-
-  function renderList() {
-    var items = libCache[currentTab] || [];
-    listEl.innerHTML = "";
-    if (!items.length) {
-      var empty = document.createElement("p");
-      empty.className = "sp-empty";
-      empty.textContent = currentTab === "playlists" ? "No playlists found." : "No saved albums.";
-      listEl.appendChild(empty);
-      return;
-    }
-    items.forEach(function (it) {
-      var row = document.createElement("button");
-      row.className = "sp-row";
-      row.innerHTML =
-        '<img class="sp-thumb" alt="" ' + (it.img ? 'src="' + it.img + '"' : 'style="visibility:hidden"') + '>' +
-        '<span class="sp-row-meta"><span class="sp-row-name"></span><span class="sp-row-sub"></span></span>';
-      row.querySelector(".sp-row-name").textContent = it.name;
-      row.querySelector(".sp-row-sub").textContent = it.sub;
-      row.addEventListener("click", function () { playContext(it.uri, it.kind); });
-      listEl.appendChild(row);
-    });
-  }
-
   // Parse a pasted link into a spotify:<type>:<id> URI.
   function linkToUri(input) {
     var m = String(input || "").trim().match(
@@ -295,19 +243,14 @@
   function isLoggedIn() { return !!loadToken(); }
 
   function refreshUI() {
-    if (isLoggedIn() && premiumOk && deviceId) {
+    if (isLoggedIn() && premiumOk) {
       authView.classList.add("hidden");
-      libraryView.classList.remove("hidden");
-      loadLibrary();
-    } else if (isLoggedIn() && premiumOk) {
-      authView.classList.add("hidden");
-      libraryView.classList.remove("hidden");
     } else {
-      libraryView.classList.add("hidden");
       authView.classList.remove("hidden");
-      authHint.textContent = "Sign in to play your library in full.";
+      authHint.textContent = isLoggedIn()
+        ? "Spotify Premium is required for full playback."
+        : "Sign in to play full tracks.";
     }
-    refreshBtn.classList.toggle("hidden", !isLoggedIn());
     logoutBtn.classList.toggle("hidden", !isLoggedIn());
   }
 
@@ -315,28 +258,58 @@
     player.classList.remove("hidden");
     player.classList.remove("collapsed");
     pill.classList.add("hidden");
+    var p = currentPos() || defaultPos();
+    placePanel(
+      Math.max(4, Math.min(p.x, window.innerWidth - player.offsetWidth - 4)),
+      Math.max(4, Math.min(p.y, window.innerHeight - player.offsetHeight - 4))
+    );
     if (urlInput && !urlInput.value) { var saved = read(K.url, ""); if (saved) urlInput.value = saved; }
     refreshUI();
   }
   function closePanel() {
+    var r = player.getBoundingClientRect();
     player.classList.add("hidden");
     player.classList.remove("collapsed");
     pill.classList.remove("hidden");
+    var px = Math.max(4, Math.min(r.left, window.innerWidth - pill.offsetWidth - 4));
+    var py = Math.max(4, Math.min(r.top, window.innerHeight - pill.offsetHeight - 4));
+    placePill(px, py); savePos(px, py);
   }
   function minimise() { closePanel(); }
 
-  // ===== Panel drag + position =====
+  // ===== Shared position (one saved point drives both the pill and the panel) =====
+  function currentPos() {
+    var raw = read(K.pos, "");
+    if (raw) { try { var o = JSON.parse(raw); if (o && typeof o.x === "number") return o; } catch (e) {} }
+    return null;
+  }
+  function savePos(x, y) { write(K.pos, JSON.stringify({ x: Math.round(x), y: Math.round(y) })); }
+  // First-run anchor: in line, just to the right of the theme icon.
+  function defaultPos() {
+    var t = document.getElementById("theme-toggle");
+    var w = pill.offsetWidth || 34, h = pill.offsetHeight || 34, x, y;
+    if (t) {
+      var r = t.getBoundingClientRect();
+      x = r.right + 6;
+      if (x + w > window.innerWidth - 4) x = window.innerWidth - w - 6;
+      y = r.top + (r.height - h) / 2;
+    } else { x = window.innerWidth - w - 8; y = 8; }
+    return { x: Math.max(4, x), y: Math.max(4, y) };
+  }
+  function placePill(x, y) {
+    pill.style.transform = "none";
+    pill.style.bottom = "auto";
+    pill.style.left = x + "px";
+    pill.style.top = y + "px";
+  }
+
+  // ===== Panel drag =====
   function isPlaced() { return player.style.left !== ""; }
   function placePanel(x, y) {
     player.style.transform = "none";
     player.style.bottom = "auto";
     player.style.left = x + "px";
     player.style.top = y + "px";
-  }
-  function savePos() {
-    if (!isPlaced()) return;
-    var r = player.getBoundingClientRect();
-    write(K.pos, JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top) }));
   }
   var dragging = false, offX = 0, offY = 0;
   handle.addEventListener("pointerdown", function (e) {
@@ -357,13 +330,45 @@
     y = Math.max(4, Math.min(y, window.innerHeight - h - 4));
     placePanel(x, y);
   });
-  function endDrag() { if (!dragging) return; dragging = false; player.classList.remove("dragging"); savePos(); }
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false; player.classList.remove("dragging");
+    var r = player.getBoundingClientRect(); savePos(r.left, r.top);
+  }
   handle.addEventListener("pointerup", endDrag);
   handle.addEventListener("pointercancel", endDrag);
 
+  // ===== Pill drag (a tap opens the panel; a drag repositions it) =====
+  var pillDragging = false, pillMoved = false, pOffX = 0, pOffY = 0, pStartX = 0, pStartY = 0;
+  pill.addEventListener("pointerdown", function (e) {
+    pillDragging = true; pillMoved = false;
+    pStartX = e.clientX; pStartY = e.clientY;
+    try { pill.setPointerCapture(e.pointerId); } catch (err) {}
+    var r = pill.getBoundingClientRect();
+    pOffX = e.clientX - r.left; pOffY = e.clientY - r.top;
+    e.preventDefault();
+  });
+  pill.addEventListener("pointermove", function (e) {
+    if (!pillDragging) return;
+    if (Math.abs(e.clientX - pStartX) + Math.abs(e.clientY - pStartY) > 5) pillMoved = true;
+    if (!pillMoved) return;
+    pill.classList.add("dragging");
+    var x = e.clientX - pOffX, y = e.clientY - pOffY;
+    var w = pill.offsetWidth, h = pill.offsetHeight;
+    x = Math.max(4, Math.min(x, window.innerWidth - w - 4));
+    y = Math.max(4, Math.min(y, window.innerHeight - h - 4));
+    placePill(x, y);
+  });
+  function pillEnd() {
+    if (!pillDragging) return;
+    pillDragging = false; pill.classList.remove("dragging");
+    if (!pillMoved) { openPanel(); return; }
+    var r = pill.getBoundingClientRect(); savePos(r.left, r.top);
+  }
+  pill.addEventListener("pointerup", pillEnd);
+  pill.addEventListener("pointercancel", pillEnd);
+
   // ===== Wire controls =====
-  pill.addEventListener("click", openPanel);
-  refreshBtn.addEventListener("click", function () { loadLibrary(true); });
   logoutBtn.addEventListener("click", function () {
     if (spotifyObj) { try { spotifyObj.disconnect(); } catch (e) {} }
     clearAuth(); refreshUI(); closePanel();
@@ -374,15 +379,6 @@
   prevBtn.addEventListener("click", function () { transport("previous"); });
   nextBtn.addEventListener("click", function () { transport("next"); });
   volEl.addEventListener("input", function () { if (spotifyObj) spotifyObj.setVolume(parseFloat(volEl.value)); });
-
-  tabs.forEach(function (t) {
-    t.addEventListener("click", function () {
-      tabs.forEach(function (x) { x.classList.remove("active"); });
-      t.classList.add("active");
-      currentTab = t.getAttribute("data-tab");
-      loadLibrary();
-    });
-  });
 
   loadBtn.addEventListener("click", function () {
     var parsed = linkToUri(urlInput.value);
@@ -408,8 +404,8 @@
   }
 
   (function init() {
-    var pos = read(K.pos, "");
-    if (pos) { try { var p = JSON.parse(pos); if (p && typeof p.x === "number") placePanel(p.x, p.y); } catch (e) {} }
+    var p0 = currentPos() || defaultPos();
+    placePill(p0.x, p0.y); savePos(p0.x, p0.y);
 
     var params = new URLSearchParams(window.location.search);
     var code = params.get("code"), state = params.get("state");
