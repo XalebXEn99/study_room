@@ -62,11 +62,13 @@
   var nextBtn = document.getElementById("sp-next");
   var volEl = document.getElementById("sp-volume");
   var errEl = document.getElementById("sp-error");
+  var playlists = document.getElementById("sp-playlists");
 
   var deviceId = null;
   var sdkReady = false;
   var spotifyObj = null;   // the Spotify.Player instance
   var premiumOk = false;
+  var isPlaying = false;
 
   function showError(msg) {
     errEl.textContent = msg;
@@ -206,6 +208,7 @@
     }).then(function (r) {
       if (r.status === 403) { showError("Spotify Premium is required for in-page playback."); premiumOk = false; refreshUI(); return; }
       if (!r.ok && r.status !== 204) showError("Playback failed (" + r.status + ").");
+      else playlists.open = false;
     }).catch(function (e) { showError(e.message); });
   }
 
@@ -217,8 +220,11 @@
 
   function renderNowPlaying(state) {
     if (!state || !state.track_window || !state.track_window.current_track) {
+      isPlaying = false;
       npBar.classList.add("hidden"); return;
     }
+    if (!state.paused && !isPlaying) playlists.open = false;
+    isPlaying = !state.paused;
     var tr = state.track_window.current_track;
     npTitle.textContent = tr.name || "";
     npArtist.textContent = (tr.artists || []).map(function (a) { return a.name; }).join(", ");
@@ -272,6 +278,8 @@
   pill.addEventListener("click", openPanel);
   logoutBtn.addEventListener("click", function () {
     if (spotifyObj) { try { spotifyObj.disconnect(); } catch (e) {} }
+    isPlaying = false;
+    playlists.open = true;
     clearAuth(); refreshUI(); closePanel();
   });
   collapseBtn.addEventListener("click", minimise);

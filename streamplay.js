@@ -418,7 +418,7 @@
   get("retry").addEventListener("click", resolveTitle);
   sources.addEventListener("change", playSource);
   subtitles.addEventListener("change", chooseSubtitle);
-  setOpen(pairing.has("study-room-helper") || window.innerWidth >= 1250);
+  setOpen(false);
   async function checkBridge() {
     if (!bridgeUrl && location.hostname !== "127.0.0.1") {
       get("local-setup").open = true;

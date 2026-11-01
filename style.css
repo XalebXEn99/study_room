@@ -37,7 +37,7 @@ a:hover { text-decoration: underline; }
 }
 .site-brand svg { flex-shrink: 0; }
 /* ===== Study library and timer ===== */
-.library-panel, .timer-panel {
+.library-panel, .timer-panel, .checklist-panel {
   width: 100%; display: flex; flex-direction: column; min-width: 0;
   color: var(--sp-text, #1f2328); background: var(--sp-surface, #fff);
   border: 1px solid var(--sp-border, #d0d7de); border-radius: var(--sp-radius, 10px);
@@ -68,10 +68,10 @@ a:hover { text-decoration: underline; }
 .library-status:empty { display: none; }
 .library-status.error, .document-status { color: var(--sp-error); }
 .document-status { font-size: 0.75rem; }
-.library-panel :focus-visible, .timer-panel :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 2px; }
+.library-panel :focus-visible, .timer-panel :focus-visible, .checklist-panel :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 2px; }
 .settings-text { display: block; width: 100%; margin-block: 0.5rem; padding: 0.6rem; color: var(--sp-text); background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: 6px; font: 0.85rem ui-monospace, monospace; resize: vertical; }
-.timer-panel { padding: 1rem; }
-.timer-panel h2 { font-size: 0.82rem; }
+.timer-panel, .checklist-panel { padding: 1rem; }
+.timer-panel h2, .checklist-panel h2 { font-size: 0.82rem; }
 .timer-display { display: block; font-size: 2.4rem; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; margin: 0.65rem 0; line-height: 1.3; }
 .timer-fields, .timer-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
 .timer-fields label { flex: 1; min-width: 0; font-size: 0.72rem; }
@@ -88,6 +88,20 @@ a:hover { text-decoration: underline; }
 .saved-media { display: grid; gap: 0.4rem; padding: 0 0.75rem 0.8rem; font-size: 0.74rem; }
 .saved-media label { opacity: 0.75; }
 .saved-media a { color: var(--sp-accent); }
+.saved-playlists > summary { padding: 0.5rem 0.75rem; font-size: 0.74rem; cursor: pointer; }
+.checklist-form { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
+.checklist-form input, .checklist-form button, .checklist-remove {
+  min-width: 0; padding: 0.45rem; color: var(--sp-text); background: var(--sp-surface);
+  border: 1px solid var(--sp-border); border-radius: 6px; font: inherit;
+}
+.checklist-form input { flex: 1; width: 100%; }
+.checklist-form button, .checklist-remove { cursor: pointer; }
+.checklist-items { list-style: none; max-height: 300px; overflow-y: auto; }
+.checklist-items li { display: flex; align-items: start; gap: 0.5rem; margin-top: 0.65rem; }
+.checklist-items label { display: flex; align-items: baseline; gap: 0.5rem; flex: 1; min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
+.checklist-items input { accent-color: var(--sp-accent); }
+.checklist-items .completed span { text-decoration: line-through; opacity: 0.55; }
+.checklist-remove { flex-shrink: 0; padding: 0 0.35rem; }
 .top-bar {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px; min-height: 40px; gap: 0.75rem;

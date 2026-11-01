@@ -10,8 +10,9 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
 - **Study files** -- Seven bundled maths exam notes can be clicked or dragged from the left panel into the editor. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
-- **Study timer** -- Set minutes and seconds above Video, then Start, Pause/Resume, or Reset. A full-screen "Hey your time is up!" overlay appears when the countdown ends.
-- **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. The selections populate the existing players; external links are also available.
+- **Study timer** -- Set minutes and seconds in the right-hand study tools, then Start, Pause/Resume, or Reset. A full-screen "Hey your time is up!" overlay appears when the countdown ends.
+- **Study checklist** -- Add study goals below the timer, tick them off, or remove them. Goals and completion are saved on this device.
+- **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Themes** -- Switch between four visual themes via the dropdown in the top right:
   - **Default** -- Clean GitHub-style white theme
   - **Sci-Fi** -- Dark navy with neon cyan accents and glowing effects
@@ -21,7 +22,7 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
 - **Syntax Highlighting** -- Code blocks are highlighted with highlight.js, theme-matched
 - **Client-Side Workspace** -- Markdown, study files, the timer, and music players run in your browser. The optional StreamPlay video panel needs a separate bridge.
-- **Independent Workspace Panels** -- Desktop has dedicated left (study files and Music), centre (editor), and right (timer, Video and YouTube) columns. Opening a panel expands it downward without shifting the editor. Video and YouTube stack without overlapping. Panels share the active theme's colours and spacing; narrower screens move media below the editor, and phones stack all columns. Music and YouTube start collapsed.
+- **Independent Workspace Panels** -- Desktop has dedicated left (study files, Music, Video and YouTube), centre (editor), and right (timer and checklist) columns. Opening a panel expands it downward without shifting the editor. Panels share the active theme's colours and spacing; narrower screens move study tools below the editor, and phones stack all columns. Music, Video and YouTube start collapsed.
 
 For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
 

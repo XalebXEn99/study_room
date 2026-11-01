@@ -633,8 +633,83 @@
     if (e.target === helpModal) helpModal.classList.add("hidden");
   });
 
-  // ===== Spotify player =====
-  // Full-playback logic lives in spotify.js (loaded after app.js).
+  var checklist = [];
+  var checklistInput = document.getElementById("checklist-input");
+  var checklistItems = document.getElementById("checklist-items");
+  var checklistStatus = document.getElementById("checklist-status");
+
+  function saveChecklist() {
+    try {
+      localStorage.setItem("study-room-checklist", JSON.stringify(checklist));
+      checklistStatus.textContent = "";
+    } catch (error) {
+      console.error("Could not save study checklist:", error);
+      checklistStatus.textContent = "Could not save your checklist on this device.";
+    }
+  }
+
+  function renderChecklist() {
+    checklistItems.replaceChildren();
+    checklist.forEach(function (task) {
+      var item = document.createElement("li");
+      item.classList.toggle("completed", task.done);
+      var label = document.createElement("label");
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = task.done;
+      checkbox.addEventListener("change", function () {
+        task.done = checkbox.checked;
+        item.classList.toggle("completed", task.done);
+        saveChecklist();
+      });
+      var text = document.createElement("span");
+      text.textContent = task.text;
+      label.append(checkbox, text);
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "checklist-remove";
+      remove.textContent = "\u00d7";
+      remove.setAttribute("aria-label", "Remove " + task.text);
+      remove.addEventListener("click", function () {
+        checklist = checklist.filter(function (entry) { return entry !== task; });
+        saveChecklist();
+        renderChecklist();
+        checklistInput.focus();
+      });
+      item.append(label, remove);
+      checklistItems.append(item);
+    });
+  }
+
+  try {
+    var storedChecklist = localStorage.getItem("study-room-checklist");
+    if (storedChecklist) {
+      var parsedChecklist = JSON.parse(storedChecklist);
+      if (!Array.isArray(parsedChecklist) || !parsedChecklist.every(function (task) {
+        return task && typeof task.text === "string" && task.text.trim() && typeof task.done === "boolean";
+      })) throw new Error("Invalid saved study checklist.");
+      checklist = parsedChecklist;
+    }
+  } catch (error) {
+    console.error("Could not load study checklist:", error);
+    checklistStatus.textContent = "Could not load your saved checklist.";
+  }
+  renderChecklist();
+  document.getElementById("checklist-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var text = checklistInput.value.trim();
+    if (!text) {
+      checklistInput.setCustomValidity("Enter a study goal.");
+      checklistInput.reportValidity();
+      return;
+    }
+    checklist.push({ text: text, done: false });
+    saveChecklist();
+    renderChecklist();
+    checklistInput.value = "";
+    checklistInput.focus();
+  });
+  checklistInput.addEventListener("input", function () { checklistInput.setCustomValidity(""); });
 
   // ===== Init =====
   window.studyRoomDocuments = Object.freeze({

@@ -12,11 +12,9 @@ function message(text, error = false) {
 }
 
 async function run(action) {
-  if (busy) {
-    message("Please wait for the current file to open.");
-    return;
-  }
+  if (busy) return;
   busy = true;
+  message("");
   $("library-panel").setAttribute("aria-busy", "true");
   try {
     await action();
@@ -32,16 +30,11 @@ async function run(action) {
 async function openNote(id) {
   const note = STUDY_NOTES.find(item => item.id === id);
   if (!note) throw new Error("Choose a Markdown file from the study library.");
-  if (documents.activateLibraryFile(note.id)) {
-    message("Opened your existing draft of " + note.name + ".");
-    return;
-  }
-  message("Opening " + note.name + "...");
+  if (documents.activateLibraryFile(note.id)) return;
   const response = await fetch(note.url, { cache: "no-cache", signal: AbortSignal.timeout(20000) });
   if (!response.ok) throw new Error("Could not load " + note.name + " (HTTP " + response.status + "). Please retry.");
   const raw = await response.text();
   documents.open(note.name, raw, note.id);
-  message("Opened " + note.name + ". Edits stay on this device; use Download to keep a copy.");
 }
 
 async function openLocalFiles(files) {
@@ -56,7 +49,7 @@ async function openLocalFiles(files) {
       documents.open(file.name, await file.text());
     }
   }
-  message(errors.length ? errors.join(" ") : "Local Markdown files opened. Edits stay on this device.", errors.length > 0);
+  if (errors.length) message(errors.join(" "), true);
 }
 
 for (const note of STUDY_NOTES) {
