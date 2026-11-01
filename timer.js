@@ -3,7 +3,17 @@ import { parseDuration, newTimer, restoreTimer, remainingTime, startTimer, pause
 const $ = id => document.getElementById(id);
 const KEY = "study-room-timer";
 const dialog = $("timer-finished");
+const presets = Array.from(document.querySelectorAll(".timer-preset"));
+const leftRail = document.querySelector(".left-rail");
+const panel = document.querySelector(".timer-panel");
 let state = newTimer(25 * 60 * 1000);
+
+function matchColumnHeight() {
+  const height = leftRail.getBoundingClientRect().bottom - $("library-panel").getBoundingClientRect().top;
+  panel.style.setProperty("--study-column-height", Math.ceil(height) + "px");
+}
+new ResizeObserver(matchColumnHeight).observe(leftRail);
+matchColumnHeight();
 
 function message(text, error = false) {
   $("timer-status").textContent = text;
@@ -27,6 +37,12 @@ function render() {
   $("timer-start").disabled = state.status === "running";
   $("timer-start").textContent = state.status === "paused" ? "Resume" : state.status === "finished" ? "Restart" : "Start";
   $("timer-pause").disabled = state.status !== "running";
+  for (const preset of presets) {
+    preset.disabled = locked;
+    preset.setAttribute("aria-pressed", String(Number(preset.dataset.minutes) * 60000 === state.durationMs));
+  }
+  const selected = presets.find(preset => Number(preset.dataset.minutes) * 60000 === state.durationMs);
+  $("timer-technique").textContent = selected ? selected.dataset.hint : "Your own session length.";
   if (state.status === "finished" && state.alertPending && !dialog.open) dialog.showModal();
 }
 
@@ -62,14 +78,24 @@ $("timer-pause").addEventListener("click", () => {
   persist();
   render();
 });
-$("timer-reset").addEventListener("click", () => {
-  state = newTimer(state.durationMs);
+function reset(durationMs) {
+  state = newTimer(durationMs);
   $("timer-minutes").value = String(Math.floor(state.durationMs / 60000));
   $("timer-seconds").value = String((state.durationMs / 1000) % 60);
   message("Ready");
   persist();
   render();
-});
+}
+$("timer-reset").addEventListener("click", () => reset(state.durationMs));
+for (const preset of presets) {
+  preset.addEventListener("click", () => {
+    try {
+      reset(parseDuration(preset.dataset.minutes, "0"));
+    } catch (error) {
+      message(error.message, true);
+    }
+  });
+}
 $("timer-dismiss").addEventListener("click", () => dialog.close());
 dialog.addEventListener("close", () => {
   state = { ...state, alertPending: false };

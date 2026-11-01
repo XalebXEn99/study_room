@@ -367,8 +367,20 @@ graph TD; A-->B; B-->C;
   <aside class="workspace-rail right-rail" aria-label="Study tools">
   <p id="study-quote" class="study-quote">Don't stop until you are proud.</p>
   <section class="timer-panel" aria-labelledby="timer-heading">
-    <h2 id="timer-heading">Study timer</h2>
-    <output id="timer-display" class="timer-display" aria-label="Time remaining">25:00</output>
+    <div class="timer-header">
+      <h2 id="timer-heading">Study timer</h2>
+      <p id="timer-status" class="library-status" role="status" aria-live="polite">Ready</p>
+    </div>
+    <div class="timer-readout">
+      <output id="timer-display" class="timer-display" aria-label="Time remaining">25:00</output>
+      <p id="timer-technique" class="timer-technique">Focus for 25 minutes, then select Break.</p>
+    </div>
+    <div class="timer-presets" role="group" aria-label="Study modes">
+      <button class="timer-preset" type="button" data-minutes="25" data-hint="Focus for 25 minutes, then select Break." aria-pressed="true"><span>Pomodoro</span><small>25 min focus</small></button>
+      <button class="timer-preset" type="button" data-minutes="20" data-hint="Explain a concept without notes. Review the gaps." aria-pressed="false"><span>Feynman</span><small>20 min explain</small></button>
+      <button class="timer-preset" type="button" data-minutes="50" data-hint="One task. No switching until the timer ends." aria-pressed="false"><span>Deep work</span><small>50 min focus</small></button>
+      <button class="timer-preset" type="button" data-minutes="5" data-hint="Step away from your screen." aria-pressed="false"><span>Break</span><small>5 min rest</small></button>
+    </div>
     <form id="timer-form" novalidate>
       <div class="timer-fields">
         <label for="timer-minutes">Minutes<input id="timer-minutes" type="number" min="0" max="1440" step="1" value="25" required /></label>
@@ -380,7 +392,6 @@ graph TD; A-->B; B-->C;
         <button id="timer-reset" type="button">Reset</button>
       </div>
     </form>
-    <p id="timer-status" class="library-status" role="status" aria-live="polite">Ready</p>
   </section>
   </aside>
   </div>

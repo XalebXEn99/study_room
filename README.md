@@ -11,7 +11,7 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
 - **Study files** -- Seven bundled maths exam notes can be clicked or dragged from the left panel into the editor. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
-- **Study timer** -- Set minutes and seconds in the right-hand study tools, then Start, Pause/Resume, or Reset. A full-screen "Hey your time is up!" overlay appears when the countdown ends.
+- **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Themes** -- Switch between four visual themes via the dropdown in the top right:
