@@ -25,6 +25,8 @@
 .streamplay-search { display: flex; gap: 6px; margin: 12px 0; }
 .streamplay-search input { width: 100%; min-width: 0; }
 .streamplay-connection { margin: 12px 0; font-size: 0.8rem; }
+.streamplay-steps { margin: 10px 0; padding-left: 1.2rem; line-height: 1.5; }
+.streamplay-steps li + li { margin-top: 5px; }
 .streamplay-connection form { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .streamplay-connection input { width: 100%; }
 .streamplay-connection textarea {

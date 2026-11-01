@@ -77,7 +77,7 @@
     }
     if (!(response.headers.get("content-type") || "").includes("application/json")) {
       get("local-setup").open = true;
-      throw new Error("Video needs a helper. Copy the launch command below and run it in your terminal.");
+      throw new Error("Run the command in Video setup first.");
     }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Bridge returned HTTP " + response.status);
@@ -334,7 +334,7 @@
     const command = get("launch-command");
     try {
       await navigator.clipboard.writeText(command.value);
-      message(status, "Command copied. Run it in your terminal; it will open the live page with the helper connected.");
+      message(status, "Copied. Paste into PowerShell in any folder.");
     } catch (error) {
       command.focus();
       command.select();
@@ -422,12 +422,12 @@
   async function checkBridge() {
     if (!bridgeUrl && location.hostname !== "127.0.0.1") {
       get("local-setup").open = true;
-      message(status, "To watch here, run the local helper using the command below. It opens this live website with a private connection.");
+      message(status, "Follow Video setup to start watching.");
       return;
     }
     const data = await api("status");
     get("local-setup").open = false;
-    message(status, data.searchConfigured ? "Search movies and series." : "Set TMDB_READ_TOKEN on the bridge for full search, or try Sintel.");
+    message(status, data.searchConfigured ? "Search movies and series." : "Demo only. Add a TMDB token to enable search.");
   }
   checkBridge().catch(error => message(status, error.message, true));
 })();

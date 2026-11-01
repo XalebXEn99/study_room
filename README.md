@@ -105,7 +105,8 @@ source, and that source does not return browser CORS permission.
 ### Local use
 
 **Recommended: keep the live GitHub Pages website and run a helper on the viewing
-computer.** In **Video > Run video on this computer**, copy:
+computer.** In **Video > Video setup**, copy the command and run it in PowerShell
+from **any folder**. You do not need to be in the project root:
 
 ```powershell
 npm exec --yes --package=https://github.com/XalebXEn99/study_room/archive/refs/heads/main.tar.gz -- study-room-helper
@@ -114,7 +115,8 @@ npm exec --yes --package=https://github.com/XalebXEn99/study_room/archive/refs/h
 Requires Node.js 22+ and permission to install/run npm packages. This downloads
 and executes this repository's current `main` branch, including its dependencies.
 The launcher must be committed and pushed there before this command is available.
-If you already have this checkout and dependencies, use `npm run helper`.
+If you already have this checkout and dependencies, use `npm run helper` from the
+project root instead.
 
 The helper optionally asks for your TMDB API Read Access Token (Enter skips full
 search), binds only to `127.0.0.1` on an available port, and opens the **live**

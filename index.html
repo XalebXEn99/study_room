@@ -352,20 +352,26 @@ graph TD; A-->B; B-->C;
       <h2 id="streamplay-heading">Video</h2>
       <button id="streamplay-collapse" type="button" aria-label="Collapse video search">&ndash;</button>
     </div>
-    <p class="streamplay-hint">StreamPlay provider: VidLink (experimental)</p>
+    <p class="streamplay-hint">Experimental playback</p>
     <details id="streamplay-local-setup" class="streamplay-connection">
-      <summary>Run video on this computer (no hosting)</summary>
-      <p>With Node.js 22+ installed, paste this command into your terminal. It downloads and runs Study Room's helper, then opens the live website. Only run it on a computer where you have permission.</p>
+      <summary>Video setup</summary>
+      <ul class="streamplay-steps">
+        <li>Install Node.js 22+ on a computer you can run it on.</li>
+        <li>Open PowerShell in <strong>any folder</strong>&mdash;not necessarily the project root.</li>
+        <li>Copy and run the command below.</li>
+        <li>Paste your TMDB Read Access Token when asked, or press Enter for the demo only.</li>
+        <li>Use the browser tab that opens. Allow local-network access if asked.</li>
+        <li>Keep PowerShell open while watching. Ctrl+C stops the helper.</li>
+      </ul>
       <textarea id="streamplay-launch-command" rows="4" readonly aria-label="Local helper launch command" spellcheck="false">npm exec --yes --package=https://github.com/XalebXEn99/study_room/archive/refs/heads/main.tar.gz -- study-room-helper</textarea>
-      <button id="streamplay-copy-command" type="button">Copy launch command</button>
-      <p>Keep the terminal open. Allow local-network access if prompted. Ctrl+C stops the helper. Full search needs your TMDB token; you can skip it to test Sintel. No hosted backend is needed. Managed browsers may block local connections.</p>
+      <button id="streamplay-copy-command" type="button">Copy command</button>
     </details>
     <details class="streamplay-connection">
-      <summary>Bridge connection</summary>
+      <summary>Advanced connection (optional)</summary>
       <form id="streamplay-connection">
-        <label for="streamplay-bridge-url">Bridge URL (HTTPS or paired http://127.0.0.1:port)</label>
+        <label for="streamplay-bridge-url">Server URL</label>
         <input id="streamplay-bridge-url" type="url" placeholder="https://your-bridge.example" />
-        <label for="streamplay-bridge-token">Bridge access token (this tab only)</label>
+        <label for="streamplay-bridge-token">Access token (this tab only)</label>
         <input id="streamplay-bridge-token" type="password" autocomplete="off" />
         <button type="submit">Connect</button>
       </form>
@@ -376,10 +382,13 @@ graph TD; A-->B; B-->C;
       <button type="submit">Search</button>
     </form>
     <p id="streamplay-status" class="streamplay-hint" role="status" aria-live="polite"></p>
-    <button id="streamplay-demo" type="button">Try Sintel (open film)</button>
+    <button id="streamplay-demo" type="button">Try Sintel demo</button>
     <div id="streamplay-results" class="streamplay-results" aria-label="Search results"></div>
-    <p class="streamplay-credit"><a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a> provides search metadata.
-      This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    <details class="streamplay-connection">
+      <summary>Credits</summary>
+      <p class="streamplay-credit">Movie data: <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>.
+        This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    </details>
   </aside>
   </section>
   <section class="media-slot youtube-slot" aria-label="YouTube">
