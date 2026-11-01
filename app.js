@@ -78,7 +78,7 @@
     text = stashMatches(text, INLINE_CODE_RE, code);
     text = stashMath(text, math);
     text = restoreStashed(text, code);
-    return injectMathSpans(marked.parse(text), math);
+    return DOMPurify.sanitize(injectMathSpans(marked.parse(text), math));
   }
 
   function injectMathSpans(html, math) {
@@ -156,10 +156,14 @@
   function saveState() {
     try {
       localStorage.setItem("md-files", JSON.stringify(files.map(function (f) {
-        return { id: f.id, name: f.name, raw: f.raw, theme: f.theme };
+        return { id: f.id, name: f.name, raw: f.raw, theme: f.theme, libraryId: f.libraryId };
       })));
       localStorage.setItem("md-active-id", String(activeFileId || ""));
-    } catch (e) {}
+      document.getElementById("document-status").textContent = "";
+    } catch (e) {
+      console.error("Could not save local document drafts:", e);
+      document.getElementById("document-status").textContent = "Local draft storage failed. Download your document to keep a copy.";
+    }
   }
 
   function loadState() {
@@ -179,16 +183,18 @@
     } catch (e) {}
   }
 
-  function addFile(name, raw) {
+  function addFile(name, raw, libraryId) {
+    flushActiveEdit();
     var id = nextId++;
     var html = renderMarkdown(raw);
     var active = getActiveFile();
     // New tabs inherit the active tab's theme; the first tab uses the last theme used
-    files.push({ id: id, name: name, raw: raw, html: html, theme: active ? active.theme : lastAppliedTheme });
+    files.push({ id: id, name: name, raw: raw, html: html, theme: active ? active.theme : lastAppliedTheme, libraryId: libraryId });
     activeFileId = id;
     saveState();
     renderTabs();
     showViewer();
+    return id;
   }
 
   function removeFile(id) {
@@ -341,7 +347,7 @@
     var mTheme = mermaidThemes[theme] || "default";
     if (mTheme !== currentMermaidTheme) {
       currentMermaidTheme = mTheme;
-      mermaid.initialize({ startOnLoad: false, theme: currentMermaidTheme, securityLevel: "loose" });
+      mermaid.initialize({ startOnLoad: false, theme: currentMermaidTheme, securityLevel: "strict" });
       if (getActiveFile()) {
         markdownOutput.innerHTML = getActiveFile().html;
         typesetMath(markdownOutput);
@@ -557,6 +563,17 @@
     settingsSavedMsg.classList.remove("hidden");
     setTimeout(function () { settingsSavedMsg.classList.add("hidden"); }, 2000);
   });
+  document.getElementById("reverse-text-btn").addEventListener("click", function () {
+    document.getElementById("reverse-output").value = Array.from(document.getElementById("reverse-input").value).reverse().join("");
+  });
+  function clearReverseText() {
+    document.getElementById("reverse-input").value = "";
+    document.getElementById("reverse-output").value = "";
+  }
+  settingsModalClose.addEventListener("click", clearReverseText);
+  settingsModal.addEventListener("click", function (event) {
+    if (event.target === settingsModal) clearReverseText();
+  });
 
   addTabBtn.addEventListener("click", function () { fileInput2.click(); });
   fileInput2.addEventListener("change", function () { handleFile(this.files[0]); this.value = ""; });
@@ -694,6 +711,20 @@
   // Full-playback logic lives in spotify.js (loaded after app.js).
 
   // ===== Init =====
+  window.studyRoomDocuments = Object.freeze({
+    active: function () {
+      var f = getActiveFile();
+      if (!f) return null;
+      return { id: f.id, name: f.name, raw: f.raw, libraryId: f.libraryId };
+    },
+    open: addFile,
+    activateLibraryFile: function (id) {
+      var existing = files.find(function (f) { return f.libraryId === id; });
+      if (!existing) return false;
+      switchFile(existing.id);
+      return true;
+    }
+  });
   var savedTheme = "default";
   try { savedTheme = localStorage.getItem("md-reader-theme") || "default"; } catch (e) {}
   var lastSavedGlobal = validThemes.indexOf(savedTheme) !== -1 ? savedTheme : "default";

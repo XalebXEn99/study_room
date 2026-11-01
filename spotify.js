@@ -3,7 +3,7 @@
 
   // ===== Study Room — Spotify full playback =====
   // Self-contained: OAuth (PKCE, no secret) + Web Playback SDK device +
-  // a corner-anchored panel that plays a pasted Spotify link. Premium only.
+  // a sidebar panel that plays a pasted Spotify link. Premium only.
   // Everything is client-side; tokens live in localStorage like the Gemini key.
 
   var AUTH_URL = "https://accounts.spotify.com/authorize";
@@ -256,6 +256,7 @@
     player.classList.remove("hidden");
     player.classList.remove("collapsed");
     pill.classList.add("hidden");
+    pill.setAttribute("aria-expanded", "true");
     refreshUI();
     if (urlInput && !urlInput.value) { var saved = read(K.url, ""); if (saved) urlInput.value = saved; }
   }
@@ -263,6 +264,7 @@
     player.classList.add("hidden");
     player.classList.remove("collapsed");
     pill.classList.remove("hidden");
+    pill.setAttribute("aria-expanded", "false");
   }
   function minimise() { closePanel(); }
 
@@ -286,6 +288,15 @@
     playContext(parsed.uri, parsed.kind);
   });
   urlInput.addEventListener("keydown", function (e) { if (e.key === "Enter") loadBtn.click(); });
+  document.getElementById("sp-saved").addEventListener("change", function () {
+    var link = document.getElementById("sp-saved-link");
+    link.classList.toggle("hidden", !this.value);
+    if (!this.value) { link.removeAttribute("href"); return; }
+    link.href = this.value;
+    urlInput.value = this.value;
+    openPanel();
+    loadBtn.click();
+  });
 
   // ===== Init =====
   function afterLogin() {

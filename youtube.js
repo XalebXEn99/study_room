@@ -6,7 +6,7 @@
   // YouTube's own iframe player, so skippable ads keep their native Skip
   // button. (We can't remove or auto-skip ads: it's a cross-origin embed and
   // that would also break YouTube's Terms of Service.)
-  // The panel stays anchored in the bottom-right corner.
+  // The panel has its own slot beneath the video library.
 
   var K = {
     url: "md-yt-url"
@@ -73,11 +73,13 @@
   function openPanel() {
     player.classList.remove("hidden");
     pill.classList.add("hidden");
+    pill.setAttribute("aria-expanded", "true");
     if (urlInput && !urlInput.value) { var saved = read(K.url, ""); if (saved) urlInput.value = saved; }
   }
   function closePanel() {
     player.classList.add("hidden");
     pill.classList.remove("hidden");
+    pill.setAttribute("aria-expanded", "false");
   }
 
   // ===== Wire controls =====
@@ -86,6 +88,15 @@
   clearBtn.addEventListener("click", clearFrame);
   loadBtn.addEventListener("click", function () { load(true); });
   urlInput.addEventListener("keydown", function (e) { if (e.key === "Enter") load(true); });
+  document.getElementById("yt-saved").addEventListener("change", function () {
+    var link = document.getElementById("yt-saved-link");
+    link.classList.toggle("hidden", !this.value);
+    if (!this.value) { link.removeAttribute("href"); return; }
+    link.href = this.value;
+    urlInput.value = this.value;
+    openPanel();
+    load(true);
+  });
 
   // ===== Init =====
   (function init() {
