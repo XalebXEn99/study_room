@@ -320,7 +320,8 @@
     "gd-victorian": { accent: "#70253e", dark: false },
     "gd-graffiti": { accent: "#c5ff57", dark: true },
     "gd-aurora": { accent: "#78efcf", dark: true },
-    "gd-handwritten": { accent: "#28518d", dark: false }
+    "gd-handwritten": { accent: "#28518d", dark: false },
+    "gd-90s-anime": { accent: "#923252", dark: false }
   };
   Object.keys(graphicThemes).forEach(function (theme) {
     var config = graphicThemes[theme];

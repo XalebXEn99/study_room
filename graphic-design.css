@@ -179,6 +179,15 @@ body[data-theme="gd-handwritten"] {
   --gd-pattern: repeating-linear-gradient(0deg, transparent 0 27px, #7d9bb526 27px 28px);
 }
 
+body[data-theme="gd-90s-anime"] {
+  --sp-surface: #fff6e8; --sp-text: #28354d; --sp-border: #66718c; --sp-accent: #923252;
+  --gd-canvas: #d3cadf; --gd-radius: 10px 16px 10px 6px; --gd-border-width: 2px;
+  --gd-font: "Outfit", sans-serif; --gd-display: "Bree Serif", Georgia, serif;
+  --gd-inset: #f2e7dd; --gd-shadow: 3px 4px 0 #8991ad80, inset 0 1px 0 #fffdf5;
+  --gd-pattern: url("assets/themes/90s-anime-sky.svg"); --gd-pattern-size: cover;
+  background-position: center; background-repeat: no-repeat;
+}
+
 body:is([data-theme="gd-cyberpunk"], [data-theme="gd-glassmorphism"], [data-theme="gd-pixel-art"], [data-theme="gd-graffiti"], [data-theme="gd-aurora"]) {
   --gd-scheme: dark; --gd-on-accent: #10131c; --sp-error: #ff9b94;
 }
@@ -318,6 +327,26 @@ body[data-theme="gd-handwritten"] .editor-input {
   line-height: 28px;
 }
 body[data-theme="gd-handwritten"] .markdown-body h1 { border-bottom-style: dashed; }
+
+body[data-theme="gd-90s-anime"] :is(.site-brand, .markdown-body h1) {
+  letter-spacing: 0.015em; text-shadow: 1px 2px 0 #edc59d;
+}
+body[data-theme="gd-90s-anime"] .markdown-body h1 {
+  border-bottom: 3px double var(--sp-accent); padding-bottom: 0.4rem;
+}
+body[data-theme="gd-90s-anime"] :is(.library-heading, .editor-bar, .modal-header) {
+  background-image: linear-gradient(180deg, #fffdf4, #f4e5d3);
+}
+body[data-theme="gd-90s-anime"] .study-quote {
+  color: #70415a; background: var(--sp-surface); opacity: 1; border-radius: var(--gd-radius);
+}
+body[data-theme="gd-90s-anime"] .timer-display { text-shadow: 2px 2px 0 #edc59d; }
+body[data-theme="gd-90s-anime"] .markdown-body blockquote {
+  border-left-width: 4px; border-radius: 0 8px 8px 0;
+}
+body[data-theme="gd-90s-anime"] :is(.library-download, .timer-preset[aria-pressed="true"]) {
+  box-shadow: 2px 2px 0 #c4b3bc;
+}
 
 @media (max-width: 760px) {
   body[data-theme-family="graphic-design"] .markdown-body { padding: 1.25rem; }

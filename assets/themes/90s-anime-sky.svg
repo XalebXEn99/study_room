@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1000" fill="none">
+  <title>Original painted-sky-inspired dusk cityscape</title>
+  <defs>
+    <linearGradient id="sky" x1="720" y1="0" x2="720" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#abb8d8"/>
+      <stop offset=".35" stop-color="#d8c5dc"/>
+      <stop offset=".68" stop-color="#f2c9b0"/>
+      <stop offset="1" stop-color="#9daec5"/>
+    </linearGradient>
+    <radialGradient id="sun-glow" cx="0" cy="0" r="1" gradientTransform="translate(1120 260) scale(210)">
+      <stop stop-color="#fff2cf" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#f4c5b0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cloud-light" x1="0" y1="150" x2="0" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff5e5"/>
+      <stop offset="1" stop-color="#e7c5d0"/>
+    </linearGradient>
+    <linearGradient id="hills" x1="720" y1="640" x2="720" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9aa8bb"/>
+      <stop offset="1" stop-color="#758b9f"/>
+    </linearGradient>
+    <pattern id="windows" width="20" height="26" patternUnits="userSpaceOnUse">
+      <rect x="6" y="6" width="7" height="10" rx="1" fill="#edcea6" opacity=".38"/>
+    </pattern>
+    <filter id="paper-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="2" seed="17"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1440v1000H0z"/>
+  <circle cx="1120" cy="260" r="210" fill="url(#sun-glow)"/>
+  <circle cx="1120" cy="260" r="67" fill="#fff0c6" opacity=".9"/>
+  <g fill="url(#cloud-light)">
+    <path d="M-45 223c34-27 56-16 76-29 12-8 8-32 42-38 30-6 40 16 60 12 27-5 30-43 75-39 35 3 36 26 57 29 27 4 32-17 58-7 26 10 12 32 44 37 35 5 49-6 75 20 22 22 54 7 75 35-124 20-240-1-347 9-92 9-150-5-215-29Z" opacity=".78"/>
+    <path d="M698 174c29-12 40 0 58-13 19-14 16-27 45-27 30 0 25 20 49 22 28 2 45-13 70 6 21 16 13 25 39 29 44 6 57-13 91 20-123 16-239 3-352-8-21-2-23-18 0-29Z" opacity=".57"/>
+    <path d="M954 407c34-16 45-4 66-13 22-9 18-35 51-40 42-7 42 21 70 22 29 1 43-25 76-13 35 13 24 35 62 41 40 6 52-4 86 15 34 19 77-3 114 22-135 18-270-2-395 2-54 2-143-15-130-36Z" opacity=".65"/>
+    <path d="M143 462c56-16 100 1 153-5 48-5 69-16 113-3 29 8 44-1 69 10-117 12-221 8-335-2Z" opacity=".55"/>
+  </g>
+  <g fill="#fff6e7" opacity=".3">
+    <path d="M48 208c71-7 116 4 185-2 65-6 121 2 155 13-128 4-220 6-340-11Z"/>
+    <path d="M1007 406c88-7 154 8 227 2 52-4 99 1 149 16-126-2-251 10-376-18Z"/>
+  </g>
+  <path d="M0 722c92-7 132-65 226-54 92 11 118 65 218 38 78-21 113-77 213-64 93 12 152 64 238 51 103-16 134-54 241-28 104 26 196 9 304 35v300H0Z" fill="url(#hills)" opacity=".64"/>
+  <path d="M0 794c185-44 270 14 414-12 157-29 269-1 410-9 194-12 386-33 616 9v218H0Z" fill="#8696aa" opacity=".4"/>
+  <g fill="#7b879f" opacity=".48">
+    <path d="M0 850h72v-70h86v70h51v-39h77v59h67v-99h100v99h81v-50h90v63h87v-93h114v93h63v-48h101v58h46v-113h85v113h64v-69h73v69h101v-94h70v106h39v100H0Z"/>
+  </g>
+  <g stroke="#56677f" stroke-width="2">
+    <path d="M58 1000V784h127v216" fill="#74859a"/>
+    <path d="M58 784h127l-12-17H70Z" fill="#8997a7"/>
+    <path d="M221 1000V861l86-52 86 52v139" fill="#8796a6"/>
+    <path d="m212 864 95-61 95 61" stroke-width="5"/>
+    <path d="M482 1000V750h107v250" fill="#7d8ca3"/>
+    <path d="M475 750h121v-14H475Z" fill="#a3a4b0"/>
+    <path d="M743 1000V827h145v173" fill="#8993a9"/>
+    <path d="M927 1000V791h115v209" fill="#72879c"/>
+    <path d="M1156 1000V729h160v271" fill="#78849d"/>
+    <path d="M1156 729h160v-13h-160Z" fill="#a3a3b1"/>
+  </g>
+  <g fill="url(#windows)">
+    <path d="M67 801h107v190H67zM494 766h82v227h-82zM756 841h117v152H756zM940 805h89v188h-89zM1170 744h132v249h-132z"/>
+  </g>
+  <g stroke="#68738c" stroke-width="2" opacity=".8">
+    <path d="M516 734v-36m-25 9h50m-44 12h39M1237 716v-53m-29 13h57m-49 14h41"/>
+  </g>
+  <g stroke="#586479" stroke-linecap="round" opacity=".56">
+    <path d="M105 1000 133 35" stroke-width="6"/>
+    <path d="m109 111 84 4m-80-31 87 4" stroke-width="5"/>
+    <path d="M-30 71c321 150 755 154 1504 82M-30 91c335 159 782 162 1504 81M-30 124c344 156 795 170 1504 69" stroke-width="1.6"/>
+    <path d="M-30 212c328 180 826 181 1504 10" stroke-width="1.2" opacity=".65"/>
+  </g>
+  <path fill="#28354d" opacity=".035" filter="url(#paper-grain)" d="M0 0h1440v1000H0z"/>
+</svg>

@@ -35,6 +35,7 @@ test("serves the real application and exposes explicit search setup status", asy
   assert.match(html, /id="library-sdp-notes"[^>]*aria-label="SDP study notes"/);
   assert.match(html, /id="timer-floating"/);
   assert.match(html, /id="motivation-dialog"/);
+  assert.match(html, /data-family="graphic-design"[\s\S]*data-theme="gd-90s-anime"/);
   assert.doesNotMatch(html, /streamplay-(?:panel|dialog)|streamplay\.(?:js|css)/);
   assert.equal((await get("/streamplay.js")).status, 404);
   assert.equal((await get("/streamplay.css")).status, 404);
@@ -42,7 +43,14 @@ test("serves the real application and exposes explicit search setup status", asy
   const graphicStyles = await get("/graphic-design.css");
   assert.equal(graphicStyles.status, 200);
   assert.match(graphicStyles.headers.get("content-type"), /text\/css/);
-  assert.match(await graphicStyles.text(), /data-theme="gd-handwritten"/);
+  const css = await graphicStyles.text();
+  assert.match(css, /data-theme="gd-handwritten"/);
+  assert.match(css, /data-theme="gd-90s-anime"/);
+  assert.match(css, /assets\/themes\/90s-anime-sky\.svg/);
+  const animeSky = await get("/assets/themes/90s-anime-sky.svg");
+  assert.equal(animeSky.status, 200);
+  assert.match(animeSky.headers.get("content-type"), /image\/svg\+xml/);
+  assert.match(await animeSky.text(), /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
   for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js", "/motivation.js", "/motivation-data.js"]) {
     const asset = await get(path);
     assert.equal(asset.status, 200);

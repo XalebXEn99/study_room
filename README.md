@@ -14,10 +14,10 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Study files** -- Seven maths exam notes and an SDP exam tips note can be clicked or dragged from the left panel into the editor. The SDP note includes design/development links, an AI security checklist, and a Docker lab revision guide. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
 - **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
-- **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
+- **Saved media** -- YouTube contains only the SDP - Software Development Party playlist; the earlier individual videos have been removed. The three Spotify playlists are unchanged. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Compact players** -- Music and YouTube switch to player-only views after media loads. The up arrow expands settings; the down arrow returns to the player. Minus minimises to the corner button without unloading media. With nothing loaded, opening a player shows its setup controls.
 - **Icon-only media buttons** -- Music and YouTube use compact corner icons with accessible labels and tooltips. While Spotify reports active playback, an animated equalizer replaces the music icon and appears beside the track title in the open player. It stops on pause, playback loss/errors or logout; reduced-motion users get a static indicator. This is a playback indicator, not an audio-frequency visualizer.
-- **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 20 new styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora and Handwritten. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
+- **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 21 styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora, Handwritten and **90s Anime**. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
   - Visual references: [Kittl's design-style guide](https://www.kittl.com/blogs/design-styles-name-stl/) and [Nielsen Norman Group on glassmorphism](https://www.nngroup.com/articles/glassmorphism/). Decorative typography stays in headings, source code and maths retain their own fonts, and backgrounds do not move the study layout.
 - **AI Text Analysis** -- Highlight any text in the rendered Markdown and click "Ask AI" to ask questions about the selection (powered by Google Gemini)
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
@@ -26,6 +26,21 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Workspace Panels** -- Study files and the checklist sit on the left; the timer sits on the right, aligned with Edit/Preview on desktop. Music stays within the sidebar width in the bottom-left corner and YouTube stays in the bottom-right, including while scrolling. Both players start collapsed, use the active theme and have bounded heights. Narrow screens keep them side by side at reduced widths.
 
 For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
+
+### 90s Anime design research
+
+This theme is a quiet dusk interpretation of 1990s cel-animation craft, not a
+claim that every anime of the period used the same palette.
+
+- [Loppo's cel-painting explanation](https://loppo.co.jp/en/artcel) describes painted transparent layers placed over backgrounds and photographed. The UI translates this into opaque cream surfaces, ink outlines and offset cel-like shadows.
+- [Ghibli Museum's colour-design exhibition](https://www.ghibli-museum.jp/en/exhibitions/013128/) explains colour choices through lighting, weather and material. The theme separates warm reading paper, navy ink, rose accents and a cool-to-warm dusk sky.
+- [James Gurney's analysis of Kazuo Oga's painting process](https://gurneyjourney.blogspot.com/2017/03/demo-by-kazuo-oga.html) describes soft wet-blended atmospheric passages followed by fine detail. The original [dusk artwork](assets/themes/90s-anime-sky.svg) combines softly layered clouds with hills, buildings and utility lines.
+
+The backdrop and its faint grain are decorative only. Text, code and maths
+remain sharp on solid surfaces: there is no VHS distortion or scanline overlay
+on reading content. The SVG is original artwork, with no copied anime stills,
+logos or characters. The existing fixed players and floating timer keep their
+normal positions.
 
 ## AI Setup
 

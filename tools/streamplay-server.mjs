@@ -18,6 +18,7 @@ const FILES = new Map([
   ...MOTIVATION_QUOTES.map(quote => ["/" + quote.audio, [quote.audio, "audio/mpeg"]]),
   ["/style.css", ["style.css", "text/css"]],
   ["/graphic-design.css", ["graphic-design.css", "text/css"]],
+  ["/assets/themes/90s-anime-sky.svg", [join("assets", "themes", "90s-anime-sky.svg"), "image/svg+xml"]],
   ["/hls.min.js", ["node_modules\\hls.js\\dist\\hls.min.js", "text/javascript"]]
 ]);
 const SINTEL = {

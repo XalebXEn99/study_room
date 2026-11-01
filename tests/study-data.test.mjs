@@ -41,11 +41,12 @@ test("the book download is a complete ZIP release asset, not a local machine pat
   assert.equal(BOOK_DOWNLOAD.name, "os-book.zip");
 });
 
-test("saved YouTube entries match the supplied video IDs with no duplicate URL", () => {
+test("saved YouTube entries contain only the requested SDP playlist", () => {
   assert.deepEqual(YOUTUBE_COLLECTION.map(item => item.url), [
-    "https://youtu.be/C_Ch61m-PUs", "https://youtu.be/r0QEhffS8WE",
-    "https://youtu.be/kWkea7Vjp9I", "https://youtu.be/NNt8FeJcEJQ"
+    "https://www.youtube.com/playlist?list=PLek4jWKl7ylE"
   ]);
+  assert.equal(YOUTUBE_COLLECTION.length, 1);
+  assert.equal(YOUTUBE_COLLECTION.at(-1).title, "SDP - Software Development Party");
 });
 
 test("saved Spotify entries match all three supplied playlist IDs", () => {

@@ -25,10 +25,7 @@ export const BOOK_DOWNLOAD = {
 };
 
 export const YOUTUBE_COLLECTION = [
-  { title: "Tekken movie", url: "https://youtu.be/C_Ch61m-PUs" },
-  { title: "Streetfighter movie", url: "https://youtu.be/r0QEhffS8WE" },
-  { title: "Devil May Cry (2007)", url: "https://youtu.be/kWkea7Vjp9I" },
-  { title: "Hellsing (2001)", url: "https://youtu.be/NNt8FeJcEJQ" }
+  { title: "SDP - Software Development Party", url: "https://www.youtube.com/playlist?list=PLek4jWKl7ylE" }
 ];
 
 export const SPOTIFY_COLLECTION = [
