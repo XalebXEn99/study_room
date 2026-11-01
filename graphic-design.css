@@ -183,7 +183,7 @@ body:is([data-theme="gd-cyberpunk"], [data-theme="gd-glassmorphism"], [data-them
   --gd-scheme: dark; --gd-on-accent: #10131c; --sp-error: #ff9b94;
 }
 
-body[data-theme-family="graphic-design"] :is(.library-panel, .timer-panel, .checklist-panel, .markdown-body, .editor-input, .editor-bar, .spotify-player, .youtube-player, .modal, .theme-menu) {
+body[data-theme-family="graphic-design"] :is(.library-panel, .timer-panel, .timer-floating, .checklist-panel, .markdown-body, .editor-input, .editor-bar, .spotify-player, .youtube-player, .modal, .theme-menu) {
   color: var(--sp-text);
   background: var(--sp-surface);
   border: var(--gd-border-width) var(--gd-border-style) var(--sp-border);

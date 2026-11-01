@@ -36,6 +36,13 @@ a:hover { text-decoration: underline; }
   letter-spacing: -0.03em; color: inherit;
 }
 .site-brand svg { flex-shrink: 0; }
+.brand-book {
+  display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px;
+  padding: 4px; color: inherit; background: transparent; border: 0; border-radius: 8px; cursor: pointer;
+  transition: transform 0.15s;
+}
+.brand-book:hover { transform: rotate(-6deg); }
+.brand-book:focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 3px; }
 /* ===== Study library and timer ===== */
 .library-panel, .timer-panel, .checklist-panel {
   width: 100%; display: flex; flex-direction: column; min-width: 0;
@@ -72,7 +79,7 @@ a:hover { text-decoration: underline; }
   display: flex; align-items: center; justify-content: center;
   min-height: 40px; margin: 0; padding: 0 0.5rem;
   font-family: "Lora", Georgia, serif; font-size: 0.95rem; font-style: italic;
-  line-height: 1.5; text-align: center; opacity: 0.75;
+  line-height: 1.3; text-align: center; opacity: 0.75;
 }
 .library-panel :focus-visible, .timer-panel :focus-visible, .checklist-panel :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 2px; }
 .settings-text { display: block; width: 100%; margin-block: 0.5rem; padding: 0.6rem; color: var(--sp-text); background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: 6px; font: 0.85rem ui-monospace, monospace; resize: vertical; }
@@ -107,6 +114,65 @@ a:hover { text-decoration: underline; }
 .timer-alert { display: flex; min-height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; text-align: center; }
 .timer-alert h2 { font-size: clamp(2rem, 6vw, 4.5rem); line-height: 1.2; }
 .timer-alert button { padding: 0.8rem 2rem; }
+.timer-panel { scroll-margin-top: 1rem; }
+.timer-floating {
+  position: fixed; top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right)); z-index: 80;
+  display: flex; align-items: center; gap: 1rem; max-width: calc(100vw - 2rem); padding: 0.65rem 0.9rem;
+  color: var(--sp-text, #1f2328); background: var(--sp-surface, #fff);
+  border: 1px solid var(--sp-border, #d0d7de); border-radius: var(--sp-radius, 10px);
+  box-shadow: 0 4px 20px #0002; font: inherit; text-align: left; cursor: pointer;
+}
+.timer-floating-label { display: grid; gap: 0.1rem; font-size: 0.7rem; font-weight: 600; }
+.timer-floating-label > span { font-size: 0.65rem; font-weight: 400; opacity: 0.75; }
+.timer-floating-display { font: 600 1.25rem ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
+.timer-floating[data-status="running"] { border-color: var(--sp-accent, #0969da); }
+.timer-floating:focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 3px; }
+
+.motivation-dialog {
+  width: min(580px, calc(100vw - 1rem)); max-width: none; max-height: calc(100dvh - 1rem);
+  margin: auto; padding: 0.75rem 1rem 1.25rem; border: 0; background: transparent; color: var(--sp-text, #1f2328);
+}
+.motivation-dialog::backdrop { background: #101528a8; backdrop-filter: blur(4px); }
+.motivation-comic {
+  padding: clamp(1rem, 4vw, 1.75rem); border: 3px solid var(--sp-text, #1f2328);
+  border-radius: 12px 24px 16px 10px; box-shadow: 7px 8px 0 var(--sp-accent, #0969da);
+  background: radial-gradient(var(--sp-border, #d0d7de) 1px, transparent 1px) 0 0 / 9px 9px, var(--sp-surface, #fff);
+}
+.motivation-header { display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; }
+.motivation-kicker { font-family: inherit; font-size: 0.65rem; font-weight: 600; line-height: 1.5; letter-spacing: 0.06em; text-transform: uppercase; }
+.motivation-kicker > span { white-space: nowrap; margin-left: 0.3rem; }
+.motivation-header h2 { font: 400 clamp(2rem, 6vw, 3rem)/1.1 "Bangers", Impact, sans-serif; letter-spacing: 0.04em; margin-top: 0.3rem; }
+.motivation-close {
+  display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; padding: 0;
+  color: inherit; background: var(--sp-surface, #fff); border: 2px solid currentColor; border-radius: 50%;
+  font: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.motivation-bubble {
+  position: relative; margin: 1.5rem 0 2rem; padding: clamp(1rem, 4vw, 1.6rem);
+  border: 3px solid currentColor; border-radius: 30px 28px 28px 8px;
+  color: inherit; background: var(--sp-surface, #fff);
+  font: 400 clamp(1.35rem, 4vw, 1.8rem)/1.4 "Patrick Hand", cursive; overflow-wrap: anywhere;
+}
+.motivation-bubble::after {
+  content: ""; position: absolute; bottom: -16px; left: 28px; width: 23px; height: 24px;
+  border-left: 3px solid currentColor; border-bottom: 3px solid currentColor;
+  background: var(--sp-surface, #fff); transform: skewY(-32deg);
+}
+.motivation-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.motivation-actions button {
+  padding: 0.55rem 0.75rem; color: inherit; background: var(--sp-surface, #fff);
+  border: 2px solid currentColor; border-radius: 6px; box-shadow: 2px 2px 0 currentColor;
+  font: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+}
+.motivation-actions button:first-child { color: var(--sp-surface, #fff); background: var(--sp-text, #1f2328); border-color: var(--sp-text, #1f2328); }
+.motivation-actions button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.motivation-credit { margin-top: 1rem; font-size: 0.65rem; opacity: 0.8; }
+.motivation-credit a { color: inherit; text-decoration: underline; }
+.motivation-dialog :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .brand-book { transition: none; }
+  .brand-book:hover { transform: none; }
+}
 .saved-media { display: grid; gap: 0.4rem; padding: 0 0.75rem 0.8rem; font-size: 0.74rem; }
 .saved-media label { opacity: 0.75; }
 .saved-media a { color: var(--sp-accent); }

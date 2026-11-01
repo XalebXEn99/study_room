@@ -6,7 +6,19 @@ const dialog = $("timer-finished");
 const presets = Array.from(document.querySelectorAll(".timer-preset"));
 const leftRail = document.querySelector(".left-rail");
 const panel = document.querySelector(".timer-panel");
+const floating = $("timer-floating");
 let state = newTimer(25 * 60 * 1000);
+
+new IntersectionObserver(([entry]) => {
+  floating.classList.toggle("hidden", entry.isIntersecting && entry.intersectionRatio >= 1);
+}, { threshold: [0, 1] }).observe($("timer-display"));
+floating.addEventListener("click", () => {
+  panel.scrollIntoView({
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    block: "start"
+  });
+  $("timer-heading").focus({ preventScroll: true });
+});
 
 function matchColumnHeight() {
   const height = leftRail.getBoundingClientRect().bottom - $("library-panel").getBoundingClientRect().top;
@@ -30,7 +42,13 @@ function persist() {
 }
 
 function render() {
-  $("timer-display").textContent = formatTime(remainingTime(state, Date.now()));
+  const time = formatTime(remainingTime(state, Date.now()));
+  $("timer-display").textContent = time;
+  $("timer-floating-display").textContent = time;
+  $("timer-floating-status").textContent = {
+    idle: "Ready", running: "Running", paused: "Paused", finished: "Time is up!"
+  }[state.status];
+  floating.dataset.status = state.status;
   const locked = state.status === "running" || state.status === "paused";
   $("timer-minutes").disabled = locked;
   $("timer-seconds").disabled = locked;

@@ -20,10 +20,12 @@
   <div class="workspace">
   <aside class="workspace-rail left-rail" aria-label="Study files and media">
   <div class="site-brand" aria-label="Study Room">
+    <button id="motivation-open" class="brand-book" type="button" aria-label="A little encouragement" aria-haspopup="dialog" aria-controls="motivation-dialog" title="A little encouragement">
     <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M16 8c-4-3-9-3-13-1v20c4-2 9-2 13 1 4-3 9-3 13-1V7c-4-2-9-2-13 1z"/>
       <path d="M16 8v20M7 12c2-.5 4-.2 6 .7M7 17c2-.5 4-.2 6 .7M19 12.7c2-.9 4-1.2 6-.7M19 17.7c2-.9 4-1.2 6-.7"/>
     </svg>
+    </button>
     <span>Study Room</span>
   </div>
   <aside id="library-panel" class="library-panel" aria-label="Study files">
@@ -412,7 +414,7 @@ graph TD; A-->B; B-->C;
   <p id="study-quote" class="study-quote">Don't stop until you are proud.</p>
   <section class="timer-panel" aria-labelledby="timer-heading">
     <div class="timer-header">
-      <h2 id="timer-heading">Study timer</h2>
+      <h2 id="timer-heading" tabindex="-1">Study timer</h2>
       <p id="timer-status" class="library-status" role="status" aria-live="polite">Ready</p>
     </div>
     <div class="timer-readout">
@@ -440,6 +442,32 @@ graph TD; A-->B; B-->C;
   </aside>
   </div>
 
+  <button id="timer-floating" class="timer-floating hidden" type="button" aria-label="Return to study timer" aria-describedby="timer-floating-status timer-floating-display" title="Back to study timer">
+    <span class="timer-floating-label">Study timer <span id="timer-floating-status">Ready</span></span>
+    <span id="timer-floating-display" class="timer-floating-display">25:00</span>
+  </button>
+
+  <dialog id="motivation-dialog" class="motivation-dialog" aria-labelledby="motivation-heading" aria-describedby="motivation-text">
+    <div class="motivation-comic">
+      <div class="motivation-header">
+        <div>
+          <p class="motivation-kicker">A little encouragement <span id="motivation-count" aria-hidden="true"></span></p>
+          <h2 id="motivation-heading">You've got this!</h2>
+        </div>
+        <button id="motivation-close" class="motivation-close" type="button" aria-label="Close encouragement" autofocus>&times;</button>
+      </div>
+      <p id="motivation-text" class="motivation-bubble" role="status" aria-live="polite"></p>
+      <div class="motivation-actions">
+        <button id="motivation-next" type="button">One more &#8594;</button>
+        <button id="motivation-replay" type="button">Replay voice</button>
+        <button id="motivation-voice" type="button" aria-pressed="true">Voice on</button>
+      </div>
+      <p id="motivation-status" class="library-status error" role="status" aria-live="polite"></p>
+      <p class="motivation-credit">AI voice: Sam Sumit &middot; <a href="https://elevenlabs.io/" target="_blank" rel="noopener noreferrer">elevenlabs.io</a></p>
+      <audio id="motivation-audio" preload="none" title="Study encouragement | elevenlabs.io"></audio>
+    </div>
+  </dialog>
+
   <dialog id="timer-finished" class="timer-finished" aria-labelledby="timer-finished-heading">
     <div class="timer-alert">
       <h2 id="timer-finished-heading">Hey your time is up!</h2>
@@ -452,6 +480,7 @@ graph TD; A-->B; B-->C;
   <script src="app.js"></script>
   <script type="module" src="library.js"></script>
   <script type="module" src="timer.js"></script>
+  <script type="module" src="motivation.js"></script>
   <script src="spotify.js"></script>
   <script src="youtube.js"></script>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>

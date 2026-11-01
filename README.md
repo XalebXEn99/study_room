@@ -7,7 +7,8 @@ Live at: **https://xalebxen99.github.io/study_room/**
 ## Features
 
 - **Blank Editor** -- Start writing immediately in an empty document, with a quiet placeholder instead of a central title or upload box. New documents and closing the last tab also return to a blank editor.
-- **Study quotes** -- Four motivational quotes rotate every 12 seconds above the timer in an italic serif font. Rotation pauses while the tab is hidden.
+- **Study quotes** -- 24 motivational messages rotate every 12 seconds above the timer in an italic serif font. Rotation pauses while the tab is hidden and never starts audio.
+- **Book encouragement** -- Click the book beside the logo for a comic-style speech bubble and a matching Sam Sumit - Calm & Friendly recording from ElevenLabs. One more works through a shuffled deck without repeating until all 24 messages have been shown. Replay voice repeats the current recording; Voice on/off is saved on this device. Closing the popup, pressing Escape or leaving the tab stops its voice.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
 - **Study files** -- Seven maths exam notes and an SDP exam tips note can be clicked or dragged from the left panel into the editor. The SDP note includes design/development links, an AI security checklist, and a Docker lab revision guide. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
@@ -81,6 +82,27 @@ reloads do not restart the countdown. Timer state is local to this browser.
 Keep the site open: if it is closed or suspended, the completion overlay appears
 when the page next opens or resumes. Dismiss (or Escape) closes the full-screen
 "Hey your time is up!" message. It does not navigate away or discard documents.
+
+When the main countdown scrolls out of view, a small top-right timer shows the
+same remaining time and Ready/Running/Paused/finished state. Click it to return
+to the timer controls. It disappears when the full countdown is visible again;
+it does not create a second timer or announce every tick to screen readers.
+
+## Encouragement recordings
+
+The 24 recordings in `assets/motivation/` use the selected **Sam Sumit - Calm &
+Friendly** ElevenLabs voice. Playback uses bundled MP3 files; no ElevenLabs API
+key, account token, live synthesis request or recurring generation cost is
+needed by visitors. Only opening the book popup, choosing One more, Replay
+voice or enabling the voice can start a recording. Music and YouTube are not
+restarted or unloaded by the popup.
+
+Attribution is shown in the popup and included in each recording's title.
+Treat these bundled recordings as **non-commercial** and retain the
+`elevenlabs.io` attribution. Do not assume the site licence grants commercial
+rights to the voice or recordings; obtain appropriate rights and regenerate
+recordings under a suitable licence before commercial reuse.
+See [ElevenLabs' publication terms](https://elevenlabs.io/docs/help-center/legal/can-i-publish-the-content-i-generate-on-the-platform).
 
 ## Tech Stack
 

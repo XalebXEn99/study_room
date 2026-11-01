@@ -4,6 +4,7 @@ import { once } from "node:events";
 import { createBridge } from "../tools/streamplay-server.mjs";
 import { isPublicIpv4, validatePublicUrl } from "../tools/public-fetch.mjs";
 import { STUDY_NOTES } from "../study-data.js";
+import { MOTIVATION_QUOTES } from "../motivation-data.js";
 
 async function bridge(t, settings = {}) {
   const server = createBridge({ tmdbToken: "", ...settings });
@@ -32,6 +33,8 @@ test("serves the real application and exposes explicit search setup status", asy
   assert.match(html, /checklist-panel/);
   assert.match(html, /id="library-notes"[^>]*aria-label="Maths study notes"/);
   assert.match(html, /id="library-sdp-notes"[^>]*aria-label="SDP study notes"/);
+  assert.match(html, /id="timer-floating"/);
+  assert.match(html, /id="motivation-dialog"/);
   assert.doesNotMatch(html, /streamplay-(?:panel|dialog)|streamplay\.(?:js|css)/);
   assert.equal((await get("/streamplay.js")).status, 404);
   assert.equal((await get("/streamplay.css")).status, 404);
@@ -40,11 +43,15 @@ test("serves the real application and exposes explicit search setup status", asy
   assert.equal(graphicStyles.status, 200);
   assert.match(graphicStyles.headers.get("content-type"), /text\/css/);
   assert.match(await graphicStyles.text(), /data-theme="gd-handwritten"/);
-  for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js"]) {
+  for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js", "/motivation.js", "/motivation-data.js"]) {
     const asset = await get(path);
     assert.equal(asset.status, 200);
     assert.match(asset.headers.get("content-type"), /javascript/);
   }
+  const voice = await get("/" + MOTIVATION_QUOTES[0].audio);
+  assert.equal(voice.status, 200);
+  assert.match(voice.headers.get("content-type"), /audio\/mpeg/);
+  assert.equal(Buffer.from(await voice.arrayBuffer()).toString("ascii", 0, 3), "ID3");
   const status = await (await get("/api/status")).json();
   assert.equal(status.searchConfigured, false);
   assert.equal((await get("/api/search?q=Sintel")).status, 503);
