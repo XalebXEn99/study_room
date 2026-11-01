@@ -6,6 +6,7 @@ Live at: **https://xalebxen99.github.io/study_room/**
 
 ## Features
 
+- **Blank Editor** -- Start writing immediately in an empty document, with a quiet placeholder instead of a central title or upload box. New documents and closing the last tab also return to a blank editor.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
 - **Study files** -- Seven bundled maths exam notes can be clicked or dragged from the left panel into the editor. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
@@ -35,8 +36,8 @@ The AI feature uses the Google Gemini API (free tier).
 
 ## Usage
 
-1. Open the app
-2. Drag a `.md` file onto the drop zone or click "Browse files"
+1. Open the app and start writing, or choose a note from Study files
+2. Drag a `.md` file into the centre or use the file picker in the left panel
 3. The file renders with full GitHub-style Markdown formatting
 4. Use the theme dropdown (top right) to switch visual themes
 5. Open additional files with the + button next to your tabs

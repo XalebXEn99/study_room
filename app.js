@@ -111,10 +111,7 @@
   }
 
   var tabBar = document.getElementById("tab-bar");
-  var uploadScreen = document.getElementById("upload-screen");
   var viewerScreen = document.getElementById("viewer-screen");
-  var dropZone = document.getElementById("drop-zone");
-  var fileInput = document.getElementById("file-input");
   var markdownOutput = document.getElementById("markdown-output");
   var themeToggle = document.getElementById("theme-toggle");
   var themeMenu = document.getElementById("theme-menu");
@@ -211,7 +208,7 @@
       showViewer();
     } else {
       applyTheme(lastAppliedTheme);
-      showUpload();
+      createDoc();
     }
   }
 
@@ -258,21 +255,9 @@
     markdownOutput.classList.remove("hidden");
     markdownOutput.innerHTML = f.html;
     typesetMath(markdownOutput);
-    uploadScreen.classList.add("hidden");
     viewerScreen.classList.remove("hidden");
     setTimeout(renderMermaidDiagrams, 50);
     addTabBtn.classList.remove("hidden");
-    refreshEditorBar();
-  }
-
-  function showUpload() {
-    uploadScreen.classList.remove("hidden");
-    viewerScreen.classList.add("hidden");
-    addTabBtn.classList.add("hidden");
-    isEditing = false;
-    editorInput.classList.add("hidden");
-    applyTheme(lastAppliedTheme);
-    markdownOutput.innerHTML = "";
     refreshEditorBar();
   }
 
@@ -402,25 +387,6 @@
     reader.onload = function (e) { addFile(file.name, e.target.result); };
     reader.readAsText(file);
   }
-
-  fileInput.addEventListener("change", function () {
-    handleFile(this.files[0]);
-    this.value = "";
-  });
-
-  dropZone.addEventListener("dragover", function (e) {
-    e.preventDefault();
-    dropZone.classList.add("drag-over");
-  });
-  dropZone.addEventListener("dragleave", function () {
-    dropZone.classList.remove("drag-over");
-  });
-  dropZone.addEventListener("drop", function (e) {
-    e.preventDefault();
-    dropZone.classList.remove("drag-over");
-    var file = e.dataTransfer.files[0];
-    if (file && file.name.match(/\.(md|markdown|mdown|mkd)$/i)) handleFile(file);
-  });
 
   // ===== AI: text selection =====
   document.addEventListener("mouseup", function (e) {
@@ -579,45 +545,6 @@
   fileInput2.addEventListener("change", function () { handleFile(this.files[0]); this.value = ""; });
 
   // ===== Editor (create / edit Markdown with live LaTeX) =====
-  var starterDoc = [
-    "# My Document",
-    "",
-    "Write in **Edit** mode, then press **Preview**. Click the **?** button for the full syntax guide.",
-    "",
-    "## Formatting",
-    "",
-    "- **bold**, *italic*, ~~strike~~, `inline code`",
-    "- [links](https://example.com) and tables like the one below",
-    "",
-    "| Fruit | Color |",
-    "|-------|-------|",
-    "| Apple | Red   |",
-    "",
-    "## Math (LaTeX)",
-    "",
-    "Inline: \\( E = mc^2 \\) or $a^2 + b^2 = c^2$",
-    "",
-    "Display:",
-    "",
-    "\\[",
-    "\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}",
-    "\\]",
-    "",
-    "## Code",
-    "",
-    "```js",
-    "function greet(name) {",
-    "  return 'Hello, ' + name;",
-    "}",
-    "```",
-    "",
-    "## Diagram",
-    "",
-    "```mermaid",
-    "graph TD; A-->B; B-->C;",
-    "```"
-  ].join("\n");
-
   function refreshEditorBar() {
     var f = getActiveFile();
     if (!f) { editorBar.classList.add("hidden"); return; }
@@ -643,7 +570,6 @@
     if (!f) return;
     isEditing = true;
     editorInput.value = f.raw;
-    uploadScreen.classList.add("hidden");
     viewerScreen.classList.remove("hidden");
     addTabBtn.classList.remove("hidden");
     markdownOutput.classList.add("hidden");
@@ -666,7 +592,7 @@
   }
 
   function createDoc() {
-    addFile("Untitled.md", starterDoc);
+    addFile("Untitled.md", "");
     enterEditor();
   }
 
@@ -732,5 +658,10 @@
   var initialFile = getActiveFile();
   applyTheme(initialFile ? initialFile.theme : lastSavedGlobal);
   renderTabs();
-  if (initialFile) { showViewer(); } else { showUpload(); }
+  if (initialFile) {
+    showViewer();
+    if (!initialFile.raw) enterEditor();
+  } else {
+    createDoc();
+  }
 })();
