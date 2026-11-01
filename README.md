@@ -8,7 +8,18 @@ Live at: **https://xalebxen99.github.io/study_room/**
 
 Gitea copy: **https://sdp.ms.wits.ac.za/Xaleb/study_room**
 
-Install **Git and Node.js 22+**, then run in PowerShell:
+### Requirements
+
+- **Git** and **Node.js 22 or newer**, plus a modern browser.
+- Access to Gitea for the initial clone and later updates. No npm install,
+  database, API key, Docker or build is needed for the current study app.
+- Check the installed tools with `git --version` and `node --version`.
+  If either command is unavailable, install the approved tools beforehand
+  or ask the lab staff.
+
+Clone once, from the folder where you want to keep the project.
+
+### Windows (PowerShell)
 
 ```powershell
 git clone https://sdp.ms.wits.ac.za/Xaleb/study_room.git
@@ -16,21 +27,89 @@ Set-Location study_room
 node tools\streamplay-server.mjs
 ```
 
-On Linux, use `cd study_room` and `node tools/streamplay-server.mjs` instead.
+### Linux (Bash)
 
-Open **http://localhost:4173** and leave the terminal running. **Ctrl+C** stops it;
-`npm start` is equivalent on either platform. If the port is occupied, set
-`$env:PORT = "4174"` in PowerShell, or run
-`PORT=4174 node tools/streamplay-server.mjs` on Linux, and open
-**http://localhost:4174**. For subsequent updates, stop the server, run
-`git pull --ff-only`, then restart it.
+```bash
+git clone https://sdp.ms.wits.ac.za/Xaleb/study_room.git
+cd study_room
+node tools/streamplay-server.mjs
+```
+
+### Open, stop and restart
+
+| Browser address | When to use it |
+| --- | --- |
+| **http://localhost:4173** | Recommended on Windows and Linux; no numeric IP needs to be entered. |
+| **http://127.0.0.1:4173** | Equivalent local address, if permitted by the lab. |
+
+Both point to this computer, not an external server. Lab policies may still
+restrict running local servers; using `localhost` does not guarantee permission.
+Use **HTTP**, not HTTPS, and leave the terminal running while you study.
+**Ctrl+C** stops the server. To start again, return to the cloned folder and
+run the same `node` command; do not clone again. `npm start` is equivalent
+on either platform if npm is available. The direct `node` commands also avoid
+PowerShell restrictions on npm scripts.
+
+### If port 4173 is already in use
+
+Stop your existing server with **Ctrl+C**, then choose another unused port.
+For example, from the project folder:
+
+**Windows (PowerShell):**
+
+```powershell
+$env:PORT = "4174"
+node tools\streamplay-server.mjs
+```
+
+**Linux (Bash):**
+
+```bash
+PORT=4174 node tools/streamplay-server.mjs
+```
+
+Open **http://localhost:4174** or **http://127.0.0.1:4174** instead.
+The PowerShell variable stays set in that terminal; use `$env:PORT = "4173"`
+before starting again to return to the default. The Linux assignment above
+applies only to that command.
+
+### Update an existing clone
+
+Stop the server with **Ctrl+C**, then run these commands from the cloned folder.
+
+**Windows (PowerShell):**
+
+```powershell
+git pull --ff-only
+node tools\streamplay-server.mjs
+```
+
+**Linux (Bash):**
+
+```bash
+git pull --ff-only
+node tools/streamplay-server.mjs
+```
+
+Refresh the browser after restarting. If Git reports conflicting local changes
+or a diverged branch, preserve your work and resolve that before updating.
+
+### GitHub fallback and static hosting
+
+If Gitea is unavailable but GitHub is reachable, replace the initial clone
+command with this one, then follow the same platform-specific steps:
+
+```bash
+git clone https://github.com/XalebXEn99/study_room.git
+```
 
 This serves the same static files as GitHub Pages. **GitHub Pages remains a
 static HTML/CSS/JavaScript deployment**: no server, database or build was added
-to its hosting. No `npm ci`, database or API key is needed for the current
-study UI. The existing Node server is only a local serving option; the archived
-movie tools are not part of this workflow. If Gitea is unavailable, the GitHub
-clone URL is `https://github.com/XalebXEn99/study_room.git`.
+to its hosting. The existing Node server is only a local serving option; the
+archived movie tools are not part of this workflow. Serve the app over HTTP
+with the command above rather than opening `index.html` directly from disk.
+
+### Find your notes and understand offline limits
 
 With the timer idle, click **Ready five times within two seconds** to reveal
 the bundled maths and SDP notes. Open a note by clicking or dragging it into
@@ -46,8 +125,9 @@ download it separately beforehand if permitted. Test the local copy before
 the exam and follow the exam's rules; Gitea availability is not guaranteed.
 
 Browser storage is per origin. Live-site drafts/settings do not automatically
-appear on localhost or another machine. Download important Markdown drafts
-and reopen them locally.
+appear on localhost or another machine. **`localhost` and `127.0.0.1` also have
+separate storage, as do different ports.** Use the same browser address
+consistently. Download important Markdown drafts and reopen them locally.
 
 ### Maintaining bundled reader libraries
 
