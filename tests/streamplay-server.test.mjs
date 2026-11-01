@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { once } from "node:events";
+import { get as httpGet } from "node:http";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createBridge } from "../tools/streamplay-server.mjs";
@@ -10,7 +11,7 @@ import { MOTIVATION_QUOTES } from "../motivation-data.js";
 import { ANIME_BACKGROUNDS } from "../anime-background-data.js";
 import readerAssets from "../assets/vendor/manifest.json" with { type: "json" };
 
-async function bridge(t, settings = {}) {
+async function bridge(t, settings = {}, hostname = "127.0.0.1") {
   const server = createBridge({ tmdbToken: "", ...settings });
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
@@ -18,7 +19,7 @@ async function bridge(t, settings = {}) {
     server.closeAllConnections();
     server.close(resolve);
   }));
-  const base = "http://127.0.0.1:" + server.address().port;
+  const base = "http://" + hostname + ":" + server.address().port;
   return (path, options) => fetch(base + path, options);
 }
 
@@ -29,6 +30,39 @@ function resolved(url = "https://media.example/film.mp4") {
     subtitles: []
   };
 }
+
+test("localhost serves the study app and permits only its own host and origin", async t => {
+  const get = await bridge(t, {}, "localhost");
+  const home = await get("/");
+  assert.equal(home.status, 200);
+  assert.match(await home.text(), /<title>Study Room<\/title>/);
+  const origin = new URL(home.url).origin;
+  const headers = { Origin: origin, "Sec-Fetch-Site": "same-origin" };
+  const status = await get("/api/status", { headers });
+  assert.equal(status.status, 200);
+  assert.equal(status.headers.get("access-control-allow-origin"), origin);
+  for (const path of ["/assets/sdp/SDP-Exam-Tips.md", "/assets/vendor/marked/marked.umd.js"]) {
+    assert.equal((await get(path, { headers })).status, 200, path);
+  }
+  for (const invalidHeaders of [
+    { Origin: "https://untrusted.example" },
+    { Origin: origin.replace("http:", "https:") },
+    { Origin: "http://localhost:1" },
+    { "Sec-Fetch-Site": "cross-site" }
+  ]) {
+    assert.equal((await get("/api/status", { headers: invalidHeaders })).status, 403);
+  }
+  // Raw HTTP preserves Host; fetch normalises it to the request URL.
+  for (const host of ["untrusted.example", "localhost:1", "localhost.untrusted.example:" + new URL(origin).port]) {
+    const statusCode = await new Promise((resolve, reject) => {
+      httpGet(origin + "/api/status", { headers: { Host: host } }, response => {
+        response.once("error", reject);
+        response.resume().once("end", () => resolve(response.statusCode));
+      }).once("error", reject);
+    });
+    assert.equal(statusCode, 403, host);
+  }
+});
 
 test("the reader serves bundled libraries, theme styles and maths fonts without CDNs", async t => {
   const get = await bridge(t);

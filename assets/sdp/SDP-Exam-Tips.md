@@ -51,7 +51,9 @@ Set-Location study_room
 node tools\streamplay-server.mjs
 ```
 
-Open **[http://127.0.0.1:4173](http://127.0.0.1:4173)**. Keep the terminal open; **Ctrl+C** stops it. `npm start` runs the same command. If the port is occupied, set `$env:PORT = "4174"` before starting and use that port in the URL.
+On Linux, use `cd study_room` and `node tools/streamplay-server.mjs` instead.
+
+Open **[http://localhost:4173](http://localhost:4173)**. Keep the terminal open; **Ctrl+C** stops it. `npm start` runs the same command on either platform. If the port is occupied, set `$env:PORT = "4174"` in PowerShell, or run `PORT=4174 node tools/streamplay-server.mjs` on Linux, and open **http://localhost:4174**.
 
 - This serves the **same static HTML/CSS/JavaScript and bundled study files as GitHub Pages**, not a separate development build. No database, API key, `npm ci` or build is needed for the current study app. GitHub hosting remains static.
 - With the timer idle, click **Ready five times within two seconds** to reveal the maths notes, SDP tips and OS-book link. Click or drag a note into the editor; you can also browse local Markdown files.

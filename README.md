@@ -16,10 +16,14 @@ Set-Location study_room
 node tools\streamplay-server.mjs
 ```
 
-Open **http://127.0.0.1:4173** and leave the terminal running. **Ctrl+C** stops it;
-`npm start` is equivalent. If the port is occupied, set `$env:PORT = "4174"`
-before starting and open that port instead. For subsequent updates, stop the
-server, run `git pull --ff-only`, then restart it.
+On Linux, use `cd study_room` and `node tools/streamplay-server.mjs` instead.
+
+Open **http://localhost:4173** and leave the terminal running. **Ctrl+C** stops it;
+`npm start` is equivalent on either platform. If the port is occupied, set
+`$env:PORT = "4174"` in PowerShell, or run
+`PORT=4174 node tools/streamplay-server.mjs` on Linux, and open
+**http://localhost:4174**. For subsequent updates, stop the server, run
+`git pull --ff-only`, then restart it.
 
 This serves the same static files as GitHub Pages. **GitHub Pages remains a
 static HTML/CSS/JavaScript deployment**: no server, database or build was added

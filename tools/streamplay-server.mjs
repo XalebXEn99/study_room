@@ -181,7 +181,9 @@ export function createBridge({
   }
 
   const server = createServer(async (req, res) => {
-    const localOrigin = "http://127.0.0.1:" + server.address().port;
+    const port = server.address().port;
+    const localHost = req.headers.host === "localhost:" + port ? "localhost" : "127.0.0.1";
+    const localOrigin = "http://" + localHost + ":" + port;
     const origin = external ? external.origin : localOrigin;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120000);
@@ -298,5 +300,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const server = createBridge();
   server.on("error", error => { console.error("Bridge startup failed:", error.message); process.exitCode = 1; });
   const host = process.env.BRIDGE_PUBLIC_URL ? "0.0.0.0" : "127.0.0.1";
-  server.listen(port, host, () => console.log("Study Room bridge listening on port " + port));
+  server.listen(port, host, () => console.log("Study Room listening at " + (process.env.BRIDGE_PUBLIC_URL || "http://localhost:" + port)));
 }
