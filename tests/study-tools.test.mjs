@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { MOTIVATION_QUOTES } from "../motivation-data.js";
 
-function fixture(t, saved = {}) {
+function fixture(t, saved = {}, overrides = {}) {
   const nodes = new Map();
   const intervals = [];
   const observations = [];
@@ -19,6 +19,8 @@ function fixture(t, saved = {}) {
       id, value: id === "timer-minutes" ? "25" : "0", textContent: "", dataset: {},
       open: false, disabled: false, currentTime: 0, attributes: {}, paused: true,
       classList: {
+        add: (...names) => names.forEach(name => classes.add(name)),
+        remove: (...names) => names.forEach(name => classes.delete(name)),
         contains: name => classes.has(name),
         toggle(name, force) {
           if (force ?? !classes.has(name)) classes.add(name);
@@ -62,14 +64,16 @@ function fixture(t, saved = {}) {
     window: { addEventListener() {}, matchMedia: () => ({ matches: false }) },
     localStorage: {
       getItem: key => storage.get(key) ?? null,
-      setItem: (key, value) => storage.set(key, value)
+      setItem: (key, value) => storage.set(key, value),
+      removeItem: key => storage.delete(key)
     },
     ResizeObserver: class { observe() {} },
     IntersectionObserver: class {
       constructor(callback, options) { this.callback = callback; this.options = options; }
       observe(target) { observations.push({ callback: this.callback, target, options: this.options }); }
     },
-    setInterval(callback, delay) { intervals.push({ callback, delay }); return intervals.length; }
+    setInterval(callback, delay) { intervals.push({ callback, delay }); return intervals.length; },
+    ...overrides
   };
   const previous = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   for (const [key, value] of Object.entries(globals)) {
@@ -207,4 +211,70 @@ test("saved mute is respected and a blocked playback is reported", async t => {
   await Promise.resolve();
   assert.match(ui.node("motivation-status").textContent, /could not play/);
   assert.equal(logged.mock.callCount(), 1);
+});
+
+test("both corner media launchers are icon-only and retain accessible names", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  for (const id of ["spotify-pill", "youtube-pill"]) {
+    const button = html.match(new RegExp('<button id="' + id + '"[\\s\\S]*?</button>'))?.[0];
+    assert.ok(button);
+    assert.match(button, /aria-label="[^"]+"/);
+    assert.match(button, /title="[^"]+"/);
+    assert.equal(button.replace(/<[^>]*>/g, "").trim(), "");
+  }
+});
+
+test("music activity follows SDK playback and survives minimising without changing playback", async t => {
+  const callbacks = new Map();
+  let disconnected = false;
+  const ui = fixture(t, {
+    "md-spotify-token": JSON.stringify({ access_token: "test-only", expires_at: 1000000000 })
+  }, {
+    Spotify: {
+      Player: class {
+        addListener(name, callback) { callbacks.set(name, callback); }
+        connect() { return Promise.resolve(true); }
+        disconnect() { disconnected = true; }
+      }
+    },
+    sessionStorage: { getItem: () => null },
+    fetch: async () => ({ json: async () => ({ product: "premium" }) }),
+    setTimeout: () => 0
+  });
+  window.location = { origin: "https://example.test", pathname: "/", search: "" };
+  await import("../spotify.js?activity");
+  window.onSpotifyWebPlaybackSDKReady();
+  await new Promise(setImmediate);
+  callbacks.get("ready")({ device_id: "test-device" });
+  const track = {
+    paused: false,
+    track_window: { current_track: { name: "Test track", artists: [{ name: "Test artist" }], album: { images: [] } } }
+  };
+  const playing = () => ui.node(".music-slot").classList.contains("is-playing");
+  assert.equal(playing(), false);
+  callbacks.get("player_state_changed")(track);
+  assert.equal(playing(), true);
+  assert.equal(ui.node("sp-play").attributes["aria-label"], "Pause");
+  assert.equal(ui.node("spotify-pill").attributes["aria-label"], "Music is playing");
+  await ui.node("spotify-pill").emit("click");
+  await ui.node("sp-collapse-btn").emit("click");
+  assert.equal(playing(), true);
+  assert.equal(disconnected, false);
+  callbacks.get("player_state_changed")({ ...track, paused: true });
+  assert.equal(playing(), false);
+  assert.equal(ui.node("sp-play").attributes["aria-label"], "Play");
+  for (const event of ["not_ready", "initialization_error", "authentication_error", "account_error", "playback_error"]) {
+    callbacks.get("player_state_changed")(track);
+    callbacks.get(event)({ message: "Test playback interruption" });
+    assert.equal(playing(), false, event + " must stop the indicator");
+  }
+  callbacks.get("player_state_changed")(track);
+  callbacks.get("player_state_changed")(null);
+  assert.equal(playing(), false);
+  callbacks.get("player_state_changed")(track);
+  await ui.node("sp-logout-btn").emit("click");
+  assert.equal(playing(), false);
+  assert.equal(disconnected, true);
+  callbacks.get("player_state_changed")(track);
+  assert.equal(playing(), false, "A late SDK event must not reactivate music after logout");
 });

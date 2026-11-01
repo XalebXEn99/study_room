@@ -45,6 +45,7 @@
   // ===== Element refs =====
   var player = document.getElementById("spotify-player");
   var pill = document.getElementById("spotify-pill");
+  var musicSlot = document.querySelector(".music-slot");
   var actionsEl = document.getElementById("sp-actions");
   var logoutBtn = document.getElementById("sp-logout-btn");
   var collapseBtn = document.getElementById("sp-collapse-btn");
@@ -70,6 +71,16 @@
   var spotifyObj = null;   // the Spotify.Player instance
   var premiumOk = false;
   var isPlaying = false;
+
+  function setPlaying(playing) {
+    isPlaying = playing;
+    musicSlot.classList.toggle("is-playing", playing);
+    pill.title = playing ? "Music is playing" : "Study Room music";
+    pill.setAttribute("aria-label", pill.title);
+    playBtn.textContent = playing ? "\u23f8" : "\u25b6";
+    playBtn.title = playing ? "Pause" : "Play";
+    playBtn.setAttribute("aria-label", playBtn.title);
+  }
 
   function showError(msg) {
     errEl.textContent = msg;
@@ -176,6 +187,7 @@
     erase(K.token);
     premiumOk = false;
     deviceId = null;
+    setPlaying(false);
   }
 
   // ===== Web Playback SDK =====
@@ -190,10 +202,17 @@
       volume: parseFloat(volEl.value || "0.6")
     });
     spotifyObj.addListener("ready", function (d) { deviceId = d.device_id; refreshUI(); });
-    spotifyObj.addListener("not_ready", function () { deviceId = null; });
+    spotifyObj.addListener("not_ready", function () { deviceId = null; setPlaying(false); });
     spotifyObj.addListener("player_state_changed", renderNowPlaying);
     spotifyObj.addListener("initialization_error", function (e) {
+      setPlaying(false);
       if (/Premium/i.test(e.message || "")) premiumOk = false, refreshUI();
+    });
+    ["authentication_error", "account_error", "playback_error"].forEach(function (event) {
+      spotifyObj.addListener(event, function (e) {
+        setPlaying(false);
+        showError(e.message || "Spotify playback stopped. Please retry.");
+      });
     });
     spotifyObj.connect().then(function (connected) {
       if (!connected) showError("Could not start the player. It requires Spotify Premium.");
@@ -223,21 +242,20 @@
   }
 
   function renderNowPlaying(state) {
-    if (!state || !state.track_window || !state.track_window.current_track) {
-      isPlaying = false;
+    if (!isLoggedIn() || !state || !state.track_window || !state.track_window.current_track) {
+      setPlaying(false);
       npBar.classList.add("hidden");
       setCompact(false);
       return;
     }
     var showPlayerOnly = npBar.classList.contains("hidden") || (!state.paused && !isPlaying);
     if (!state.paused && !isPlaying) playlists.open = false;
-    isPlaying = !state.paused;
+    setPlaying(!state.paused);
     var tr = state.track_window.current_track;
     npTitle.textContent = tr.name || "";
     npArtist.textContent = (tr.artists || []).map(function (a) { return a.name; }).join(", ");
     var img = (tr.album && tr.album.images && tr.album.images[0]) ? tr.album.images[0].url : "";
     if (img) { coverEl.src = img; coverEl.style.display = ""; } else { coverEl.style.display = "none"; }
-    playBtn.textContent = state.paused ? "▶" : "⏸";
     npBar.classList.remove("hidden");
     setCompact(showPlayerOnly || player.classList.contains("compact"));
   }
@@ -299,7 +317,6 @@
   pill.addEventListener("click", openPanel);
   logoutBtn.addEventListener("click", function () {
     if (spotifyObj) { try { spotifyObj.disconnect(); } catch (e) {} }
-    isPlaying = false;
     playlists.open = true;
     npBar.classList.add("hidden");
     setCompact(false);
