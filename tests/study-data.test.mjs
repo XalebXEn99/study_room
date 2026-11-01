@@ -49,10 +49,15 @@ test("saved YouTube entries contain only the requested SDP playlist", () => {
   assert.equal(YOUTUBE_COLLECTION.at(-1).title, "SDP - Software Development Party");
 });
 
-test("saved Spotify entries match all three supplied playlist IDs", () => {
+test("saved Spotify entries match all eight supplied playlist IDs", () => {
   assert.deepEqual(SPOTIFY_COLLECTION.map(item => item.url), [
     "https://open.spotify.com/playlist/6g0Z73wQf2UDEXnCglvqCK",
     "https://open.spotify.com/playlist/4FXIexXCIREWCSREF6GosY",
-    "https://open.spotify.com/playlist/4wqF0CBDNfp8jgdrrtLXeG"
+    "https://open.spotify.com/playlist/4wqF0CBDNfp8jgdrrtLXeG",
+    "https://open.spotify.com/playlist/37i9dQZF1DX08mhnhv6g9b",
+    "https://open.spotify.com/playlist/7ED3tauJjkhapme2NOK4Se",
+    "https://open.spotify.com/playlist/0w2wAaeArRZqB7bFgDTVlA",
+    "https://open.spotify.com/playlist/62aVuuh673VINeAGi8zKPG",
+    "https://open.spotify.com/playlist/5R0nzmDPHvv2w1oHhSLzuY"
   ]);
 });
