@@ -1070,15 +1070,21 @@ body[data-theme="pixel"] .markdown-body .katex { font-size: 1.12em; }
 .panel-chevron { margin-left: auto; opacity: 0.55; }
 .media-title {
   display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
-  padding: 0.8rem 1rem;
+  padding: 0.8rem 4rem 0.8rem 1rem;
 }
-.media-title h2 { font-size: 0.82rem; font-weight: 600; }
-.media-title .sp-btn { width: 26px; height: 26px; }
+.media-title h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; font-weight: 600; }
+.media-panel-actions { position: absolute; top: 0.65rem; right: 0.65rem; z-index: 1; display: flex; gap: 0.25rem; }
 .media-slot :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 2px; }
 .spotify-player, .youtube-player {
+  position: relative;
   width: 100%; min-width: 0; max-height: calc(100dvh - 32px); overflow-x: hidden; overflow-y: auto;
   border: 1px solid var(--sp-border, #d0d7de);
 }
+.compact .media-settings { display: none; }
+.spotify-player.compact .sp-np-meta { padding-right: 52px; }
+.spotify-player.compact .sp-nowplaying { border-bottom: 0; }
+.youtube-player.compact { padding-top: 2rem; }
+.youtube-player.compact .media-panel-actions { top: 0.3rem; }
 .spotify-player {
   background: var(--sp-surface, #fff);
   border-radius: var(--sp-radius, 10px);
@@ -1256,6 +1262,12 @@ body[data-theme="gameboy"] .markdown-body details[open] > summary { border-botto
   .library-files { max-height: 300px; }
 }
 @media (max-width: 640px) {
+  .spotify-player.compact .sp-nowplaying { padding-top: 2.25rem; }
+  .spotify-player.compact .sp-np-meta { padding-right: 0; }
+  .sp-nowplaying { grid-template-columns: 38px minmax(0, 1fr); }
+  .sp-np-meta { grid-column: 2; }
+  .sp-controls { grid-column: 1 / -1; }
+  .sp-volume { grid-column: 1 / -1; width: 100%; }
   .app-wrapper { padding: 0; }
   .markdown-body { padding: 1.25rem 1rem; }
   .logo { font-size: 2rem; }

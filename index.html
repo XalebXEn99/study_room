@@ -60,26 +60,35 @@
       <span>Music</span><span class="panel-chevron" aria-hidden="true">&#9662;</span>
     </button>
     <div id="spotify-player" class="spotify-player hidden">
-      <div class="media-title">
-        <h2>Music</h2>
+      <div class="media-panel-actions">
         <button class="sp-btn" id="sp-collapse-btn" title="Minimise" aria-label="Minimise music">&ndash;</button>
+        <button class="sp-btn hidden" id="sp-expand-btn" title="Expand music settings" aria-label="Expand music settings" aria-controls="sp-settings" aria-expanded="false">&#8593;</button>
       </div>
-      <details id="sp-playlists" class="saved-playlists" open>
-        <summary>Playlists</summary>
-        <div class="saved-media">
-          <label for="sp-saved">Saved playlists</label>
-          <select id="sp-saved"><option value="">Choose a playlist...</option></select>
-          <a id="sp-saved-link" class="hidden" target="_blank" rel="noopener noreferrer">Open in Spotify</a>
+      <div id="sp-settings" class="media-settings">
+        <div class="media-title">
+          <h2>Music</h2>
         </div>
-      </details>
-      <div class="sp-head" id="sp-drag-handle">
-        <div class="sp-bar-controls">
-          <input id="sp-url-input" type="text" placeholder="Paste Spotify link&hellip;" spellcheck="false" aria-label="Spotify link" />
-          <button id="sp-load-btn" class="sp-load-btn" title="Play this link">Play</button>
+        <details id="sp-playlists" class="saved-playlists" open>
+          <summary>Playlists</summary>
+          <div class="saved-media">
+            <label for="sp-saved">Saved playlists</label>
+            <select id="sp-saved"><option value="">Choose a playlist...</option></select>
+            <a id="sp-saved-link" class="hidden" target="_blank" rel="noopener noreferrer">Open in Spotify</a>
+          </div>
+        </details>
+        <div class="sp-head" id="sp-drag-handle">
+          <div class="sp-bar-controls">
+            <input id="sp-url-input" type="text" placeholder="Paste Spotify link&hellip;" spellcheck="false" aria-label="Spotify link" />
+            <button id="sp-load-btn" class="sp-load-btn" title="Play this link">Play</button>
+          </div>
+          <span class="sp-actions" id="sp-actions">
+            <button class="sp-btn" id="sp-logout-btn" title="Log out" aria-label="Log out">&#9099;</button>
+          </span>
         </div>
-        <span class="sp-actions" id="sp-actions">
-          <button class="sp-btn" id="sp-logout-btn" title="Log out" aria-label="Log out">&#9099;</button>
-        </span>
+        <div class="sp-view sp-auth" id="sp-auth">
+          <p class="sp-auth-hint" id="sp-auth-hint"></p>
+          <button class="sp-login-btn" id="sp-login-btn">Log in with Spotify</button>
+        </div>
       </div>
       <div class="sp-nowplaying hidden" id="sp-nowplaying">
         <img class="sp-cover" id="sp-cover" alt="" />
@@ -94,10 +103,6 @@
         </div>
         <input type="range" id="sp-volume" class="sp-volume" min="0" max="1" step="0.05" value="0.6" title="Volume" />
       </div>
-      <div class="sp-view sp-auth" id="sp-auth">
-        <p class="sp-auth-hint" id="sp-auth-hint"></p>
-        <button class="sp-login-btn" id="sp-login-btn">Log in with Spotify</button>
-      </div>
       <p class="sp-error hidden" id="sp-error"></p>
     </div>
   </section>
@@ -109,23 +114,28 @@
       <span>YouTube</span><span class="panel-chevron" aria-hidden="true">&#9662;</span>
     </button>
     <div id="youtube-player" class="youtube-player hidden">
-      <div class="media-title">
-        <h2>YouTube</h2>
+      <div class="media-panel-actions">
         <button class="sp-btn" id="yt-collapse-btn" title="Minimise" aria-label="Minimise YouTube">&ndash;</button>
+        <button class="sp-btn hidden" id="yt-expand-btn" title="Expand YouTube settings" aria-label="Expand YouTube settings" aria-controls="yt-settings" aria-expanded="false">&#8593;</button>
       </div>
-      <div class="saved-media">
-        <label for="yt-saved">Saved videos</label>
-        <select id="yt-saved"><option value="">Choose a video...</option></select>
-        <a id="yt-saved-link" class="hidden" target="_blank" rel="noopener noreferrer">Open on YouTube</a>
-      </div>
-      <div class="sp-head" id="yt-drag-handle">
-        <div class="sp-bar-controls">
-          <input id="yt-url-input" type="text" placeholder="Paste YouTube link&hellip;" spellcheck="false" aria-label="YouTube link" />
-          <button id="yt-load-btn" class="sp-load-btn" title="Play this link">Play</button>
+      <div id="yt-settings" class="media-settings">
+        <div class="media-title">
+          <h2>YouTube</h2>
         </div>
-        <span class="sp-actions">
-          <button class="sp-btn" id="yt-clear-btn" title="Stop" aria-label="Stop">&#10005;</button>
-        </span>
+        <div class="saved-media">
+          <label for="yt-saved">Saved videos</label>
+          <select id="yt-saved"><option value="">Choose a video...</option></select>
+          <a id="yt-saved-link" class="hidden" target="_blank" rel="noopener noreferrer">Open on YouTube</a>
+        </div>
+        <div class="sp-head" id="yt-drag-handle">
+          <div class="sp-bar-controls">
+            <input id="yt-url-input" type="text" placeholder="Paste YouTube link&hellip;" spellcheck="false" aria-label="YouTube link" />
+            <button id="yt-load-btn" class="sp-load-btn" title="Play this link">Play</button>
+          </div>
+          <span class="sp-actions">
+            <button class="sp-btn" id="yt-clear-btn" title="Stop" aria-label="Stop">&#10005;</button>
+          </span>
+        </div>
       </div>
       <div class="yt-frame hidden" id="yt-frame"></div>
       <p class="sp-error hidden" id="yt-error"></p>

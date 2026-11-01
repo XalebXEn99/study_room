@@ -6,7 +6,6 @@
   // YouTube's own iframe player, so skippable ads keep their native Skip
   // button. (We can't remove or auto-skip ads: it's a cross-origin embed and
   // that would also break YouTube's Terms of Service.)
-  // The panel has its own slot beneath the video library.
 
   var K = {
     url: "md-yt-url"
@@ -19,6 +18,7 @@
   var player = document.getElementById("youtube-player");
   var pill = document.getElementById("youtube-pill");
   var collapseBtn = document.getElementById("yt-collapse-btn");
+  var expandBtn = document.getElementById("yt-expand-btn");
   var clearBtn = document.getElementById("yt-clear-btn");
   var urlInput = document.getElementById("yt-url-input");
   var loadBtn = document.getElementById("yt-load-btn");
@@ -63,17 +63,31 @@
       'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
       'allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
     frameWrap.classList.remove("hidden");
+    setCompact(true);
   }
 
   function clearFrame() {
     frameWrap.innerHTML = "";
     frameWrap.classList.add("hidden");
+    setCompact(false);
+  }
+
+  function setCompact(compact) {
+    var hasVideo = !frameWrap.classList.contains("hidden");
+    compact = hasVideo && compact;
+    player.classList.toggle("compact", compact);
+    expandBtn.classList.toggle("hidden", !hasVideo);
+    expandBtn.textContent = compact ? "\u2191" : "\u2193";
+    expandBtn.title = compact ? "Expand YouTube settings" : "Show player only";
+    expandBtn.setAttribute("aria-label", expandBtn.title);
+    expandBtn.setAttribute("aria-expanded", String(!compact));
   }
 
   function openPanel() {
     player.classList.remove("hidden");
     pill.classList.add("hidden");
     pill.setAttribute("aria-expanded", "true");
+    setCompact(!frameWrap.classList.contains("hidden"));
     if (urlInput && !urlInput.value) { var saved = read(K.url, ""); if (saved) urlInput.value = saved; }
   }
   function closePanel() {
@@ -85,6 +99,7 @@
   // ===== Wire controls =====
   pill.addEventListener("click", openPanel);
   collapseBtn.addEventListener("click", closePanel);
+  expandBtn.addEventListener("click", function () { setCompact(!player.classList.contains("compact")); });
   clearBtn.addEventListener("click", clearFrame);
   loadBtn.addEventListener("click", function () { load(true); });
   urlInput.addEventListener("keydown", function (e) { if (e.key === "Enter") load(true); });

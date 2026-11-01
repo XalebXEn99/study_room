@@ -48,6 +48,7 @@
   var actionsEl = document.getElementById("sp-actions");
   var logoutBtn = document.getElementById("sp-logout-btn");
   var collapseBtn = document.getElementById("sp-collapse-btn");
+  var expandBtn = document.getElementById("sp-expand-btn");
   var authView = document.getElementById("sp-auth");
   var authHint = document.getElementById("sp-auth-hint");
   var loginBtn = document.getElementById("sp-login-btn");
@@ -208,7 +209,10 @@
     }).then(function (r) {
       if (r.status === 403) { showError("Spotify Premium is required for in-page playback."); premiumOk = false; refreshUI(); return; }
       if (!r.ok && r.status !== 204) showError("Playback failed (" + r.status + ").");
-      else playlists.open = false;
+      else {
+        playlists.open = false;
+        if (!npBar.classList.contains("hidden")) setCompact(true);
+      }
     }).catch(function (e) { showError(e.message); });
   }
 
@@ -221,8 +225,11 @@
   function renderNowPlaying(state) {
     if (!state || !state.track_window || !state.track_window.current_track) {
       isPlaying = false;
-      npBar.classList.add("hidden"); return;
+      npBar.classList.add("hidden");
+      setCompact(false);
+      return;
     }
+    var showPlayerOnly = npBar.classList.contains("hidden") || (!state.paused && !isPlaying);
     if (!state.paused && !isPlaying) playlists.open = false;
     isPlaying = !state.paused;
     var tr = state.track_window.current_track;
@@ -232,6 +239,7 @@
     if (img) { coverEl.src = img; coverEl.style.display = ""; } else { coverEl.style.display = "none"; }
     playBtn.textContent = state.paused ? "▶" : "⏸";
     npBar.classList.remove("hidden");
+    setCompact(showPlayerOnly || player.classList.contains("compact"));
   }
 
   // Parse a pasted link into a spotify:<type>:<id> URI.
@@ -246,11 +254,23 @@
   // ===== UI state =====
   function isLoggedIn() { return !!loadToken(); }
 
+  function setCompact(compact) {
+    var hasTrack = !npBar.classList.contains("hidden");
+    compact = hasTrack && compact;
+    player.classList.toggle("compact", compact);
+    expandBtn.classList.toggle("hidden", !hasTrack);
+    expandBtn.textContent = compact ? "\u2191" : "\u2193";
+    expandBtn.title = compact ? "Expand music settings" : "Show player only";
+    expandBtn.setAttribute("aria-label", expandBtn.title);
+    expandBtn.setAttribute("aria-expanded", String(!compact));
+  }
+
   function refreshUI() {
     if (isLoggedIn() && premiumOk) {
       authView.classList.add("hidden");
     } else {
       authView.classList.remove("hidden");
+      setCompact(false);
       authHint.textContent = isLoggedIn()
         ? "Spotify Premium is required for full playback."
         : "Sign in to play full tracks.";
@@ -263,6 +283,7 @@
     player.classList.remove("collapsed");
     pill.classList.add("hidden");
     pill.setAttribute("aria-expanded", "true");
+    setCompact(!npBar.classList.contains("hidden"));
     refreshUI();
     if (urlInput && !urlInput.value) { var saved = read(K.url, ""); if (saved) urlInput.value = saved; }
   }
@@ -280,9 +301,12 @@
     if (spotifyObj) { try { spotifyObj.disconnect(); } catch (e) {} }
     isPlaying = false;
     playlists.open = true;
+    npBar.classList.add("hidden");
+    setCompact(false);
     clearAuth(); refreshUI(); closePanel();
   });
   collapseBtn.addEventListener("click", minimise);
+  expandBtn.addEventListener("click", function () { setCompact(!player.classList.contains("compact")); });
   loginBtn.addEventListener("click", login);
   playBtn.addEventListener("click", function () { transport("toggle"); });
   prevBtn.addEventListener("click", function () { transport("previous"); });
