@@ -333,7 +333,7 @@ test("bundled resources start hidden and the reveal event expands only their exi
   await ui.window.emit("study-room-reveal-bundled");
   assert.equal(ui.element("library-bundled").hidden, false);
   assert.equal(ui.element("library-body").classList.contains("hidden"), false);
-  assert.equal(ui.element("library-notes").children.length, 7);
+  assert.equal(ui.element("library-notes").children.length, 8);
   assert.equal(ui.element("library-sdp-notes").children.length, 1);
   assert.equal(ui.element("book-download").href, BOOK_DOWNLOAD.url);
   assert.equal(ui.element("yt-saved").children.length, 1);

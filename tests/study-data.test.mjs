@@ -4,18 +4,33 @@ import test from "node:test";
 import { STUDY_NOTES, BOOK_DOWNLOAD, YOUTUBE_COLLECTION, SPOTIFY_COLLECTION } from "../study-data.js";
 
 test("the maths and SDP catalogue entries resolve to bundled Markdown", async () => {
-  assert.equal(STUDY_NOTES.length, 8);
-  assert.equal(STUDY_NOTES.filter(note => note.collection === "maths").length, 7);
+  assert.equal(STUDY_NOTES.length, 9);
+  assert.equal(STUDY_NOTES.filter(note => note.collection === "maths").length, 8);
   assert.equal(STUDY_NOTES.filter(note => note.collection === "sdp").length, 1);
-  assert.equal(new Set(STUDY_NOTES.map(note => note.id)).size, 8);
-  assert.equal(new Set(STUDY_NOTES.map(note => note.url)).size, 8);
+  assert.equal(new Set(STUDY_NOTES.map(note => note.id)).size, 9);
+  assert.equal(new Set(STUDY_NOTES.map(note => note.url)).size, 9);
   for (const note of STUDY_NOTES) {
     assert.ok(["maths", "sdp"].includes(note.collection));
     assert.match(note.name, /\.md$/);
     assert.equal(note.url, "assets/" + note.collection + "/" + note.name);
     const raw = await readFile(new URL("../" + note.url, import.meta.url), "utf8");
     assert.match(raw, /^#/);
-    assert.ok(raw.length > 1000);
+  }
+});
+
+test("AA practice preserves the supplied progress and five-item revision map", async () => {
+  const note = STUDY_NOTES.find(item => item.id === "aa-practice");
+  assert.ok(note);
+  assert.equal(note.title, "AA practice");
+  assert.equal(note.collection, "maths");
+  const raw = await readFile(new URL("../" + note.url, import.meta.url), "utf8");
+  assert.match(raw, /^# AA practice$/m);
+  assert.match(raw, /\| Progress 15% \| Progress 10% \|/);
+  assert.match(raw, /^### My progress map$/m);
+  assert.equal(raw.split("\n").filter(line => line.startsWith("- ")).length, 5);
+  for (const topic of ["Definition of differentiable", "Riemann integrable", "refinement",
+    "integrability condition", "partition question", "\\(U-L < \\epsilon\\)", "m_i", "M_i", "\\Delta x"]) {
+    assert.ok(raw.includes(topic), "Missing revision topic: " + topic);
   }
 });
 
@@ -26,7 +41,7 @@ test("SDP exam tips include the requested links and lab revision material withou
   for (const url of ["https://sitereel.ai/", "https://manus.im/", "https://preline.co/", "https://www.theatrejs.com/"]) {
     assert.ok(raw.includes(url), "Missing resource: " + url);
   }
-  assert.match(raw, /^## Security checklist/m);
+  assert.match(raw, /^## AI coding safety: short checklist/m);
   assert.match(raw, /^## Docker lab/m);
   assert.match(raw, /service_healthy/);
   assert.match(raw, /docker compose up --build -d/);

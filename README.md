@@ -151,7 +151,7 @@ does **not** require running this download command.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once and switch between them with tabs. Local collections and drafts persist in localStorage across refreshes. Closing a tab does not delete its collection item; click or drag it from Study files to reopen the same document. Storage failures are shown explicitly; unreadable stored drafts are not overwritten by a blank starter.
 - **Study files** -- Initially shows only the local Markdown drop/browse area. Uploaded files populate **Uploads**; New documents populate **Created**. The automatic blank starter appears in Created only after writing or renaming it. Use each row's pencil to rename a file (Enter confirms, Escape cancels); names retain a `.md` extension. A download icon marks created files and uploads changed from their original/last-downloaded content or filename. Untouched uploads have no icon. Download initiates a copy and clears the indicator; later changes restore it. Browser downloads cannot confirm that a copy was retained, and local autosave does not write to the original disk file. Older drafts without a known save baseline conservatively require a download.
-- **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal seven maths notes, the SDP exam tips note and the OS-book ZIP link. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes stack/database choices, local setup instructions, a short safety checklist and Docker essentials.
+- **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal eight maths notes, the SDP exam tips note and the OS-book ZIP link. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes stack/database choices, local setup instructions, a short safety checklist and Docker essentials.
 - **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- YouTube contains only the SDP - Software Development Party playlist; the earlier individual videos have been removed. Spotify contains eight saved playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
@@ -232,7 +232,8 @@ current `main` branch for studying and follow the exam's permitted-tool rules.
 
 ## Study library and downloads
 
-The left panel contains the seven approved maths notes in `assets/maths/`
+The left panel contains eight maths notes in `assets/maths/`, including
+[AA practice](assets/maths/AA-Practice.md) with its progress table and revision map,
 and [SDP exam tips](assets/sdp/SDP-Exam-Tips.md) in a separate SDP section.
 The SDP note summarises the supplied SvelteKit/PostgreSQL containerisation lab;
 the original lab files, credentials and private paths are not published.

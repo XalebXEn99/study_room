@@ -1,5 +1,6 @@
 const mathsNotes = [
   { id: "study-plan", title: "Study plan", name: "Study-Plan.md" },
+  { id: "aa-practice", title: "AA practice", name: "AA-Practice.md" },
   { id: "teaching-notes", title: "Teaching notes", name: "Final-Exam-Teaching-Notes.md" },
   { id: "worked-examples", title: "Worked examples", name: "Final-Exam-Worked-Examples.md" },
   { id: "mock-exam-a", title: "Mock final exam A", name: "Mock-Final-Exam.md" },
