@@ -633,6 +633,19 @@
     if (e.target === helpModal) helpModal.classList.add("hidden");
   });
 
+  var studyQuotes = [
+    "Don't stop until you are proud.",
+    "Be so good they can't ignore you.",
+    "You just have to start.",
+    "Consistency is key."
+  ];
+  var quoteIndex = 0;
+  setInterval(function () {
+    if (document.hidden) return;
+    quoteIndex = (quoteIndex + 1) % studyQuotes.length;
+    document.getElementById("study-quote").textContent = studyQuotes[quoteIndex];
+  }, 12000);
+
   var checklist = [];
   var checklistInput = document.getElementById("checklist-input");
   var checklistItems = document.getElementById("checklist-items");

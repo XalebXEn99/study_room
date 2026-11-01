@@ -12,9 +12,9 @@ import { STUDY_NOTES } from "../study-data.js";
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const FILES = new Map([
   ["/", ["index.html", "text/html"]],
-  ...["app.js", "spotify.js", "youtube.js", "streamplay.js", "library.js", "study-data.js", "timer.js", "timer-state.js"].map(name => ["/" + name, [name, "text/javascript"]]),
+  ...["app.js", "spotify.js", "youtube.js", "library.js", "study-data.js", "timer.js", "timer-state.js"].map(name => ["/" + name, [name, "text/javascript"]]),
   ...STUDY_NOTES.map(note => ["/" + note.url, [note.url, "text/markdown; charset=utf-8"]]),
-  ...["style.css", "streamplay.css"].map(name => ["/" + name, [name, "text/css"]]),
+  ["/style.css", ["style.css", "text/css"]],
   ["/hls.min.js", ["node_modules\\hls.js\\dist\\hls.min.js", "text/javascript"]]
 ]);
 const SINTEL = {

@@ -7,11 +7,12 @@ Live at: **https://xalebxen99.github.io/study_room/**
 ## Features
 
 - **Blank Editor** -- Start writing immediately in an empty document, with a quiet placeholder instead of a central title or upload box. New documents and closing the last tab also return to a blank editor.
+- **Study quotes** -- Four motivational quotes rotate every 12 seconds beneath Edit/Preview in an italic serif font. Rotation pauses while the tab is hidden.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
 - **Study files** -- Seven bundled maths exam notes can be clicked or dragged from the left panel into the editor. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
 - **Study timer** -- Set minutes and seconds in the right-hand study tools, then Start, Pause/Resume, or Reset. A full-screen "Hey your time is up!" overlay appears when the countdown ends.
-- **Study checklist** -- Add study goals below the timer, tick them off, or remove them. Goals and completion are saved on this device.
+- **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Themes** -- Switch between four visual themes via the dropdown in the top right:
   - **Default** -- Clean GitHub-style white theme
@@ -21,8 +22,8 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **AI Text Analysis** -- Highlight any text in the rendered Markdown and click "Ask AI" to ask questions about the selection (powered by Google Gemini)
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
 - **Syntax Highlighting** -- Code blocks are highlighted with highlight.js, theme-matched
-- **Client-Side Workspace** -- Markdown, study files, the timer, and music players run in your browser. The optional StreamPlay video panel needs a separate bridge.
-- **Independent Workspace Panels** -- Desktop has dedicated left (study files, Music, Video and YouTube), centre (editor), and right (timer and checklist) columns. Opening a panel expands it downward without shifting the editor. Panels share the active theme's colours and spacing; narrower screens move study tools below the editor, and phones stack all columns. Music, Video and YouTube start collapsed.
+- **Client-Side Workspace** -- Markdown, study files, the timer, checklist and music players run in your browser.
+- **Workspace Panels** -- Study files and the checklist sit on the left; the timer sits on the right, aligned with Edit/Preview on desktop. Music stays within the sidebar width in the bottom-left corner and YouTube stays in the bottom-right, including while scrolling. Both players start collapsed, use the active theme and have bounded heights. Narrow screens keep them side by side at reduced widths.
 
 For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
 
@@ -90,7 +91,15 @@ when the page next opens or resumes. Dismiss (or Escape) closes the full-screen
 - [Google Fonts](https://fonts.google.com/) -- Orbitron, Press Start 2P, Outfit, Lora, Inter
 - Google Gemini API -- AI text analysis
 
-## StreamPlay video panel (experimental)
+## Archived movie feature
+
+The movie UI is removed from the live app. Its complete implementation is saved
+on the [archive/movie-player branch](https://github.com/XalebXEn99/study_room/tree/archive/movie-player).
+The bridge/resolver tools remain available for development, but the live page
+does not load or display the movie player.
+
+<details>
+<summary>Historical setup notes (archived version only)</summary>
 
 The right-side **Video / Watch** panel searches movies and series using TMDB
 metadata and resolves playback through VidLink, one provider used by StreamPlay.
@@ -216,3 +225,5 @@ availability for other titles or every upstream quality. TMDB search/episode
 integration is covered with test fixtures; live full search requires your token.
 `--probe` verifies only an MP4 header or HLS manifest, not complete decoding or all
 HLS segments. Stream URLs may expire and should not be committed or shared.
+
+</details>

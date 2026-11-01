@@ -28,7 +28,11 @@ function resolved(url = "https://media.example/film.mp4") {
 test("serves the real application and exposes explicit search setup status", async t => {
   const get = await bridge(t);
   const home = await get("/");
-  assert.match(await home.text(), /streamplay-panel/);
+  const html = await home.text();
+  assert.match(html, /checklist-panel/);
+  assert.doesNotMatch(html, /streamplay-(?:panel|dialog)|streamplay\.(?:js|css)/);
+  assert.equal((await get("/streamplay.js")).status, 404);
+  assert.equal((await get("/streamplay.css")).status, 404);
   for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js"]) {
     const asset = await get(path);
     assert.equal(asset.status, 200);
