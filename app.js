@@ -326,18 +326,18 @@
   // Themes are per-tab: each file object carries its own `theme`, and the
   // body attribute / hljs stylesheet / mermaid config follow the active tab.
   var hljsThemes = {
-    "default": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css",
-    "office": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-light.min.css",
-    "sepia": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-light.min.css",
-    "notion": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css",
-    "midnight": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/tokyo-night-dark.min.css",
-    "nord": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/base16/nord.min.css",
-    "dracula": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/dracula.min.css",
-    "scifi": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/tokyo-night-dark.min.css",
-    "synthwave": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.min.css",
-    "pixel": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/arta.min.css",
-    "terminal": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/monokai.min.css",
-    "gameboy": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/arta.min.css"
+    "default": "assets/vendor/highlight/styles/github.min.css",
+    "office": "assets/vendor/highlight/styles/atom-one-light.min.css",
+    "sepia": "assets/vendor/highlight/styles/atom-one-light.min.css",
+    "notion": "assets/vendor/highlight/styles/github.min.css",
+    "midnight": "assets/vendor/highlight/styles/tokyo-night-dark.min.css",
+    "nord": "assets/vendor/highlight/styles/base16/nord.min.css",
+    "dracula": "assets/vendor/highlight/styles/base16/dracula.min.css",
+    "scifi": "assets/vendor/highlight/styles/tokyo-night-dark.min.css",
+    "synthwave": "assets/vendor/highlight/styles/atom-one-dark.min.css",
+    "pixel": "assets/vendor/highlight/styles/arta.min.css",
+    "terminal": "assets/vendor/highlight/styles/monokai.min.css",
+    "gameboy": "assets/vendor/highlight/styles/arta.min.css"
   };
 
   var mermaidThemes = {

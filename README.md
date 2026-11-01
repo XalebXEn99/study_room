@@ -4,6 +4,61 @@ A browser-based study room with a Markdown reader, multiple themes, multi-file t
 
 Live at: **https://xalebxen99.github.io/study_room/**
 
+## Local study copy (including exam fallback)
+
+Gitea copy: **https://sdp.ms.wits.ac.za/Xaleb/study_room**
+
+Install **Git and Node.js 22+**, then run in PowerShell:
+
+```powershell
+git clone https://sdp.ms.wits.ac.za/Xaleb/study_room.git
+Set-Location study_room
+node tools\streamplay-server.mjs
+```
+
+Open **http://127.0.0.1:4173** and leave the terminal running. **Ctrl+C** stops it;
+`npm start` is equivalent. If the port is occupied, set `$env:PORT = "4174"`
+before starting and open that port instead. For subsequent updates, stop the
+server, run `git pull --ff-only`, then restart it.
+
+This serves the same static files as GitHub Pages. **GitHub Pages remains a
+static HTML/CSS/JavaScript deployment**: no server, database or build was added
+to its hosting. No `npm ci`, database or API key is needed for the current
+study UI. The existing Node server is only a local serving option; the archived
+movie tools are not part of this workflow. If Gitea is unavailable, the GitHub
+clone URL is `https://github.com/XalebXEn99/study_room.git`.
+
+With the timer idle, click **Ready five times within two seconds** to reveal
+the bundled maths and SDP notes. Open a note by clicking or dragging it into
+the editor, or browse your own Markdown files.
+
+Core reader libraries, syntax themes, KaTeX fonts, notes, artwork and
+encouragement audio are checked into Git. Markdown rendering, sanitisation,
+maths, diagrams, themes, the timer and checklist work without external CDNs.
+**External features still need network access:** Google Fonts may fall back
+to installed fonts; Spotify, YouTube, Gemini and external links require their
+services. The OS-book ZIP is a GitHub Release asset, **not part of the clone**;
+download it separately beforehand if permitted. Test the local copy before
+the exam and follow the exam's rules; Gitea availability is not guaranteed.
+
+Browser storage is per origin. Live-site drafts/settings do not automatically
+appear on localhost or another machine. Download important Markdown drafts
+and reopen them locally.
+
+### Maintaining bundled reader libraries
+
+`assets/vendor/manifest.json` records pinned sources, content types and SHA-256
+checksums; upstream licences are included beside each library. To regenerate
+these static assets with network access, Node.js and curl:
+
+```powershell
+npm run vendor:reader
+node --test tests\streamplay-server.test.mjs tests\library.test.mjs
+```
+
+Commit regenerated assets with their manifest. Cloning and running the reader
+does **not** require running this download command.
+
 ## Features
 
 - **Blank Editor** -- Start writing immediately in an empty document, with a quiet placeholder instead of a central title or upload box. New documents and closing the last tab also return to a blank editor.
@@ -12,7 +67,7 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once and switch between them with tabs. Local collections and drafts persist in localStorage across refreshes. Closing a tab does not delete its collection item; click or drag it from Study files to reopen the same document. Storage failures are shown explicitly; unreadable stored drafts are not overwritten by a blank starter.
 - **Study files** -- Initially shows only the local Markdown drop/browse area. Uploaded files populate **Uploads**; New documents populate **Created**. The automatic blank starter appears in Created only after writing or renaming it. Use each row's pencil to rename a file (Enter confirms, Escape cancels); names retain a `.md` extension. A download icon marks created files and uploads changed from their original/last-downloaded content or filename. Untouched uploads have no icon. Download initiates a copy and clears the indicator; later changes restore it. Browser downloads cannot confirm that a copy was retained, and local autosave does not write to the original disk file. Older drafts without a known save baseline conservatively require a download.
-- **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal seven maths notes, the SDP exam tips note and the OS-book ZIP. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes development links, an AI security checklist and a Docker-lab revision guide.
+- **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal seven maths notes, the SDP exam tips note and the OS-book ZIP link. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes stack/database choices, local setup instructions, a short safety checklist and Docker essentials.
 - **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- YouTube contains only the SDP - Software Development Party playlist; the earlier individual videos have been removed. Spotify contains eight saved playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.

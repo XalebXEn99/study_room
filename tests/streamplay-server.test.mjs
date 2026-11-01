@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { once } from "node:events";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { createBridge } from "../tools/streamplay-server.mjs";
 import { isPublicIpv4, validatePublicUrl } from "../tools/public-fetch.mjs";
 import { STUDY_NOTES } from "../study-data.js";
 import { MOTIVATION_QUOTES } from "../motivation-data.js";
 import { ANIME_BACKGROUNDS } from "../anime-background-data.js";
+import readerAssets from "../assets/vendor/manifest.json" with { type: "json" };
 
 async function bridge(t, settings = {}) {
   const server = createBridge({ tmdbToken: "", ...settings });
@@ -26,6 +29,28 @@ function resolved(url = "https://media.example/film.mp4") {
     subtitles: []
   };
 }
+
+test("the reader serves bundled libraries, theme styles and maths fonts without CDNs", async t => {
+  const get = await bridge(t);
+  const html = await (await get("/")).text();
+  const app = await (await get("/app.js")).text();
+  assert.doesNotMatch(html + app, /https:\/\/(?:cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net)/);
+  for (const library of ["marked/marked.umd.js", "highlight/highlight.min.js", "katex/katex.min.js",
+    "mermaid/mermaid.min.js", "dompurify/purify.min.js"]) {
+    assert.ok(html.includes('src="assets/vendor/' + library + '"'));
+  }
+  const paths = new Set(readerAssets.map(asset => asset.path));
+  for (const match of app.matchAll(/"(assets\/vendor\/[^"]+\.css)"/g)) assert.ok(paths.has(match[1]));
+  const css = await readFile(new URL("../assets/vendor/katex/katex.min.css", import.meta.url), "utf8");
+  for (const match of css.matchAll(/url\((fonts\/[^)]+)\)/g)) assert.ok(paths.has("assets/vendor/katex/" + match[1]));
+  for (const asset of readerAssets) {
+    const response = await get("/" + asset.path);
+    assert.equal(response.status, 200, asset.path);
+    assert.equal(response.headers.get("content-type"), asset.type, asset.path);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), asset.sha256, asset.path);
+  }
+});
 
 test("serves the real application and exposes explicit search setup status", async t => {
   const get = await bridge(t);

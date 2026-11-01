@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node ./tools/streamplay-server.mjs",
     "helper": "node ./tools/start-local-helper.mjs",
+    "vendor:reader": "node ./tools/vendor-reader.mjs",
     "test": "node --test"
   },
   "engines": { "node": ">=22" },

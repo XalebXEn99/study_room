@@ -10,6 +10,7 @@ import { publicFetch, validatePublicUrl } from "./public-fetch.mjs";
 import { STUDY_NOTES } from "../study-data.js";
 import { MOTIVATION_QUOTES } from "../motivation-data.js";
 import { ANIME_BACKGROUNDS } from "../anime-background-data.js";
+import readerAssets from "../assets/vendor/manifest.json" with { type: "json" };
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const FILES = new Map([
@@ -18,6 +19,7 @@ const FILES = new Map([
   ...STUDY_NOTES.map(note => ["/" + note.url, [note.url, "text/markdown; charset=utf-8"]]),
   ...MOTIVATION_QUOTES.map(quote => ["/" + quote.audio, [quote.audio, "audio/mpeg"]]),
   ...ANIME_BACKGROUNDS.map(scene => ["/" + scene.url, [join(...scene.url.split("/")), "image/png"]]),
+  ...readerAssets.map(asset => ["/" + asset.path, [asset.path, asset.type]]),
   ["/style.css", ["style.css", "text/css"]],
   ["/graphic-design.css", ["graphic-design.css", "text/css"]],
   ["/assets/themes/90s-anime-sky.svg", [join("assets", "themes", "90s-anime-sky.svg"), "image/svg+xml"]],
