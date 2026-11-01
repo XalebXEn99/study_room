@@ -107,6 +107,35 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
   };
 }
 
+test("the current reader has no Gemini UI, API-key handling or AI requests", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /Ask AI|Google Gemini|aistudio\.google\.com/);
+  assert.doesNotMatch(html, /\bid="(?:ai-[^"]+|api-key-input|save-api-key-btn|settings-saved-msg)"/);
+  assert.doesNotMatch(appSource, /generativelanguage|md-gemini-key|sendAiQuery|aiFloatBtn|apiKeyInput/);
+});
+
+test("settings retains the local text reverser and clears it on close", async () => {
+  const ui = fixture();
+  const modal = ui.element("settings-modal");
+  modal.classList.add("hidden");
+  await ui.element("settings-btn").emit("click");
+  assert.equal(modal.classList.contains("hidden"), false);
+  ui.element("reverse-input").value = "Study 123";
+  await ui.element("reverse-text-btn").emit("click");
+  assert.equal(ui.element("reverse-output").value, "321 ydutS");
+  await ui.element("settings-modal-close").emit("click");
+  assert.equal(modal.classList.contains("hidden"), true);
+  assert.equal(ui.element("reverse-input").value, "");
+  assert.equal(ui.element("reverse-output").value, "");
+  await ui.element("settings-btn").emit("click");
+  ui.element("reverse-input").value = "Temporary";
+  await ui.element("reverse-text-btn").emit("click");
+  await modal.emit("click", { target: modal });
+  assert.equal(modal.classList.contains("hidden"), true);
+  assert.equal(ui.element("reverse-input").value, "");
+  assert.equal(ui.element("reverse-output").value, "");
+});
+
 test("the empty starter stays out of collections; New and first typing create download-needed entries", async () => {
   const ui = fixture({}, { library: true });
   assert.equal(ui.documents.list().length, 0);

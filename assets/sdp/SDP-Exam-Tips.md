@@ -58,7 +58,7 @@ Open **[http://localhost:4173](http://localhost:4173)**. Keep the terminal open;
 - This serves the **same static HTML/CSS/JavaScript and bundled study files as GitHub Pages**, not a separate development build. No database, API key, `npm ci` or build is needed for the current study app. GitHub hosting remains static.
 - With the timer idle, click **Ready five times within two seconds** to reveal the maths notes, SDP tips and OS-book link. Click or drag a note into the editor; you can also browse local Markdown files.
 - Markdown, sanitisation, code-highlighting styles, maths/fonts and Mermaid are bundled in Git. Notes, themes, timer, checklist and bundled encouragement audio do not need a CDN once cloned.
-- **Not fully offline:** Google Fonts may fall back to installed fonts. Spotify, YouTube, Gemini, external links and the **OS-book ZIP hosted in GitHub Releases** still need their domains. The book is not in the clone; download it separately beforehand if permitted.
+- **Not fully offline:** Google Fonts may fall back to installed fonts. Spotify, YouTube, external links and the **OS-book ZIP hosted in GitHub Releases** still need their domains. The book is not in the clone; download it separately beforehand if permitted. Study Room's Gemini/Ask AI feature and API-key settings are removed from the current app.
 - The live site and localhost have separate browser storage. Download important drafts from the live site and reopen them locally; do not assume your tabs, checklist or settings transfer.
 - Test this workflow before the exam and use it only as permitted. Gitea's exam-time availability is not guaranteed. To update later: stop the server, run `git pull --ff-only` inside the checkout, then start it again.
 

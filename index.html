@@ -294,33 +294,6 @@
       <article id="markdown-output" class="markdown-body"></article>
     </div>
 
-    <!-- AI floating button (appears on text selection) -->
-    <button id="ai-float-btn" class="ai-float-btn hidden" title="Ask AI about selection">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-        <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
-        <line x1="10" y1="22" x2="14" y2="22"/>
-      </svg>
-      Ask AI
-    </button>
-
-    <!-- AI Modal -->
-    <div id="ai-modal" class="modal-overlay hidden">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>Ask AI</h3>
-          <button id="ai-modal-close" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div id="ai-selection-preview" class="ai-selection-preview"></div>
-          <div class="ai-input-row">
-            <input id="ai-question-input" type="text" placeholder="Ask a question about the selected text..." />
-            <button id="ai-send-btn" class="ai-send-btn">Send</button>
-          </div>
-          <div id="ai-response" class="ai-response hidden"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal-overlay hidden">
       <div class="modal">
@@ -329,14 +302,6 @@
           <button id="settings-modal-close" class="modal-close">&times;</button>
         </div>
         <div class="modal-body">
-          <label class="settings-label" for="api-key-input">Google Gemini API Key</label>
-          <p class="settings-hint">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></p>
-          <div class="ai-input-row">
-            <input id="api-key-input" type="password" placeholder="Paste your API key..." />
-            <button id="save-api-key-btn" class="ai-send-btn">Save</button>
-          </div>
-          <p id="settings-saved-msg" class="settings-saved hidden">Key saved.</p>
-          <hr class="settings-sep" />
           <label class="settings-label" for="reverse-input">Text reverser</label>
           <p class="settings-hint">Local utility only. Text is not saved or sent anywhere. Reversing text is not encryption.</p>
           <textarea id="reverse-input" class="settings-text" rows="3" placeholder="Text to reverse..." autocomplete="off" spellcheck="false"></textarea>

@@ -119,16 +119,6 @@
   var settingsBtn = document.getElementById("settings-btn");
   var settingsModal = document.getElementById("settings-modal");
   var settingsModalClose = document.getElementById("settings-modal-close");
-  var apiKeyInput = document.getElementById("api-key-input");
-  var saveApiKeyBtn = document.getElementById("save-api-key-btn");
-  var settingsSavedMsg = document.getElementById("settings-saved-msg");
-  var aiFloatBtn = document.getElementById("ai-float-btn");
-  var aiModal = document.getElementById("ai-modal");
-  var aiModalClose = document.getElementById("ai-modal-close");
-  var aiSelectionPreview = document.getElementById("ai-selection-preview");
-  var aiQuestionInput = document.getElementById("ai-question-input");
-  var aiSendBtn = document.getElementById("ai-send-btn");
-  var aiResponse = document.getElementById("ai-response");
   var hljsLink = document.getElementById("hljs-theme");
   var addTabBtn = document.getElementById("add-tab-btn");
   var fileInput2 = document.getElementById("file-input-2");
@@ -145,7 +135,6 @@
 
   var files = [];
   var activeFileId = null;
-  var selectedText = "";
   var nextId = 1;
   var isEditing = false;      // editor mode for the active tab (transient UI state)
   var saveTimer = null;
@@ -494,133 +483,8 @@
     reader.readAsText(file);
   }
 
-  // ===== AI: text selection =====
-  document.addEventListener("mouseup", function (e) {
-    setTimeout(function () {
-      var sel = window.getSelection();
-      var text = sel ? sel.toString().trim() : "";
-      if (text.length > 2 && isInsideMarkdown(sel)) {
-        selectedText = text;
-        positionAiButton(e);
-        aiFloatBtn.classList.remove("hidden");
-      } else {
-        aiFloatBtn.classList.add("hidden");
-      }
-    }, 10);
-  });
-
-  function isInsideMarkdown(sel) {
-    if (!sel || !sel.anchorNode) return false;
-    var node = sel.anchorNode;
-    while (node) {
-      if (node.classList && node.classList.contains("markdown-body")) return true;
-      node = node.parentNode;
-    }
-    return false;
-  }
-
-  function positionAiButton(e) {
-    var sel = window.getSelection();
-    var rect = (sel && sel.rangeCount) ? sel.getRangeAt(0).getBoundingClientRect() : null;
-    var btnW = aiFloatBtn.offsetWidth || 110;
-    var btnH = aiFloatBtn.offsetHeight || 32;
-    var x, y;
-    if (rect && rect.width) {
-      // Sit just below the highlight: the browser's native selection flyout
-      // rides over the TOP edge, so staying underneath keeps this button clear.
-      x = rect.left;
-      y = rect.bottom + 8;
-      if (x + btnW > window.innerWidth) x = window.innerWidth - btnW - 8;
-      if (y + btnH > window.innerHeight) y = rect.top - btnH - 8;
-    } else {
-      x = e.clientX + 10;
-      y = e.clientY + 15;
-    }
-    if (x < 8) x = 8;
-    if (y < 8) y = 8;
-    aiFloatBtn.style.left = x + "px";
-    aiFloatBtn.style.top = y + "px";
-  }
-
-  // ===== AI: modal =====
-  aiFloatBtn.addEventListener("click", function () {
-    aiFloatBtn.classList.add("hidden");
-    aiSelectionPreview.textContent = selectedText.length > 300
-      ? selectedText.substring(0, 300) + "..." : selectedText;
-    aiQuestionInput.value = "";
-    aiResponse.className = "ai-response hidden";
-    aiModal.classList.remove("hidden");
-    setTimeout(function () { aiQuestionInput.focus(); }, 100);
-  });
-
-  aiModalClose.addEventListener("click", function () {
-    aiModal.classList.add("hidden");
-  });
-  aiModal.addEventListener("click", function (e) {
-    if (e.target === aiModal) aiModal.classList.add("hidden");
-  });
-
-  aiSendBtn.addEventListener("click", sendAiQuery);
-  aiQuestionInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") sendAiQuery();
-  });
-
-  function sendAiQuery() {
-    var question = aiQuestionInput.value.trim();
-    if (!question) return;
-    var apiKey = "";
-    try { apiKey = localStorage.getItem("md-gemini-key") || ""; } catch (e) {}
-    if (!apiKey) {
-      aiResponse.textContent = "No API key set. Click the gear icon to add your free Gemini API key.";
-      aiResponse.className = "ai-response error";
-      aiResponse.classList.remove("hidden");
-      return;
-    }
-    aiResponse.textContent = "Thinking...";
-    aiResponse.className = "ai-response loading";
-    aiResponse.classList.remove("hidden");
-    aiSendBtn.disabled = true;
-
-    var prompt = "You are a helpful assistant. The user has selected the following text from a Markdown document:\n\n---\n" +
-      selectedText + "\n---\n\nThe user's question: " + question +
-      "\n\nAnswer concisely and helpfully.";
-
-    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + apiKey;
-    fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
-      })
-    })
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-      aiSendBtn.disabled = false;
-      if (data.error) {
-        aiResponse.textContent = "Error: " + data.error.message;
-        aiResponse.className = "ai-response error";
-      } else if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        aiResponse.textContent = data.candidates[0].content.parts[0].text;
-        aiResponse.className = "ai-response";
-      } else {
-        aiResponse.textContent = "No response from API.";
-        aiResponse.className = "ai-response error";
-      }
-      aiResponse.classList.remove("hidden");
-    })
-    .catch(function (err) {
-      aiSendBtn.disabled = false;
-      aiResponse.textContent = "Request failed: " + err.message;
-      aiResponse.className = "ai-response error";
-      aiResponse.classList.remove("hidden");
-    });
-  }
-
   // ===== Settings =====
   settingsBtn.addEventListener("click", function () {
-    try { apiKeyInput.value = localStorage.getItem("md-gemini-key") || ""; } catch (e) {}
-    settingsSavedMsg.classList.add("hidden");
     settingsModal.classList.remove("hidden");
   });
   settingsModalClose.addEventListener("click", function () {
@@ -628,12 +492,6 @@
   });
   settingsModal.addEventListener("click", function (e) {
     if (e.target === settingsModal) settingsModal.classList.add("hidden");
-  });
-  saveApiKeyBtn.addEventListener("click", function () {
-    var key = apiKeyInput.value.trim();
-    try { localStorage.setItem("md-gemini-key", key); } catch (e) {}
-    settingsSavedMsg.classList.remove("hidden");
-    setTimeout(function () { settingsSavedMsg.classList.add("hidden"); }, 2000);
   });
   document.getElementById("reverse-text-btn").addEventListener("click", function () {
     document.getElementById("reverse-output").value = Array.from(document.getElementById("reverse-input").value).reverse().join("");

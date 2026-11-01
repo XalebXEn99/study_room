@@ -1,6 +1,6 @@
 # Study Room
 
-A browser-based study room with a Markdown reader, multiple themes, multi-file tabs, dedicated media panels, and AI-powered text analysis.
+A browser-based study room with a Markdown reader, multiple themes, multi-file tabs, dedicated media panels, and study tools.
 
 Live at: **https://xalebxen99.github.io/study_room/**
 
@@ -119,7 +119,7 @@ Core reader libraries, syntax themes, KaTeX fonts, notes, artwork and
 encouragement audio are checked into Git. Markdown rendering, sanitisation,
 maths, diagrams, themes, the timer and checklist work without external CDNs.
 **External features still need network access:** Google Fonts may fall back
-to installed fonts; Spotify, YouTube, Gemini and external links require their
+to installed fonts; Spotify, YouTube and external links require their
 services. The OS-book ZIP is a GitHub Release asset, **not part of the clone**;
 download it separately beforehand if permitted. Test the local copy before
 the exam and follow the exam's rules; Gitea availability is not guaranteed.
@@ -159,7 +159,6 @@ does **not** require running this download command.
 - **Icon-only media buttons** -- Music and YouTube use compact corner icons with accessible labels and tooltips. While Spotify reports active playback, an animated equalizer replaces the music icon and appears beside the track title in the open player. It stops on pause, playback loss/errors or logout; reduced-motion users get a static indicator. This is a playback indicator, not an audio-frequency visualizer.
 - **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 22 styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora, Handwritten, **Cityscape** and **90s Anime**. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
   - Visual references: [Kittl's design-style guide](https://www.kittl.com/blogs/design-styles-name-stl/) and [Nielsen Norman Group on glassmorphism](https://www.nngroup.com/articles/glassmorphism/). Decorative typography stays in headings, source code and maths retain their own fonts, and backgrounds do not move the study layout.
-- **AI Text Analysis** -- Highlight any text in the rendered Markdown and click "Ask AI" to ask questions about the selection (powered by Google Gemini)
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
 - **Syntax Highlighting** -- Code blocks are highlighted with highlight.js, theme-matched
 - **Client-Side Workspace** -- Markdown, study files, the timer, checklist and music players run in your browser.
@@ -212,14 +211,16 @@ that move the fixed media players or floating timer. Cityscape preserves the
 previous pastel SVG theme separately. Existing saved 90s Anime selections now
 use this rebuilt design without changing document content.
 
-## AI Setup
+## Archived AI feature
 
-The AI feature uses the Google Gemini API (free tier).
+The Gemini integration, Ask AI interface and Google API-key settings are removed
+from the live site and the Gitea study copy. The current app does not read or
+save Gemini keys or send requests to Google's AI API.
 
-1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-2. Generate a free API key
-3. Click the gear icon in the app and paste your key
-4. The key is stored in your browser's localStorage only
+The previous implementation is preserved on GitHub's
+[archive/gemini-ai branch](https://github.com/XalebXEn99/study_room/tree/archive/gemini-ai).
+It is a source archive, not an enabled feature of the current app. Use the
+current `main` branch for studying and follow the exam's permitted-tool rules.
 
 ## Usage
 
@@ -228,7 +229,6 @@ The AI feature uses the Google Gemini API (free tier).
 3. The file renders with full GitHub-style Markdown formatting
 4. Use the theme dropdown (top right) to switch visual themes
 5. Open additional files with the + button next to your tabs
-6. Highlight text in any rendered file and click "Ask AI" to query it
 
 ## Study library and downloads
 
@@ -253,11 +253,9 @@ together. The local packaging copy `assets/os-book.zip` is intentionally ignored
 by Git. SHA-256:
 `72b447f2cd1c192f2ea15f4cb0d1590f92c6b5f40c971b15c67e4ad41596f8a8`.
 
-No Google Drive credentials or authorization are required. The existing Gemini
-key setting is browser-local only; never commit API keys, including reversed
-or otherwise encoded copies. Settings also has a standalone text reverser.
-Its input/output are not persisted or sent anywhere and are cleared on closing
-Settings. Reversing text is not encryption and is not connected to API-key entry.
+No Google Drive credentials or authorization are required. Settings has a
+standalone text reverser. Its input/output are not persisted or sent anywhere
+and are cleared on closing Settings. Reversing text is not encryption.
 
 ## Timer
 
@@ -298,7 +296,6 @@ See [ElevenLabs' publication terms](https://elevenlabs.io/docs/help-center/legal
 - [KaTeX](https://katex.org/) -- LaTeX math rendering
 - [DOMPurify](https://github.com/cure53/DOMPurify) -- Sanitize imported Markdown output
 - [Google Fonts](https://fonts.google.com/) -- Orbitron, Press Start 2P, Outfit, Lora, Inter
-- Google Gemini API -- AI text analysis
 
 ## Archived movie feature
 
