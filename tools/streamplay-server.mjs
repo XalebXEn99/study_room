@@ -15,6 +15,7 @@ const FILES = new Map([
   ...["app.js", "spotify.js", "youtube.js", "library.js", "study-data.js", "timer.js", "timer-state.js"].map(name => ["/" + name, [name, "text/javascript"]]),
   ...STUDY_NOTES.map(note => ["/" + note.url, [note.url, "text/markdown; charset=utf-8"]]),
   ["/style.css", ["style.css", "text/css"]],
+  ["/graphic-design.css", ["graphic-design.css", "text/css"]],
   ["/hls.min.js", ["node_modules\\hls.js\\dist\\hls.min.js", "text/javascript"]]
 ]);
 const SINTEL = {

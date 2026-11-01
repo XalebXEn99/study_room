@@ -33,6 +33,11 @@ test("serves the real application and exposes explicit search setup status", asy
   assert.doesNotMatch(html, /streamplay-(?:panel|dialog)|streamplay\.(?:js|css)/);
   assert.equal((await get("/streamplay.js")).status, 404);
   assert.equal((await get("/streamplay.css")).status, 404);
+  assert.match(html, /href="graphic-design\.css"/);
+  const graphicStyles = await get("/graphic-design.css");
+  assert.equal(graphicStyles.status, 200);
+  assert.match(graphicStyles.headers.get("content-type"), /text\/css/);
+  assert.match(await graphicStyles.text(), /data-theme="gd-handwritten"/);
   for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js"]) {
     const asset = await get(path);
     assert.equal(asset.status, 200);

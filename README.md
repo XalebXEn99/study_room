@@ -15,11 +15,8 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Compact players** -- Music and YouTube switch to player-only views after media loads. The up arrow expands settings; the down arrow returns to the player. Minus minimises to the corner button without unloading media. With nothing loaded, opening a player shows its setup controls.
-- **Themes** -- Switch between four visual themes via the dropdown in the top right:
-  - **Default** -- Clean GitHub-style white theme
-  - **Sci-Fi** -- Dark navy with neon cyan accents and glowing effects
-  - **Pixel Art** -- Retro 8-bit aesthetic with pixel fonts and chunky borders
-  - **Office** -- Warm paper tones with serif fonts, like writing on quality paper
+- **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 20 new styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora and Handwritten. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
+  - Visual references: [Kittl's design-style guide](https://www.kittl.com/blogs/design-styles-name-stl/) and [Nielsen Norman Group on glassmorphism](https://www.nngroup.com/articles/glassmorphism/). Decorative typography stays in headings, source code and maths retain their own fonts, and backgrounds do not move the study layout.
 - **AI Text Analysis** -- Highlight any text in the rendered Markdown and click "Ask AI" to ask questions about the selection (powered by Google Gemini)
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
 - **Syntax Highlighting** -- Code blocks are highlighted with highlight.js, theme-matched

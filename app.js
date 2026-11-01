@@ -300,6 +300,34 @@
     "pixel": "#f7d54a", "terminal": "#33ff66", "gameboy": "#0f3e1e"
   };
 
+  var graphicThemes = {
+    "gd-minimalism": { accent: "#292929", dark: false },
+    "gd-maximalism": { accent: "#a51b61", dark: false },
+    "gd-futuristic": { accent: "#03658c", dark: false },
+    "gd-vector-art": { accent: "#2449a6", dark: false },
+    "gd-collage-art": { accent: "#9b3431", dark: false },
+    "gd-retro": { accent: "#8e3b23", dark: false },
+    "gd-cyberpunk": { accent: "#49f4e3", dark: true },
+    "gd-pop-art": { accent: "#ab164e", dark: false },
+    "gd-glassmorphism": { accent: "#a5dcff", dark: true },
+    "gd-clay": { accent: "#793d61", dark: false },
+    "gd-pixel-art": { accent: "#ffe474", dark: true },
+    "gd-editorial": { accent: "#8c292b", dark: false },
+    "gd-y2k": { accent: "#57328e", dark: false },
+    "gd-swiss": { accent: "#b3261e", dark: false },
+    "gd-surreal": { accent: "#6d3983", dark: false },
+    "gd-bohemian": { accent: "#854728", dark: false },
+    "gd-victorian": { accent: "#70253e", dark: false },
+    "gd-graffiti": { accent: "#c5ff57", dark: true },
+    "gd-aurora": { accent: "#78efcf", dark: true },
+    "gd-handwritten": { accent: "#28518d", dark: false }
+  };
+  Object.keys(graphicThemes).forEach(function (theme) {
+    var config = graphicThemes[theme];
+    hljsThemes[theme] = config.dark ? hljsThemes.dracula : hljsThemes.default;
+    mermaidThemes[theme] = config.dark ? "dark" : "default";
+    themeAccents[theme] = config.accent;
+  });
   var validThemes = Object.keys(hljsThemes);
   var lastAppliedTheme = "default";
 
@@ -324,6 +352,7 @@
     if (validThemes.indexOf(theme) === -1) theme = "default";
     lastAppliedTheme = theme;
     document.body.setAttribute("data-theme", theme);
+    document.body.setAttribute("data-theme-family", graphicThemes[theme] ? "graphic-design" : "legacy");
     hljsLink.href = hljsThemes[theme];
     themeOptions.forEach(function (btn) {
       btn.classList.toggle("active", btn.getAttribute("data-theme") === theme);
@@ -357,7 +386,19 @@
     e.stopPropagation();
     themeMenu.classList.toggle("hidden");
     // Re-sync: the active theme's group is always expanded when opening
-    if (!themeMenu.classList.contains("hidden")) updateGroupStates(lastAppliedTheme);
+    if (!themeMenu.classList.contains("hidden")) {
+      updateGroupStates(lastAppliedTheme);
+      document.querySelectorAll(".theme-family").forEach(function (family) { family.open = false; });
+    }
+  });
+
+  document.querySelectorAll(".theme-family").forEach(function (family) {
+    family.addEventListener("toggle", function () {
+      if (!family.open) return;
+      document.querySelectorAll(".theme-family").forEach(function (other) {
+        if (other !== family) other.open = false;
+      });
+    });
   });
 
   document.querySelectorAll(".theme-group-header").forEach(function (header) {
