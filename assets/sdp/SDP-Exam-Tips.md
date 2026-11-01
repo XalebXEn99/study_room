@@ -1,6 +1,6 @@
 # SDP Exam Tips
 
-Design resources, security checks for AI-assisted coding, and revision notes for the Guestbook containerisation lab.
+Exam-day workflow, design resources, security checks for AI-assisted coding, and revision notes for the Guestbook containerisation lab.
 
 ## Useful websites
 
@@ -12,6 +12,34 @@ Design resources, security checks for AI-assisted coding, and revision notes for
 | Theatre.js | [theatrejs.com](https://www.theatrejs.com/) | Visual animation sequencing for JavaScript, from UI interactions to 3D scenes. |
 
 Use inspiration to guide your own work. Check licences before reusing assets or components, and understand generated code before shipping it. Do not upload private code, personal data or credentials to a service without permission.
+
+## Exam-day plan and workflow
+
+### Know the schedule and rules
+
+- The exam runs from **08:00 to 17:00**: 30 minutes of planning, 7.5 hours of programming and a one-hour lunch. Planning is part of the exam time, not extra time, and **you may not code during those 30 minutes**.
+- Arrive at least **15 minutes early** so you can get set up. Phones and earphones are allowed.
+- You may leave briefly, but stay within the MSL courtyard: do not go past the stairs toward the Tower of Light or up to the ARM building.
+
+### Plan for the available tools
+
+- Decide on a preferred language, framework and database before exam day. Python, JavaScript and Java, their well-known frameworks, Docker and popular databases are available, but the firewall may limit documentation or other sites.
+- Check the exam's domain list. If a site or part of your preferred stack is unavailable, switch to a familiar fallback instead of spending valuable time trying to work around the restriction.
+- Qoder is the tool to count on. Gemini or Google AI search may work, but access is not guaranteed; verify suggestions and make sure you can keep working without them.
+- Prepare any permitted notes, skills or techniques in advance and upload them through Moodle. Write down the plugins and environment customisations you want, and get comfortable with them before the exam.
+
+### Use the planning time well
+
+- Read the requirements carefully and turn them into a short, prioritised checklist. Identify the core user journey, data model, key screens or endpoints, and how you will test each requirement.
+- Sketch the first end-to-end version and note any risky unknowns to investigate using the allowed sites. Keep the plan realistic, with time reserved for testing and submission.
+- Spend two minutes settling in before you start coding. A calm start is worth more than rushing into the first implementation.
+
+### Keep the work safe and usable
+
+- Set up Git at the beginning. Make small commits as the app takes shape, push regularly (about once an hour), and check that pushes succeed so a last-minute network or authentication problem does not catch you out.
+- Every hour or so, use the app from beginning to end as a user would. Check that the main workflow works, fix the most important issue, and decide what to tackle next.
+- Give the interface a deliberate visual direction. Choose a colour and an architectural or visual style, and gather a few references beforehand. Review AI-generated UI instead of accepting familiar defaults such as purple gradients, glass effects and rounded cards everywhere.
+- Use downtime to explore the application, test edge cases and plan the next component in more detail. Leave enough time at the end to check the required workflow and confirm your latest work is pushed.
 
 ## Security checklist for AI-assisted coding
 
