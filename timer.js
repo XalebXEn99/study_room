@@ -8,6 +8,18 @@ const leftRail = document.querySelector(".left-rail");
 const panel = document.querySelector(".timer-panel");
 const floating = $("timer-floating");
 let state = newTimer(25 * 60 * 1000);
+let readyClicks = [];
+
+$("timer-status").addEventListener("click", () => {
+  if (state.status !== "idle" || $("timer-status").textContent !== "Ready") return;
+  const now = Date.now();
+  readyClicks = readyClicks.filter(time => now - time <= 2000);
+  readyClicks.push(now);
+  if (readyClicks.length >= 5) {
+    readyClicks = [];
+    window.dispatchEvent(new Event("study-room-reveal-bundled"));
+  }
+});
 
 new IntersectionObserver(([entry]) => {
   floating.classList.toggle("hidden", entry.isIntersecting && entry.intersectionRatio >= 1);
@@ -28,8 +40,10 @@ new ResizeObserver(matchColumnHeight).observe(leftRail);
 matchColumnHeight();
 
 function message(text, error = false) {
+  readyClicks = [];
   $("timer-status").textContent = text;
   $("timer-status").classList.toggle("error", error);
+  $("timer-status").disabled = state.status !== "idle" || text !== "Ready" || error;
 }
 
 function persist() {

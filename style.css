@@ -68,6 +68,13 @@ a:hover { text-decoration: underline; }
 .library-panel button:hover:not(:disabled), .library-drop:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
 .library-files { list-style: none; max-height: 300px; overflow-y: auto; margin-block: 0.5rem; }
 .library-file { display: block; width: 100%; text-align: left; padding: 0.5rem; font: inherit; font-size: 0.76rem; color: inherit; border: 0; border-radius: 6px; background: transparent; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: grab; }
+.library-row { display: flex; align-items: center; gap: 0.2rem; min-width: 0; }
+.library-row .library-file { flex: 1; min-width: 0; }
+.library-file[aria-current="true"] { background: color-mix(in srgb, var(--sp-accent, #0969da) 10%, transparent); }
+.library-unsaved { display: inline-flex; flex-shrink: 0; color: var(--sp-accent, #0969da); }
+.library-action { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0.4rem; border: 0; border-radius: 4px; color: inherit; background: transparent; cursor: pointer; }
+.library-rename-form { display: flex; align-items: center; gap: 0.2rem; min-width: 0; width: 100%; padding-block: 0.25rem; }
+.library-rename-input { min-width: 0; flex: 1; padding: 0.4rem; color: inherit; background: var(--sp-surface, #fff); border: 1px solid var(--sp-accent, #0969da); border-radius: 4px; font: inherit; font-size: 0.76rem; }
 .library-drop { display: block; text-align: center; padding: 0.85rem 0.35rem; margin-top: 0.8rem; border: 1px dashed var(--sp-border, #d0d7de); border-radius: var(--sp-radius, 6px); cursor: pointer; }
 .library-drop span { font-size: 0.7rem; opacity: 0.7; }
 .library-drag-over { outline: 2px dashed var(--sp-accent, #0969da); outline-offset: -3px; }
@@ -87,6 +94,8 @@ a:hover { text-decoration: underline; }
 .timer-panel h2, .checklist-panel h2 { font-size: 0.82rem; }
 .timer-header { display: flex; align-items: start; justify-content: space-between; gap: 0.5rem; }
 .timer-header .library-status { margin: 0; max-width: 55%; text-align: right; font-size: 0.7rem; }
+.timer-status { color: inherit; background: transparent; border: 0; padding: 0; font: inherit; text-align: inherit; cursor: pointer; }
+.timer-panel .timer-status:disabled { opacity: 1; cursor: default; }
 .timer-readout { display: flex; flex: 1; flex-direction: column; justify-content: center; padding: 1.5rem 0; }
 .timer-display { display: block; font-family: ui-monospace, Consolas, monospace; font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; margin: 0.65rem 0; line-height: 1.3; }
 .timer-technique { min-height: 3.1em; font-size: 0.75rem; line-height: 1.55; text-align: center; opacity: 0.7; }

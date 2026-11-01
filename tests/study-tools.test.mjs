@@ -61,7 +61,10 @@ function fixture(t, saved = {}, overrides = {}) {
   };
   const globals = {
     document,
-    window: { addEventListener() {}, matchMedia: () => ({ matches: false }) },
+    window: {
+      addEventListener() {}, matchMedia: () => ({ matches: false }),
+      dispatchEvent: event => node("window").emit(event.type)
+    },
     localStorage: {
       getItem: key => storage.get(key) ?? null,
       setItem: (key, value) => storage.set(key, value),
@@ -131,6 +134,41 @@ test("both timer displays stay synchronized through start, pause, resume, expiry
   assert.equal(ui.node("timer-finished").open, true);
   await ui.node("timer-reset").emit("click");
   check("0:10", "Ready");
+});
+
+test("only five Ready clicks within two seconds reveal bundled files; timer transitions reset the gesture", async t => {
+  const ui = fixture(t);
+  let reveals = 0;
+  ui.node("window").addEventListener("study-room-reveal-bundled", () => reveals++);
+  await import("../timer.js?ready-unlock");
+  const ready = ui.node("timer-status");
+  const click = () => ready.emit("click");
+  assert.equal(ready.disabled, false);
+  for (let i = 0; i < 4; i++) {
+    await click();
+    ui.clock.now += 700;
+  }
+  await click();
+  assert.equal(reveals, 0, "Slow clicks do not reveal the files.");
+  await ui.node("timer-reset").emit("click");
+  for (let i = 0; i < 4; i++) await click();
+  assert.equal(reveals, 0);
+  await click();
+  assert.equal(reveals, 1);
+  await ui.node("timer-form").emit("submit", { preventDefault() {} });
+  assert.equal(ready.disabled, true);
+  for (let i = 0; i < 7; i++) await click();
+  assert.equal(reveals, 1, "Running is not an unlock target.");
+  await ui.node("timer-pause").emit("click");
+  for (let i = 0; i < 7; i++) await click();
+  assert.equal(reveals, 1, "Paused is not an unlock target.");
+  await ui.node("timer-reset").emit("click");
+  for (let i = 0; i < 4; i++) await click();
+  await ui.node("preset-20").emit("click");
+  await click();
+  assert.equal(reveals, 1, "Changing the preset clears partial clicks.");
+  for (let i = 0; i < 4; i++) await click();
+  assert.equal(reveals, 2);
 });
 
 test("24 distinct encouragement clips contain playable MPEG data and publication attribution", async () => {

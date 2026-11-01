@@ -17,6 +17,10 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
 <body data-theme="default">
+  <div id="anime-background" class="anime-background" hidden aria-hidden="true">
+    <div class="anime-background-layer"></div>
+    <div class="anime-background-layer"></div>
+  </div>
   <div class="workspace">
   <aside class="workspace-rail left-rail" aria-label="Study files and media">
   <div class="site-brand" aria-label="Study Room">
@@ -36,16 +40,26 @@
       <span>Study files</span><span id="library-caret" aria-hidden="true">&#9662;</span>
     </button>
     <div id="library-body" class="library-body">
-      <h2 class="library-section-title">Maths exam</h2>
-      <ul id="library-notes" class="library-files" aria-label="Maths study notes"></ul>
-      <h2 class="library-section-title">SDP exam</h2>
-      <ul id="library-sdp-notes" class="library-files" aria-label="SDP study notes"></ul>
-      <h2 class="library-section-title">OS book</h2>
-      <a id="book-download" class="library-download" href="https://github.com/XalebXEn99/study_room/releases/download/study-resources-2026/os-book.zip">Download book ZIP (194 MB)</a>
       <label id="library-drop" class="library-drop" for="library-local-input" tabindex="0" role="button">
         Drop local Markdown here<br /><span>or browse files</span>
       </label>
       <input id="library-local-input" type="file" accept=".md,.markdown,.mdown,.mkd" multiple hidden />
+      <section id="library-uploads-section" hidden aria-labelledby="library-uploads-heading">
+        <h2 id="library-uploads-heading" class="library-section-title">Uploads</h2>
+        <ul id="library-uploads" class="library-files" aria-label="Uploaded Markdown files"></ul>
+      </section>
+      <section id="library-created-section" hidden aria-labelledby="library-created-heading">
+        <h2 id="library-created-heading" class="library-section-title">Created</h2>
+        <ul id="library-created" class="library-files" aria-label="Created Markdown files"></ul>
+      </section>
+      <div id="library-bundled" hidden>
+        <h2 class="library-section-title">Maths exam</h2>
+        <ul id="library-notes" class="library-files" aria-label="Maths study notes"></ul>
+        <h2 class="library-section-title">SDP exam</h2>
+        <ul id="library-sdp-notes" class="library-files" aria-label="SDP study notes"></ul>
+        <h2 class="library-section-title">OS book</h2>
+        <a id="book-download" class="library-download" href="https://github.com/XalebXEn99/study_room/releases/download/study-resources-2026/os-book.zip">Download book ZIP (194 MB)</a>
+      </div>
       <p id="library-status" class="library-status" role="status" aria-live="polite"></p>
     </div>
   </aside>
@@ -218,6 +232,12 @@
             <details class="theme-family" data-family="graphic-design">
               <summary>Graphic Design</summary>
               <div class="theme-family-items">
+                <div id="anime-background-controls" class="anime-background-controls" hidden role="group" aria-label="Anime background slideshow">
+                  <span id="anime-background-label">Crimson dusk</span>
+                  <button id="anime-background-pause" class="icon-btn" type="button" aria-label="Pause background slideshow" aria-pressed="false" title="Pause background slideshow"><span aria-hidden="true">&#9208;</span></button>
+                  <button id="anime-background-next" class="icon-btn" type="button" aria-label="Next background" title="Next background"><span aria-hidden="true">&#9197;</span></button>
+                  <p id="anime-background-status" class="library-status error" role="status"></p>
+                </div>
                 <button class="theme-option" data-theme="gd-minimalism"><span>Minimalism</span><span class="theme-check">✓</span></button>
                 <button class="theme-option" data-theme="gd-maximalism"><span>Maximalism</span><span class="theme-check">✓</span></button>
                 <button class="theme-option" data-theme="gd-futuristic"><span>Futuristic</span><span class="theme-check">✓</span></button>
@@ -238,6 +258,7 @@
                 <button class="theme-option" data-theme="gd-graffiti"><span>Graffiti</span><span class="theme-check">✓</span></button>
                 <button class="theme-option" data-theme="gd-aurora"><span>Aurora</span><span class="theme-check">✓</span></button>
                 <button class="theme-option" data-theme="gd-handwritten"><span>Handwritten</span><span class="theme-check">✓</span></button>
+                <button class="theme-option" data-theme="gd-cityscape"><span>Cityscape</span><span class="theme-check">✓</span></button>
                 <button class="theme-option" data-theme="gd-90s-anime"><span>90s Anime</span><span class="theme-check">✓</span></button>
               </div>
             </details>
@@ -418,7 +439,7 @@ graph TD; A-->B; B-->C;
   <section class="timer-panel" aria-labelledby="timer-heading">
     <div class="timer-header">
       <h2 id="timer-heading" tabindex="-1">Study timer</h2>
-      <p id="timer-status" class="library-status" role="status" aria-live="polite">Ready</p>
+      <p class="library-status" role="status" aria-live="polite"><button id="timer-status" class="timer-status" type="button">Ready</button></p>
     </div>
     <div class="timer-readout">
       <output id="timer-display" class="timer-display" aria-label="Time remaining">25:00</output>
@@ -481,6 +502,7 @@ graph TD; A-->B; B-->C;
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.17/dist/purify.min.js"></script>
   <script src="app.js"></script>
+  <script type="module" src="anime-background.js"></script>
   <script type="module" src="library.js"></script>
   <script type="module" src="timer.js"></script>
   <script type="module" src="motivation.js"></script>

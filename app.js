@@ -149,11 +149,33 @@
   var nextId = 1;
   var isEditing = false;      // editor mode for the active tab (transient UI state)
   var saveTimer = null;
+  var restoreFailed = false;
+
+  function needsDownload(f) {
+    return f.origin !== "starter" && (f.savedRaw !== f.raw || f.savedName !== f.name);
+  }
+
+  function notifyDocuments() {
+    window.dispatchEvent(new Event("study-room-documents-change"));
+  }
+
+  function updateSource(f, raw) {
+    if (f.origin === "starter" && raw !== f.raw) f.origin = "created";
+    f.raw = raw;
+  }
 
   function saveState() {
+    if (restoreFailed) {
+      document.getElementById("document-status").textContent = "Stored drafts could not be restored and have not been overwritten. Download this document to keep a copy.";
+      notifyDocuments();
+      return;
+    }
     try {
       localStorage.setItem("md-files", JSON.stringify(files.map(function (f) {
-        return { id: f.id, name: f.name, raw: f.raw, theme: f.theme, libraryId: f.libraryId };
+        return {
+          id: f.id, name: f.name, raw: f.raw, theme: f.theme, libraryId: f.libraryId,
+          origin: f.origin, closed: f.closed, savedRaw: f.savedRaw, savedName: f.savedName
+        };
       })));
       localStorage.setItem("md-active-id", String(activeFileId || ""));
       document.getElementById("document-status").textContent = "";
@@ -161,6 +183,7 @@
       console.error("Could not save local document drafts:", e);
       document.getElementById("document-status").textContent = "Local draft storage failed. Download your document to keep a copy.";
     }
+    notifyDocuments();
   }
 
   function loadState() {
@@ -168,7 +191,17 @@
       var raw = localStorage.getItem("md-files");
       if (raw) {
         var parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || !parsed.every(function (f) {
+          return f && Number.isSafeInteger(f.id) && f.id > 0 && typeof f.name === "string" && typeof f.raw === "string";
+        })) throw new Error("Invalid saved Markdown documents.");
         parsed.forEach(function (f) {
+          if (["starter", "created", "upload", "bundled"].indexOf(f.origin) === -1) {
+            f.origin = f.libraryId ? "bundled" : /^Untitled(?:\.md)?$/i.test(f.name) ? (f.raw ? "created" : "starter") : "upload";
+            // Older drafts have no original/download baseline; do not claim they are saved to disk.
+            f.savedRaw = null;
+            f.savedName = null;
+          }
+          f.closed = f.closed === true;
           f.html = renderMarkdown(f.raw);
           if (validThemes.indexOf(f.theme) === -1) f.theme = lastSavedGlobal;
           files.push(f);
@@ -177,16 +210,30 @@
       }
       var aid = localStorage.getItem("md-active-id");
       if (aid) activeFileId = parseInt(aid, 10);
-    } catch (e) {}
+      if (!getActiveFile()) {
+        var openFiles = files.filter(function (f) { return !f.closed; });
+        activeFileId = openFiles.length ? openFiles[openFiles.length - 1].id : null;
+      }
+    } catch (e) {
+      restoreFailed = true;
+      console.error("Could not restore local document drafts:", e);
+      document.getElementById("document-status").textContent = "Could not restore your local drafts.";
+    }
   }
 
-  function addFile(name, raw, libraryId) {
+  function addFile(name, raw, libraryId, origin) {
     flushActiveEdit();
     var id = nextId++;
     var html = renderMarkdown(raw);
     var active = getActiveFile();
     // New tabs inherit the active tab's theme; the first tab uses the last theme used
-    files.push({ id: id, name: name, raw: raw, html: html, theme: active ? active.theme : lastAppliedTheme, libraryId: libraryId });
+    origin = libraryId ? "bundled" : origin || "upload";
+    files.push({
+      id: id, name: name, raw: raw, html: html, theme: active ? active.theme : lastAppliedTheme,
+      libraryId: libraryId, origin: origin, closed: false,
+      savedRaw: origin === "upload" || origin === "bundled" ? raw : null,
+      savedName: origin === "upload" || origin === "bundled" ? name : null
+    });
     activeFileId = id;
     saveState();
     renderTabs();
@@ -196,9 +243,13 @@
 
   function removeFile(id) {
     flushActiveEdit();
-    files = files.filter(function (f) { return f.id !== id; });
+    var closing = files.find(function (f) { return f.id === id; });
+    if (!closing) return;
+    if (closing.origin === "starter") files = files.filter(function (f) { return f.id !== id; });
+    else closing.closed = true;
     if (activeFileId === id) {
-      activeFileId = files.length > 0 ? files[files.length - 1].id : null;
+      var openFiles = files.filter(function (f) { return !f.closed; });
+      activeFileId = openFiles.length > 0 ? openFiles[openFiles.length - 1].id : null;
     }
     saveState();
     renderTabs();
@@ -208,12 +259,15 @@
       showViewer();
     } else {
       applyTheme(lastAppliedTheme);
-      createDoc();
+      createDoc(true);
     }
   }
 
   function switchFile(id) {
+    var target = files.find(function (f) { return f.id === id; });
+    if (!target) throw new Error("This document is no longer available.");
     flushActiveEdit();
+    target.closed = false;
     activeFileId = id;
     saveState();
     var f = getActiveFile();
@@ -224,7 +278,7 @@
 
   function getActiveFile() {
     for (var i = 0; i < files.length; i++) {
-      if (files[i].id === activeFileId) return files[i];
+      if (files[i].id === activeFileId && !files[i].closed) return files[i];
     }
     return null;
   }
@@ -232,6 +286,7 @@
   function renderTabs() {
     tabBar.innerHTML = "";
     files.forEach(function (f) {
+      if (f.closed) return;
       var tab = document.createElement("button");
       tab.className = "tab" + (f.id === activeFileId ? " active" : "");
       tab.innerHTML = '<span class="tab-dot" style="background:' + (themeAccents[f.theme] || themeAccents["default"]) + '"></span>'
@@ -321,7 +376,8 @@
     "gd-graffiti": { accent: "#c5ff57", dark: true },
     "gd-aurora": { accent: "#78efcf", dark: true },
     "gd-handwritten": { accent: "#28518d", dark: false },
-    "gd-90s-anime": { accent: "#923252", dark: false }
+    "gd-cityscape": { accent: "#923252", dark: false },
+    "gd-90s-anime": { accent: "#e7b885", dark: true }
   };
   Object.keys(graphicThemes).forEach(function (theme) {
     var config = graphicThemes[theme];
@@ -425,8 +481,16 @@
   // ===== File upload =====
   function handleFile(file) {
     if (!file) return;
+    if (!/\.(md|markdown|mdown|mkd)$/i.test(file.name) || file.size > 5 * 1024 * 1024) {
+      document.getElementById("document-status").textContent = "Choose a Markdown file no larger than 5 MB.";
+      return;
+    }
     var reader = new FileReader();
     reader.onload = function (e) { addFile(file.name, e.target.result); };
+    reader.onerror = function () {
+      console.error("Could not read local Markdown:", reader.error);
+      document.getElementById("document-status").textContent = "Could not read " + file.name + ". Please retry.";
+    };
     reader.readAsText(file);
   }
 
@@ -601,7 +665,7 @@
     if (!isEditing) return;
     var f = getActiveFile();
     if (f) {
-      f.raw = editorInput.value;
+      updateSource(f, editorInput.value);
       f.html = renderMarkdown(f.raw);
       saveState();
     }
@@ -626,21 +690,39 @@
     // Only flush the textarea while actually editing; otherwise it may be
     // empty (e.g. right after a reload) and clicking Preview would wipe the doc.
     if (isEditing) {
-      f.raw = editorInput.value;
+      updateSource(f, editorInput.value);
       f.html = renderMarkdown(f.raw);
       saveState();
     }
     showViewer();
   }
 
-  function createDoc() {
-    addFile("Untitled.md", "");
+  function createDoc(starter) {
+    addFile("Untitled.md", "", null, starter === true ? "starter" : "created");
     enterEditor();
+  }
+
+  function renameDoc(id, name) {
+    var f = files.find(function (file) { return file.id === id; });
+    if (!f) throw new Error("This document is no longer available.");
+    var base = String(name).trim().replace(/\.(md|markdown|mdown|mkd)$/i, "").trim();
+    if (!base || base === "." || base === ".." || /[\\/:*?"<>|\x00-\x1f]/.test(base) || /[. ]$/.test(base) || base.length > 160 ||
+        /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(base)) {
+      throw new Error("Enter a filename of 1-160 characters without reserved names or characters.");
+    }
+    flushActiveEdit();
+    if (f.name === base + ".md") return;
+    f.name = base + ".md";
+    if (f.origin === "starter") f.origin = "created";
+    saveState();
+    renderTabs();
+    refreshEditorBar();
   }
 
   function downloadDoc() {
     var f = getActiveFile();
     if (!f) return;
+    flushActiveEdit();
     var src = isEditing ? editorInput.value : f.raw;
     var base = String(f.name || "document").replace(/\.md$/i, "").replace(/[\\/:*?"<>|]/g, "_");
     var blob = new Blob([src], { type: "text/markdown;charset=utf-8" });
@@ -651,13 +733,18 @@
     document.body.appendChild(a);
     a.click();
     a.remove();
+    if (f.origin === "starter") f.origin = "created";
+    f.savedRaw = src;
+    f.savedName = f.name;
+    saveState();
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
   editorInput.addEventListener("input", function () {
     var f = getActiveFile();
     if (!f || !isEditing) return;
-    f.raw = editorInput.value;
+    updateSource(f, editorInput.value);
+    notifyDocuments();
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
       f.html = renderMarkdown(f.raw);
@@ -760,7 +847,14 @@
       if (!f) return null;
       return { id: f.id, name: f.name, raw: f.raw, libraryId: f.libraryId };
     },
+    list: function () {
+      return files.filter(function (f) { return f.origin === "upload" || f.origin === "created"; }).map(function (f) {
+        return { id: f.id, name: f.name, origin: f.origin, needsDownload: needsDownload(f), active: f.id === activeFileId };
+      });
+    },
     open: addFile,
+    activate: switchFile,
+    rename: renameDoc,
     activateLibraryFile: function (id) {
       var existing = files.find(function (f) { return f.libraryId === id; });
       if (!existing) return false;
@@ -779,6 +873,6 @@
     showViewer();
     if (!initialFile.raw) enterEditor();
   } else {
-    createDoc();
+    createDoc(true);
   }
 })();

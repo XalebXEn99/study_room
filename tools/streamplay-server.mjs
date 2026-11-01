@@ -9,13 +9,15 @@ import { resolveVidlink } from "./streamplay-resolver.mjs";
 import { publicFetch, validatePublicUrl } from "./public-fetch.mjs";
 import { STUDY_NOTES } from "../study-data.js";
 import { MOTIVATION_QUOTES } from "../motivation-data.js";
+import { ANIME_BACKGROUNDS } from "../anime-background-data.js";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const FILES = new Map([
   ["/", ["index.html", "text/html"]],
-  ...["app.js", "spotify.js", "youtube.js", "library.js", "study-data.js", "timer.js", "timer-state.js", "motivation.js", "motivation-data.js"].map(name => ["/" + name, [name, "text/javascript"]]),
+  ...["app.js", "spotify.js", "youtube.js", "library.js", "study-data.js", "timer.js", "timer-state.js", "motivation.js", "motivation-data.js", "anime-background.js", "anime-background-data.js"].map(name => ["/" + name, [name, "text/javascript"]]),
   ...STUDY_NOTES.map(note => ["/" + note.url, [note.url, "text/markdown; charset=utf-8"]]),
   ...MOTIVATION_QUOTES.map(quote => ["/" + quote.audio, [quote.audio, "audio/mpeg"]]),
+  ...ANIME_BACKGROUNDS.map(scene => ["/" + scene.url, [join(...scene.url.split("/")), "image/png"]]),
   ["/style.css", ["style.css", "text/css"]],
   ["/graphic-design.css", ["graphic-design.css", "text/css"]],
   ["/assets/themes/90s-anime-sky.svg", [join("assets", "themes", "90s-anime-sky.svg"), "image/svg+xml"]],

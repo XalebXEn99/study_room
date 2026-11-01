@@ -10,14 +10,15 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Study quotes** -- 24 motivational messages rotate every 12 seconds above the timer in an italic serif font. Rotation pauses while the tab is hidden and never starts audio.
 - **Book encouragement** -- Click the book beside the logo for a comic-style speech bubble and a matching Sam Sumit - Calm & Friendly recording from ElevenLabs. One more works through a shuffled deck without repeating until all 24 messages have been shown. Replay voice repeats the current recording; Voice on/off is saved on this device. Closing the popup, pressing Escape or leaving the tab stops its voice.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
-- **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
-- **Study files** -- Seven maths exam notes and an SDP exam tips note can be clicked or dragged from the left panel into the editor. The SDP note includes design/development links, an AI security checklist, and a Docker lab revision guide. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
+- **Multi-file Tabs** -- Open multiple Markdown files at once and switch between them with tabs. Local collections and drafts persist in localStorage across refreshes. Closing a tab does not delete its collection item; click or drag it from Study files to reopen the same document. Storage failures are shown explicitly; unreadable stored drafts are not overwritten by a blank starter.
+- **Study files** -- Initially shows only the local Markdown drop/browse area. Uploaded files populate **Uploads**; New documents populate **Created**. The automatic blank starter appears in Created only after writing or renaming it. Use each row's pencil to rename a file (Enter confirms, Escape cancels); names retain a `.md` extension. A download icon marks created files and uploads changed from their original/last-downloaded content or filename. Untouched uploads have no icon. Download initiates a copy and clears the indicator; later changes restore it. Browser downloads cannot confirm that a copy was retained, and local autosave does not write to the original disk file. Older drafts without a known save baseline conservatively require a download.
+- **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal seven maths notes, the SDP exam tips note and the OS-book ZIP. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes development links, an AI security checklist and a Docker-lab revision guide.
 - **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- YouTube contains only the SDP - Software Development Party playlist; the earlier individual videos have been removed. The three Spotify playlists are unchanged. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Compact players** -- Music and YouTube switch to player-only views after media loads. The up arrow expands settings; the down arrow returns to the player. Minus minimises to the corner button without unloading media. With nothing loaded, opening a player shows its setup controls.
 - **Icon-only media buttons** -- Music and YouTube use compact corner icons with accessible labels and tooltips. While Spotify reports active playback, an animated equalizer replaces the music icon and appears beside the track title in the open player. It stops on pause, playback loss/errors or logout; reduced-motion users get a static indicator. This is a playback indicator, not an audio-frequency visualizer.
-- **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 21 styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora, Handwritten and **90s Anime**. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
+- **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 22 styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora, Handwritten, **Cityscape** and **90s Anime**. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
   - Visual references: [Kittl's design-style guide](https://www.kittl.com/blogs/design-styles-name-stl/) and [Nielsen Norman Group on glassmorphism](https://www.nngroup.com/articles/glassmorphism/). Decorative typography stays in headings, source code and maths retain their own fonts, and backgrounds do not move the study layout.
 - **AI Text Analysis** -- Highlight any text in the rendered Markdown and click "Ask AI" to ask questions about the selection (powered by Google Gemini)
 - **LaTeX Math** -- Inline `\( ... \)` / `$ ... $` and display `\[ ... \]` / `$$ ... $$` formulas render with KaTeX; code blocks are left alone
@@ -27,7 +28,7 @@ Live at: **https://xalebxen99.github.io/study_room/**
 
 For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
 
-### 90s Anime design research
+### Cityscape design research
 
 This theme is a quiet dusk interpretation of 1990s cel-animation craft, not a
 claim that every anime of the period used the same palette.
@@ -41,6 +42,36 @@ remain sharp on solid surfaces: there is no VHS distortion or scanline overlay
 on reading content. The SVG is original artwork, with no copied anime stills,
 logos or characters. The existing fixed players and floating timer keep their
 normal positions.
+
+### 90s Anime: action-animation backgrounds
+
+The rebuilt theme takes its harder-edged visual direction from the supplied
+Street Fighter II, Tekken, Landlock and Fatal Fury movie references, plus
+Hellsing (2001) and Devil May Cry (2007). The latter two are companion
+references, not 1990s productions. Reference checking included YouTube
+seek-preview scenes from the supplied playlist; full playback was unavailable
+in the embedded research browser.
+
+- [Discotek's Street Fighter II release](https://www.discotekmedia.com/street-fighter-ii-the-animated-movie-4k-ultra-hd-blu-ray-primary.htm)
+- [Discotek's Fatal Fury release](https://www.discotekmedia.com/fatal_fury_the_movie_blu_ray.htm)
+- [GONZO's original Hellsing page](https://www.gonzo.co.jp/works/hellsing/index.html)
+
+Four distinct, original AI-generated illustrations rotate through crimson-red
+harbour dusk, jade-green moonlit ruins, ochre-yellow cliffside light and
+cobalt-blue storm scenery. They emphasise hand-inked contours, angular faces
+and fabric folds, broad cel-like shadow planes and painted environments.
+No movie frames, franchise characters or logos are bundled.
+
+Backgrounds crossfade over 1.4 seconds every 45 seconds, only while **90s Anime**
+is selected and the tab is visible. Open Theme > Graphic Design for Pause
+and Next controls; manual Next also works while paused. Reduced motion disables
+automatic changes and fades, but still allows manual selection. Image failures
+stop automatic rotation, log an error and show a message in those controls.
+Solid warm-ink panels shift subtly with each scene's palette; text, maths and
+code stay sharp. There are no scanline overlays, content filters or transforms
+that move the fixed media players or floating timer. Cityscape preserves the
+previous pastel SVG theme separately. Existing saved 90s Anime selections now
+use this rebuilt design without changing document content.
 
 ## AI Setup
 

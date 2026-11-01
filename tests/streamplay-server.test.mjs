@@ -5,6 +5,7 @@ import { createBridge } from "../tools/streamplay-server.mjs";
 import { isPublicIpv4, validatePublicUrl } from "../tools/public-fetch.mjs";
 import { STUDY_NOTES } from "../study-data.js";
 import { MOTIVATION_QUOTES } from "../motivation-data.js";
+import { ANIME_BACKGROUNDS } from "../anime-background-data.js";
 
 async function bridge(t, settings = {}) {
   const server = createBridge({ tmdbToken: "", ...settings });
@@ -36,6 +37,9 @@ test("serves the real application and exposes explicit search setup status", asy
   assert.match(html, /id="timer-floating"/);
   assert.match(html, /id="motivation-dialog"/);
   assert.match(html, /data-family="graphic-design"[\s\S]*data-theme="gd-90s-anime"/);
+  assert.match(html, /data-theme="gd-cityscape"/);
+  assert.match(html, /id="anime-background"[^>]*hidden[^>]*aria-hidden="true"/);
+  assert.match(html, /type="module" src="anime-background\.js"/);
   assert.doesNotMatch(html, /streamplay-(?:panel|dialog)|streamplay\.(?:js|css)/);
   assert.equal((await get("/streamplay.js")).status, 404);
   assert.equal((await get("/streamplay.css")).status, 404);
@@ -46,12 +50,22 @@ test("serves the real application and exposes explicit search setup status", asy
   const css = await graphicStyles.text();
   assert.match(css, /data-theme="gd-handwritten"/);
   assert.match(css, /data-theme="gd-90s-anime"/);
+  assert.match(css, /data-theme="gd-cityscape"/);
   assert.match(css, /assets\/themes\/90s-anime-sky\.svg/);
   const animeSky = await get("/assets/themes/90s-anime-sky.svg");
   assert.equal(animeSky.status, 200);
   assert.match(animeSky.headers.get("content-type"), /image\/svg\+xml/);
   assert.match(await animeSky.text(), /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
-  for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js", "/motivation.js", "/motivation-data.js"]) {
+  for (const scene of ANIME_BACKGROUNDS) {
+    const image = await get("/" + scene.url);
+    assert.equal(image.status, 200);
+    assert.match(image.headers.get("content-type"), /image\/png/);
+    const bytes = Buffer.from(await image.arrayBuffer());
+    assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    assert.ok(bytes.readUInt32BE(16) >= 1400);
+    assert.ok(bytes.readUInt32BE(20) >= 700);
+  }
+  for (const path of ["/library.js", "/study-data.js", "/timer.js", "/timer-state.js", "/motivation.js", "/motivation-data.js", "/anime-background.js", "/anime-background-data.js"]) {
     const asset = await get(path);
     assert.equal(asset.status, 200);
     assert.match(asset.headers.get("content-type"), /javascript/);
