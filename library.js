@@ -52,6 +52,10 @@ async function openLocalFiles(files) {
   if (errors.length) message(errors.join(" "), true);
 }
 
+const noteLists = {
+  maths: $("library-notes"),
+  sdp: $("library-sdp-notes")
+};
 for (const note of STUDY_NOTES) {
   const item = document.createElement("li");
   const button = document.createElement("button");
@@ -66,7 +70,7 @@ for (const note of STUDY_NOTES) {
     event.dataTransfer.effectAllowed = "copy";
   });
   item.append(button);
-  $("library-notes").append(item);
+  noteLists[note.collection].append(item);
 }
 
 const book = $("book-download");

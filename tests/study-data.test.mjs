@@ -3,17 +3,35 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { STUDY_NOTES, BOOK_DOWNLOAD, YOUTUBE_COLLECTION, SPOTIFY_COLLECTION } from "../study-data.js";
 
-test("the seven study-note catalogue entries resolve to bundled Markdown", async () => {
-  assert.equal(STUDY_NOTES.length, 7);
-  assert.equal(new Set(STUDY_NOTES.map(note => note.id)).size, 7);
-  assert.equal(new Set(STUDY_NOTES.map(note => note.url)).size, 7);
+test("the maths and SDP catalogue entries resolve to bundled Markdown", async () => {
+  assert.equal(STUDY_NOTES.length, 8);
+  assert.equal(STUDY_NOTES.filter(note => note.collection === "maths").length, 7);
+  assert.equal(STUDY_NOTES.filter(note => note.collection === "sdp").length, 1);
+  assert.equal(new Set(STUDY_NOTES.map(note => note.id)).size, 8);
+  assert.equal(new Set(STUDY_NOTES.map(note => note.url)).size, 8);
   for (const note of STUDY_NOTES) {
+    assert.ok(["maths", "sdp"].includes(note.collection));
     assert.match(note.name, /\.md$/);
-    assert.equal(note.url, "assets/maths/" + note.name);
+    assert.equal(note.url, "assets/" + note.collection + "/" + note.name);
     const raw = await readFile(new URL("../" + note.url, import.meta.url), "utf8");
     assert.match(raw, /^#/);
     assert.ok(raw.length > 1000);
   }
+});
+
+test("SDP exam tips include the requested links and lab revision material without private paths or credentials", async () => {
+  const note = STUDY_NOTES.find(item => item.id === "sdp-exam-tips");
+  assert.ok(note);
+  const raw = await readFile(new URL("../" + note.url, import.meta.url), "utf8");
+  for (const url of ["https://sitereel.ai/", "https://manus.im/", "https://preline.co/", "https://www.theatrejs.com/"]) {
+    assert.ok(raw.includes(url), "Missing resource: " + url);
+  }
+  assert.match(raw, /^## Security checklist/m);
+  assert.match(raw, /^## Docker lab/m);
+  assert.match(raw, /service_healthy/);
+  assert.match(raw, /docker compose up --build -d/);
+  assert.doesNotMatch(raw, /C:\\Users\\/i);
+  assert.doesNotMatch(raw, /postgres(?:ql)?:\/\/[^/\s:]+:[^@\s]+@/i);
 });
 
 test("the book download is a complete ZIP release asset, not a local machine path", () => {

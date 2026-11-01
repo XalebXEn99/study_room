@@ -10,7 +10,7 @@ Live at: **https://xalebxen99.github.io/study_room/**
 - **Study quotes** -- Four motivational quotes rotate every 12 seconds above the timer in an italic serif font. Rotation pauses while the tab is hidden.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once, switch between them with tabs. Files persist in localStorage across page refreshes
-- **Study files** -- Seven bundled maths exam notes can be clicked or dragged from the left panel into the editor. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
+- **Study files** -- Seven maths exam notes and an SDP exam tips note can be clicked or dragged from the left panel into the editor. The SDP note includes design/development links, an AI security checklist, and a Docker lab revision guide. Edits are saved locally; download an edited Markdown copy to keep it. The OS book is available as a complete ZIP download.
 - **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- Choose from four saved YouTube videos and three Spotify playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
@@ -45,7 +45,10 @@ The AI feature uses the Google Gemini API (free tier).
 
 ## Study library and downloads
 
-The left panel contains the seven approved maths notes in `assets/maths/`.
+The left panel contains the seven approved maths notes in `assets/maths/`
+and [SDP exam tips](assets/sdp/SDP-Exam-Tips.md) in a separate SDP section.
+The SDP note summarises the supplied SvelteKit/PostgreSQL containerisation lab;
+the original lab files, credentials and private paths are not published.
 Click a note or drag it into the middle to open an editable tab. Reopening an
 already-open note switches to its existing draft without replacing edits.
 Drafts and their library associations survive reloads in this browser.

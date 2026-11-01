@@ -1,4 +1,4 @@
-export const STUDY_NOTES = [
+const mathsNotes = [
   { id: "study-plan", title: "Study plan", name: "Study-Plan.md" },
   { id: "teaching-notes", title: "Teaching notes", name: "Final-Exam-Teaching-Notes.md" },
   { id: "worked-examples", title: "Worked examples", name: "Final-Exam-Worked-Examples.md" },
@@ -6,7 +6,18 @@ export const STUDY_NOTES = [
   { id: "mock-memo-a", title: "Exam A memorandum", name: "Mock-Final-Exam-Memorandum.md" },
   { id: "mock-exam-b", title: "Mock final exam B", name: "Mock-Final-Exam-B.md" },
   { id: "mock-memo-b", title: "Exam B memorandum", name: "Mock-Final-Exam-B-Memorandum.md" }
-].map(note => ({ ...note, url: "assets/maths/" + note.name }));
+].map(note => ({ ...note, collection: "maths", url: "assets/maths/" + note.name }));
+
+export const STUDY_NOTES = [
+  ...mathsNotes,
+  {
+    id: "sdp-exam-tips",
+    title: "SDP exam tips",
+    name: "SDP-Exam-Tips.md",
+    collection: "sdp",
+    url: "assets/sdp/SDP-Exam-Tips.md"
+  }
+];
 
 export const BOOK_DOWNLOAD = {
   url: "https://github.com/XalebXEn99/study_room/releases/download/study-resources-2026/os-book.zip",

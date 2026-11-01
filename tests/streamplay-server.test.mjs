@@ -30,6 +30,8 @@ test("serves the real application and exposes explicit search setup status", asy
   const home = await get("/");
   const html = await home.text();
   assert.match(html, /checklist-panel/);
+  assert.match(html, /id="library-notes"[^>]*aria-label="Maths study notes"/);
+  assert.match(html, /id="library-sdp-notes"[^>]*aria-label="SDP study notes"/);
   assert.doesNotMatch(html, /streamplay-(?:panel|dialog)|streamplay\.(?:js|css)/);
   assert.equal((await get("/streamplay.js")).status, 404);
   assert.equal((await get("/streamplay.css")).status, 404);
