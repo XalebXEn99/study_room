@@ -132,6 +132,37 @@
     apiPlayer = null;
   }
 
+  function createFrame(target, src) {
+    var frame = target.document.createElement("iframe");
+    frame.src = src;
+    frame.title = "YouTube";
+    frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    return frame;
+  }
+
+  function playerContext(target) {
+    if (target === window) return Promise.resolve(window);
+    // YouTube rejects embeds without a Referer from PiP's about:blank document.
+    var host = createFrame(target, new URL("youtube-pip.html", window.location.href).href);
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        reject(new Error("The PiP player page timed out. Return to Study Room and reload the video."));
+      }, 20000);
+      readyTimer = timer;
+      host.addEventListener("load", function () {
+        clearTimeout(timer);
+        resolve(host.contentWindow);
+      }, { once: true });
+      host.addEventListener("error", function () {
+        clearTimeout(timer);
+        reject(new Error("The PiP player page could not load."));
+      }, { once: true });
+      frameWrap.append(host);
+    });
+  }
+
   function mountPlayer(target, snapshot) {
     destroyPlayer();
     transferState = snapshot;
@@ -144,51 +175,49 @@
       src.searchParams.set("start", String(Math.floor(snapshot.time)));
       src.searchParams.set("autoplay", snapshot.playing ? "1" : "0");
     }
-    var frame = target.document.createElement("iframe");
-    frame.src = src.href;
-    frame.title = "YouTube";
-    frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-    frame.allowFullscreen = true;
-    frame.referrerPolicy = "strict-origin-when-cross-origin";
-    frameWrap.append(frame);
     frameWrap.classList.remove("hidden");
     setCompact(true);
     updatePipControls();
     var current = generation;
-    loadPlayerApi(target).then(function (YT) {
+    playerContext(target).then(function (context) {
       if (current !== generation || target.closed) return;
-      readyTimer = setTimeout(function () {
-        if (current === generation && !apiReady) {
-          showError("PiP controls could not connect to YouTube. Check that YouTube is allowed, then reload the video.");
-        }
-      }, 20000);
-      apiPlayer = new YT.Player(frame, {
-        events: {
-          onReady: function (event) {
-            if (current !== generation) return;
-            clearTimeout(readyTimer);
-            apiReady = true;
-            if (snapshot) {
-              event.target.setVolume(snapshot.volume);
-              if (snapshot.muted) event.target.mute();
-              else event.target.unMute();
-              if (snapshot.list) {
-                var playlist = { list: snapshot.list, listType: "playlist", index: snapshot.index, startSeconds: snapshot.time };
-                if (snapshot.playing) event.target.loadPlaylist(playlist);
-                else event.target.cuePlaylist(playlist);
-              } else {
-                var video = { videoId: snapshot.videoId, startSeconds: snapshot.time };
-                if (snapshot.playing) event.target.loadVideoById(video);
-                else event.target.cueVideoById(video);
-              }
-            }
-          },
-          onError: function (event) {
-            if (current !== generation) return;
-            clearTimeout(readyTimer);
-            showError("YouTube playback error " + event.data + ". Try opening this video on YouTube.");
+      var frame = createFrame(context, src.href);
+      (context === window ? frameWrap : context.document.body).append(frame);
+      return loadPlayerApi(context).then(function (YT) {
+        if (current !== generation || target.closed) return;
+        readyTimer = setTimeout(function () {
+          if (current === generation && !apiReady) {
+            showError("PiP controls could not connect to YouTube. Check that YouTube is allowed, then reload the video.");
           }
-        }
+        }, 20000);
+        apiPlayer = new YT.Player(frame, {
+          events: {
+            onReady: function (event) {
+              if (current !== generation) return;
+              clearTimeout(readyTimer);
+              apiReady = true;
+              if (snapshot) {
+                event.target.setVolume(snapshot.volume);
+                if (snapshot.muted) event.target.mute();
+                else event.target.unMute();
+                if (snapshot.list) {
+                  var playlist = { list: snapshot.list, listType: "playlist", index: snapshot.index, startSeconds: snapshot.time };
+                  if (snapshot.playing) event.target.loadPlaylist(playlist);
+                  else event.target.cuePlaylist(playlist);
+                } else {
+                  var video = { videoId: snapshot.videoId, startSeconds: snapshot.time };
+                  if (snapshot.playing) event.target.loadVideoById(video);
+                  else event.target.cueVideoById(video);
+                }
+              }
+            },
+            onError: function (event) {
+              if (current !== generation) return;
+              clearTimeout(readyTimer);
+              showError("YouTube playback error " + event.data + ". Try opening this video on YouTube.");
+            }
+          }
+        });
       });
     }).catch(function (error) {
       if (current !== generation || target.closed) return;

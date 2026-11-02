@@ -6,7 +6,7 @@ import test from "node:test";
 const source = await readFile(new URL("../youtube.js", import.meta.url), "utf8");
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-function fixture({ supported = true, secure = true, requestError = null, withApi = true, autoReady = true } = {}) {
+function fixture({ supported = true, secure = true, requestError = null, withApi = true, autoReady = true, wrapperError = false, autoWrapperLoad = true } = {}) {
   const players = [];
   const windows = [];
   const requests = [];
@@ -52,6 +52,10 @@ function fixture({ supported = true, secure = true, requestError = null, withApi
           element.children.forEach(adopt);
         }
         adopt(child);
+        if (child.tagName === "IFRAME" && new URL(child.src).pathname.endsWith("/youtube-pip.html")) {
+          child.contentWindow = createWindow("pip-player", child.src);
+          if (autoWrapperLoad) queueMicrotask(() => child.emit(wrapperError ? "error" : "load"));
+        }
       },
       insertBefore(child, anchor) {
         child.remove();
@@ -71,8 +75,8 @@ function fixture({ supported = true, secure = true, requestError = null, withApi
     });
     return item;
   }
-  function createWindow(name) {
-    const window = events({ name, closed: false, location: { origin: "http://localhost:4173" }, isSecureContext: secure });
+  function createWindow(name, href = name === "pip" ? "about:blank" : "http://localhost:4173/") {
+    const window = events({ name, closed: false, location: { origin: "http://localhost:4173", href }, isSecureContext: secure });
     const elements = new Map();
     const document = {
       defaultView: window,
@@ -198,6 +202,12 @@ test("PiP transfers the playing playlist and restores its latest episode and pos
   assert.equal(ui.element("yt-pip-btn").textContent, "Return");
   assert.equal(ui.element("yt-pip-btn").attributes["aria-pressed"], "true");
   assert.equal(ui.element("yt-pip-status").classList.contains("hidden"), false);
+  const host = ui.element("yt-frame").children[0];
+  assert.equal(host.src, "http://localhost:4173/youtube-pip.html");
+  assert.equal(ui.players[1].window, host.contentWindow);
+  assert.equal(ui.players[1].frame.ownerDocument, host.contentWindow.document);
+  assert.equal(ui.players[1].frame.referrerPolicy, "strict-origin-when-cross-origin");
+  assert.match(host.allow, /autoplay/);
   assert.match(pip.document.head.children[0].textContent, /width:100%;height:100%/);
   assert.doesNotMatch(pip.document.head.children[0].textContent, /480px|300px/);
   assert.deepEqual(ui.players[1].calls[0], ["loadPlaylist", {
@@ -241,7 +251,8 @@ test("Stop closes PiP without recreating playback, and playlist changes target t
   await ui.element("yt-saved").emit("change");
   await flush();
   assert.equal(ui.windows.length, 1);
-  assert.equal(ui.players.at(-1).window, pip);
+  assert.equal(ui.players.at(-1).window, ui.element("yt-frame").children[0].contentWindow);
+  assert.equal(ui.element("yt-frame").ownerDocument, pip.document);
   assert.equal(new URL(ui.players.at(-1).frame.src).searchParams.get("list"), "PLanother");
   const count = ui.players.length;
   await ui.click("yt-clear-btn");
@@ -294,4 +305,38 @@ test("a Stop while the PiP window is opening cannot resurrect the cleared video"
   assert.equal(discarded.closed, true);
   assert.equal(ui.element("yt-frame").children.length, 0);
   assert.equal(ui.element("yt-pip-btn").classList.contains("hidden"), true);
+});
+
+test("PiP serves its player from the app's actual URL, including GitHub Pages subdirectories", async () => {
+  const ui = fixture();
+  ui.window.location.href = "https://xalebxen99.github.io/study_room/?theme=anime#notes";
+  await ui.load();
+  await ui.click("yt-pip-btn");
+  assert.equal(ui.element("yt-frame").children[0].src, "https://xalebxen99.github.io/study_room/youtube-pip.html");
+  assert.notEqual(ui.players[1].window.location.href, "about:blank");
+});
+
+test("PiP player-page failures are explicit and Return preserves the last playback position", async () => {
+  const ui = fixture({ wrapperError: true });
+  await ui.load("https://youtu.be/abcdefghijk");
+  ui.players[0].state.time = 48.5;
+  await ui.click("yt-pip-btn");
+  assert.match(ui.element("yt-error").textContent, /PiP player page could not load/);
+  assert.equal(ui.errors.length, 1);
+  assert.equal(ui.players.length, 1);
+  await ui.click("yt-pip-btn");
+  assert.equal(ui.windows[0].closed, true);
+  assert.deepEqual(ui.players[1].calls[0], ["loadVideoById", { videoId: "abcdefghijk", startSeconds: 48.5 }]);
+});
+
+test("late PiP player-page loads cannot restart playback after Stop", async () => {
+  const ui = fixture({ autoWrapperLoad: false });
+  await ui.load();
+  await ui.click("yt-pip-btn");
+  const host = ui.element("yt-frame").children[0];
+  await ui.click("yt-clear-btn");
+  await host.emit("load");
+  await flush();
+  assert.equal(ui.players.length, 1);
+  assert.equal(ui.element("yt-frame").children.length, 0);
 });

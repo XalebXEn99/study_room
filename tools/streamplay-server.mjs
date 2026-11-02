@@ -15,6 +15,7 @@ import readerAssets from "../assets/vendor/manifest.json" with { type: "json" };
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const FILES = new Map([
   ["/", ["index.html", "text/html"]],
+  ["/youtube-pip.html", ["youtube-pip.html", "text/html"]],
   ...["app.js", "spotify.js", "youtube.js", "library.js", "study-data.js", "timer.js", "timer-state.js", "motivation.js", "motivation-data.js", "anime-background.js", "anime-background-data.js"].map(name => ["/" + name, [name, "text/javascript"]]),
   ...STUDY_NOTES.map(note => ["/" + note.url, [note.url, "text/markdown; charset=utf-8"]]),
   ...MOTIVATION_QUOTES.map(quote => ["/" + quote.audio, [quote.audio, "audio/mpeg"]]),

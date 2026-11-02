@@ -184,6 +184,11 @@ Changing window contexts briefly reloads the iframe; this is not a seamless
 video-element transfer. Stop closes PiP and stops playback; minimising the
 main panel does not close the floating window.
 
+The pop-out loads a small player page from the same Study Room site rather
+than embedding YouTube directly in PiP's `about:blank` document. This preserves
+the HTTP referrer YouTube requires and prevents player configuration error 153.
+The player page is included in both the static site and local server.
+
 This needs **HTTPS or localhost**, internet access to YouTube and its IFrame
 API, and browser permission. No Google API key is needed. If the browser does
 not support Document PiP, or opening it is denied, the app shows an explicit

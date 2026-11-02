@@ -64,6 +64,17 @@ test("localhost serves the study app and permits only its own host and origin", 
   }
 });
 
+test("PiP serves a real same-origin player document with the required referrer policy", async t => {
+  const get = await bridge(t, {}, "localhost");
+  const response = await get("/youtube-pip.html");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type"), /text\/html/);
+  const html = await response.text();
+  assert.match(html, /<meta name="referrer" content="strict-origin-when-cross-origin">/);
+  assert.match(html, /iframe \{[^}]*width: 100%; height: 100%/);
+  assert.match(html, /<title>YouTube - Study Room<\/title>/);
+});
+
 test("the reader serves bundled libraries, theme styles and maths fonts without CDNs", async t => {
   const get = await bridge(t);
   const html = await (await get("/")).text();
