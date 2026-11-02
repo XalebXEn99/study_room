@@ -4,7 +4,6 @@ const $ = id => document.getElementById(id);
 const KEY = "study-room-timer";
 const dialog = $("timer-finished");
 const presets = Array.from(document.querySelectorAll(".timer-preset"));
-const leftRail = document.querySelector(".left-rail");
 const panel = document.querySelector(".timer-panel");
 const floating = $("timer-floating");
 let state = newTimer(25 * 60 * 1000);
@@ -31,13 +30,6 @@ floating.addEventListener("click", () => {
   });
   $("timer-heading").focus({ preventScroll: true });
 });
-
-function matchColumnHeight() {
-  const height = leftRail.getBoundingClientRect().bottom - $("library-panel").getBoundingClientRect().top;
-  panel.style.setProperty("--study-column-height", Math.ceil(height) + "px");
-}
-new ResizeObserver(matchColumnHeight).observe(leftRail);
-matchColumnHeight();
 
 function message(text, error = false) {
   readyClicks = [];

@@ -70,7 +70,6 @@ function fixture(t, saved = {}, overrides = {}) {
       setItem: (key, value) => storage.set(key, value),
       removeItem: key => storage.delete(key)
     },
-    ResizeObserver: class { observe() {} },
     IntersectionObserver: class {
       constructor(callback, options) { this.callback = callback; this.options = options; }
       observe(target) { observations.push({ callback: this.callback, target, options: this.options }); }
@@ -91,6 +90,21 @@ function fixture(t, saved = {}, overrides = {}) {
   t.mock.method(Date, "now", () => clock.now);
   return { node, intervals, observations, storage, played, clock, document };
 }
+
+test("the timer initializes independently of the left column without a height observer", async t => {
+  const ui = fixture(t);
+  t.mock.method(ui.document, "querySelector", selector => {
+    assert.notEqual(selector, ".left-rail", "The timer must not depend on the left column.");
+    return ui.node(selector);
+  });
+  t.mock.method(ui.document, "getElementById", id => {
+    assert.notEqual(id, "library-panel", "The timer must not measure the study library.");
+    return ui.node(id);
+  });
+  await import("../timer.js?independent-height");
+  assert.equal(ui.node("timer-display").textContent, "25:00");
+  assert.equal(ui.node("timer-status").textContent, "Ready");
+});
 
 test("the floating timer follows readout visibility and links back to the controls", async t => {
   const ui = fixture(t);

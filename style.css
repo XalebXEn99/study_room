@@ -108,9 +108,6 @@ a:hover { text-decoration: underline; }
 .timer-preset small { font-size: 0.65rem; opacity: 0.65; }
 .timer-preset[aria-pressed="true"] { border-color: var(--sp-accent); background: color-mix(in srgb, var(--sp-accent) 8%, var(--sp-surface)); }
 .timer-preset:hover:not(:disabled) { border-color: var(--sp-accent); }
-@media (min-width: 1101px) {
-  .timer-panel { min-height: var(--study-column-height, 500px); }
-}
 .timer-fields, .timer-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
 .timer-fields label { flex: 1; min-width: 0; font-size: 0.72rem; }
 .timer-fields input, .timer-actions button, .saved-media select { width: 100%; min-width: 0; font: inherit; padding: 0.45rem; color: var(--sp-text); background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: 6px; }
