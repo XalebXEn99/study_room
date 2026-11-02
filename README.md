@@ -154,7 +154,7 @@ does **not** require running this download command.
 - **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal eight maths notes, the SDP exam tips note and the OS-book ZIP link. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes stack/database choices, local setup instructions, a short safety checklist and Docker essentials.
 - **Study timer** -- Matches the left-hand panels' combined height on desktop, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
-- **Saved media** -- YouTube contains only the SDP - Software Development Party playlist; the earlier individual videos have been removed. Spotify contains eight saved playlists. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
+- **Saved media** -- YouTube contains four playlists: SDP - Software Development Party, Bakugan New Vestroia Full Episodes, Bakugan Gundalian Invaders and THE FIRST TAKE. Spotify contains ten saved playlists labelled with their published titles, including Flow and Love. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Compact players** -- Music and YouTube switch to player-only views after media loads. The up arrow expands settings; the down arrow returns to the player. Minus minimises to the corner button without unloading media. With nothing loaded, opening a player shows its setup controls.
 - **Icon-only media buttons** -- Music and YouTube use compact corner icons with accessible labels and tooltips. While Spotify reports active playback, an animated equalizer replaces the music icon and appears beside the track title in the open player. It stops on pause, playback loss/errors or logout; reduced-motion users get a static indicator. This is a playback indicator, not an audio-frequency visualizer.
 - **Themes** -- Open Theme, then expand **Legacy** for the original 12 themes or **Graphic Design** for 22 styles: Minimalism, Maximalism, Futuristic, Vector Art, Collage Art, Retro, Cyberpunk, Pop Art, Glassmorphism, Clay Style, Pixel Art, Editorial, Y2K, Swiss Design, Surreal Design, Bohemian, Victorian Style, Graffiti, Aurora, Handwritten, **Cityscape** and **90s Anime**. Each changes the workspace, editor, Markdown, study tools, media and dialogs. Themes still persist per document and across reloads.
@@ -165,6 +165,31 @@ does **not** require running this download command.
 - **Workspace Panels** -- Study files and the checklist sit on the left; the timer sits on the right, aligned with Edit/Preview on desktop. Music stays within the sidebar width in the bottom-left corner and YouTube stays in the bottom-right, including while scrolling. Both players start collapsed, use the active theme and have bounded heights. Narrow screens keep them side by side at reduced widths.
 
 For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
+
+### YouTube picture-in-picture
+
+Start a video in the YouTube panel, then select **PiP** beside its minimise
+button. On supported desktop Chrome/Edge browsers, this opens a real
+always-on-top [Document Picture-in-Picture](https://developer.mozilla.org/en-US/docs/Web/API/Document_Picture-in-Picture_API)
+window, so the video can remain visible while you use another application.
+
+**Drag the pop-out's edges or corners to resize it.** Its initial size is
+480 x 300, not a fixed limit; the player fills the available window space.
+The browser controls any minimum/maximum dimensions and window placement.
+
+Select **Return** in Study Room, or close the PiP window, to bring the player
+back. The app uses YouTube's public IFrame API to restore the current video,
+playlist position, playback time, volume, mute and playing/paused state.
+Changing window contexts briefly reloads the iframe; this is not a seamless
+video-element transfer. Stop closes PiP and stops playback; minimising the
+main panel does not close the floating window.
+
+This needs **HTTPS or localhost**, internet access to YouTube and its IFrame
+API, and browser permission. No Google API key is needed. If the browser does
+not support Document PiP, or opening it is denied, the app shows an explicit
+error and leaves the in-page player intact. Your browser's native video PiP
+control may still be an option. Browser autoplay restrictions can require
+pressing Play in the floating player.
 
 ### Cityscape design research
 

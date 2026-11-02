@@ -336,5 +336,8 @@ test("bundled resources start hidden and the reveal event expands only their exi
   assert.equal(ui.element("library-notes").children.length, 8);
   assert.equal(ui.element("library-sdp-notes").children.length, 1);
   assert.equal(ui.element("book-download").href, BOOK_DOWNLOAD.url);
-  assert.equal(ui.element("yt-saved").children.length, 1);
+  for (const [id, collection] of [["yt-saved", YOUTUBE_COLLECTION], ["sp-saved", SPOTIFY_COLLECTION]]) {
+    assert.deepEqual(ui.element(id).children.map(option => option.value), collection.map(item => item.url));
+    assert.deepEqual(ui.element(id).children.map(option => option.textContent), collection.map(item => item.title));
+  }
 });

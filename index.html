@@ -138,6 +138,7 @@
     <div id="youtube-player" class="youtube-player hidden">
       <div class="media-panel-actions">
         <button class="sp-btn" id="yt-collapse-btn" title="Minimise" aria-label="Minimise YouTube">&ndash;</button>
+        <button class="sp-btn yt-pip-btn hidden" id="yt-pip-btn" title="Open YouTube picture-in-picture" aria-label="Open YouTube picture-in-picture" aria-pressed="false" type="button">PiP</button>
         <button class="sp-btn hidden" id="yt-expand-btn" title="Expand YouTube settings" aria-label="Expand YouTube settings" aria-controls="yt-settings" aria-expanded="false">&#8593;</button>
       </div>
       <div id="yt-settings" class="media-settings">
@@ -160,6 +161,7 @@
         </div>
       </div>
       <div class="yt-frame hidden" id="yt-frame"></div>
+      <p class="yt-pip-status hidden" id="yt-pip-status" role="status">YouTube is playing in a floating window. Select Return to bring it back.</p>
       <p class="sp-error hidden" id="yt-error"></p>
     </div>
   </section>

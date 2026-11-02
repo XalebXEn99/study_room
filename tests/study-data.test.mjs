@@ -42,6 +42,11 @@ test("SDP exam tips include the requested links and lab revision material withou
     assert.ok(raw.includes(url), "Missing resource: " + url);
   }
   assert.match(raw, /^## AI coding safety: short checklist/m);
+  assert.match(raw, /^## Reusable 90s anime background prompt/m);
+  assert.match(raw, /reconstruction from Study Room's current theme/);
+  for (const palette of ["crimson-red", "jade-green", "ochre-yellow", "cobalt-blue"]) {
+    assert.ok(raw.includes(palette), "Missing background palette: " + palette);
+  }
   assert.match(raw, /^## Docker lab/m);
   assert.match(raw, /service_healthy/);
   assert.match(raw, /docker compose up --build -d/);
@@ -56,15 +61,22 @@ test("the book download is a complete ZIP release asset, not a local machine pat
   assert.equal(BOOK_DOWNLOAD.name, "os-book.zip");
 });
 
-test("saved YouTube entries contain only the requested SDP playlist", () => {
+test("saved YouTube entries preserve SDP and include all three new named playlists", () => {
   assert.deepEqual(YOUTUBE_COLLECTION.map(item => item.url), [
-    "https://www.youtube.com/playlist?list=PLek4jWKl7ylE"
+    "https://www.youtube.com/playlist?list=PLek4jWKl7ylE",
+    "https://www.youtube.com/playlist?list=PLSEods_VwMdM_lnTura_7eF1ZCEdp2F4K",
+    "https://www.youtube.com/playlist?list=PLsQL8_RNGq40jk82xFSqp3Fi0SapMNh3O",
+    "https://www.youtube.com/playlist?list=PLeLvSt3A0Ddk9lGjNqmzT0ctVPA5xfinn"
   ]);
-  assert.equal(YOUTUBE_COLLECTION.length, 1);
-  assert.equal(YOUTUBE_COLLECTION.at(-1).title, "SDP - Software Development Party");
+  assert.deepEqual(YOUTUBE_COLLECTION.map(item => item.title), [
+    "SDP - Software Development Party",
+    "Bakugan New Vestroia Full Episodes",
+    "Bakugan Gundalian Invaders",
+    "THE FIRST TAKE"
+  ]);
 });
 
-test("saved Spotify entries match all eight supplied playlist IDs", () => {
+test("saved Spotify entries match all ten playlist IDs and published names", () => {
   assert.deepEqual(SPOTIFY_COLLECTION.map(item => item.url), [
     "https://open.spotify.com/playlist/6g0Z73wQf2UDEXnCglvqCK",
     "https://open.spotify.com/playlist/4FXIexXCIREWCSREF6GosY",
@@ -73,6 +85,20 @@ test("saved Spotify entries match all eight supplied playlist IDs", () => {
     "https://open.spotify.com/playlist/7ED3tauJjkhapme2NOK4Se",
     "https://open.spotify.com/playlist/0w2wAaeArRZqB7bFgDTVlA",
     "https://open.spotify.com/playlist/62aVuuh673VINeAGi8zKPG",
-    "https://open.spotify.com/playlist/5R0nzmDPHvv2w1oHhSLzuY"
+    "https://open.spotify.com/playlist/5R0nzmDPHvv2w1oHhSLzuY",
+    "https://open.spotify.com/playlist/04pgW0LzeStwtcl0twOqJf",
+    "https://open.spotify.com/playlist/0t8MlOTyAMOIDKap8gaWol"
+  ]);
+  assert.deepEqual(SPOTIFY_COLLECTION.map(item => item.title), [
+    "Replay 2025",
+    "Playlist farm",
+    "City Pop For My Soul",
+    "This Is BTS",
+    "Road trip 2022",
+    "\u{1FAEA}It\u2019s my first time\u{1FAEA}",
+    "Uhhhmm",
+    "It must be love type shi",
+    "Flow",
+    "Love"
   ]);
 });

@@ -1238,6 +1238,10 @@ body[data-theme="pixel"] .markdown-body .katex { font-size: 1.12em; }
 }
 .yt-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; }
 .yt-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.youtube-player .media-title { padding-right: 7rem; }
+.yt-pip-btn { width: auto; min-width: 28px; padding: 0 0.3rem; font-size: 0.68rem; font-weight: 600; }
+.yt-pip-btn:disabled { opacity: 0.45; cursor: wait; }
+.yt-pip-status { margin: 0; padding: 0.7rem; font-size: 0.75rem; line-height: 1.5; }
 
 /* Shared panel chrome follows the active document's theme. */
 body[data-theme="default"] { --sp-surface:#fff; --sp-border:#d0d7de; --sp-text:#1f2328; --sp-accent:#0969da; }

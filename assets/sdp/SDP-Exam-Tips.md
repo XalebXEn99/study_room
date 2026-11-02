@@ -75,6 +75,18 @@ Browse beforehand; these domains may be blocked during the exam.
 | [Preline UI](https://preline.co/) | Tailwind components; check free/Pro status and licences. |
 | [Theatre.js](https://www.theatrejs.com/) | Animation tooling, only if the task actually needs it. |
 
+## Reusable 90s anime background prompt
+
+This is a **reconstruction from Study Room's current theme**, not a recovered verbatim copy of the original generation prompt. Use it as a starting point for your own permitted design work.
+
+> Create an original, cinematic, wide-format illustration with a late-1980s/1990s action-anime cel-animation look. Use confident hand-inked contours, angular character designs and fabric folds, broad two- or three-tone cel shadows, and richly painted atmospheric environments. Keep it dramatic and hand-crafted rather than glossy 3D, soft pastel vector art or generic gradients.
+>
+> Make one scene per image, with an original cast and composition. Explore four distinct colour directions: crimson-red harbour dusk; jade-green moonlit ruins; ochre-yellow cliffside light; cobalt-blue storm scenery. Do not copy film frames, existing franchise characters or logos.
+>
+> Compose the image as a website backdrop, leaving quieter areas behind reading panels. Avoid text, watermarks and interface elements in the artwork. Keep the visual interest in the scenery and silhouettes rather than noise over the reading area.
+
+For the UI integration: put sharp text, maths and code on solid, high-contrast panels. Keep the media players and timer fixed. Crossfade backgrounds gently, provide Pause/Next controls, and disable automatic motion for reduced-motion users.
+
 ## AI coding safety: short checklist
 
 - **Secrets:** Never commit credentials or put private keys in browser code. Use example configuration; rotate anything exposed.
