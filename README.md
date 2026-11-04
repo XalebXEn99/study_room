@@ -2,7 +2,16 @@
 
 A browser-based study room with a Markdown reader, multiple themes, multi-file tabs, dedicated media panels, and study tools.
 
-Live at: **https://xalebxen99.github.io/study_room/**
+Live at: **https://study.thestone.co.za/**
+
+GitHub Pages publishes `main` from the repository root. Keep `CNAME` set to
+`study.thestone.co.za`, with a DNS CNAME record for `study` pointing to
+`xalebxen99.github.io`. Enable **Enforce HTTPS** in the repository's Pages settings
+once DNS resolves and GitHub has issued the certificate.
+
+Browser storage is scoped to the site's origin: drafts, timer state and settings
+saved at the old GitHub Pages address do not automatically move to the custom
+domain. Export any needed drafts before switching, and sign in to Spotify again.
 
 ## Local study copy (including exam fallback)
 
@@ -164,7 +173,9 @@ does **not** require running this download command.
 - **Client-Side Workspace** -- Markdown, study files, the timer, checklist and music players run in your browser.
 - **Workspace Panels** -- Study files and the checklist sit on the left; the timer sits on the right, aligned with Edit/Preview on desktop. Music stays within the sidebar width in the bottom-left corner and YouTube stays in the bottom-right, including while scrolling. Both players start collapsed, use the active theme and have bounded heights. Narrow screens keep them side by side at reduced widths.
 
-For Spotify sign-in, register `https://xalebxen99.github.io/study_room/` as a redirect URI in your Spotify app settings.
+For Spotify sign-in, register `https://study.thestone.co.za/` as a redirect URI in
+your Spotify app settings. The trailing slash must match; retain any other
+redirect URIs you still use.
 
 ### YouTube picture-in-picture
 
@@ -405,7 +416,7 @@ Set these environment variables on that machine:
 
 ```powershell
 $env:BRIDGE_PUBLIC_URL = "https://your-bridge.example"
-$env:FRONTEND_ORIGIN = "https://xalebxen99.github.io"
+$env:FRONTEND_ORIGIN = "https://study.thestone.co.za"
 $env:BRIDGE_TOKEN = "<random-access-token-at-least-32-characters>"
 $env:TMDB_READ_TOKEN = "<your-tmdb-read-access-token>"
 $env:PORT = "4173"
@@ -421,7 +432,8 @@ Public mode binds to all interfaces; local mode binds only to `127.0.0.1`.
 On GitHub Pages, open **Video > Bridge connection**, enter the HTTPS bridge origin
 and access token, and click **Connect**. The bridge URL is saved locally, while the
 access token is kept in tab-scoped sessionStorage. The allowed frontend origin
-has no `/study_room/` path. API calls require the bridge token; video and subtitle
+has no path or trailing slash. Update this setting on existing hosted bridges
+when moving to the custom domain. API calls require the bridge token; video and subtitle
 requests use random, expiring capability URLs so native browser playback works
 without exposing the access token in URLs. Capability URLs must not be shared.
 

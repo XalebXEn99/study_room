@@ -3,6 +3,7 @@ import test from "node:test";
 import { LIVE_PAGE, pairingUrl, startHelper } from "../tools/start-local-helper.mjs";
 
 test("pairing URL keeps the live page and puts secrets only in the fragment", () => {
+  assert.equal(LIVE_PAGE, "https://study.thestone.co.za/");
   const url = new URL(pairingUrl(12345, "a".repeat(64)));
   assert.equal(url.origin + url.pathname, LIVE_PAGE);
   assert.equal(url.search, "");

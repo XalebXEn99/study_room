@@ -87,7 +87,7 @@ export function createBridge({
   tmdbToken = process.env.TMDB_READ_TOKEN || "",
   publicUrl = process.env.BRIDGE_PUBLIC_URL || "",
   bridgeToken = process.env.BRIDGE_TOKEN || "",
-  frontendOrigin = process.env.FRONTEND_ORIGIN || "https://xalebxen99.github.io",
+  frontendOrigin = process.env.FRONTEND_ORIGIN || "https://study.thestone.co.za",
   fetchImpl = publicFetch,
   resolveImpl = resolveVidlink
 } = {}) {

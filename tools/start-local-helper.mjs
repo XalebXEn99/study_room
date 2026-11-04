@@ -6,7 +6,7 @@ import { pathToFileURL } from "node:url";
 import { createInterface } from "node:readline/promises";
 import { createBridge } from "./streamplay-server.mjs";
 
-export const LIVE_PAGE = "https://xalebxen99.github.io/study_room/";
+export const LIVE_PAGE = "https://study.thestone.co.za/";
 
 export function pairingUrl(port, token) {
   const url = new URL(LIVE_PAGE);

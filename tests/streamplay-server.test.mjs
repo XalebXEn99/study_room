@@ -263,7 +263,7 @@ test("rejects private addresses and unsafe URL forms before network access", () 
 
 test("supports authenticated GitHub Pages API calls and capability-based media CORS", async t => {
   const token = "test-access-token-at-least-32-characters";
-  const origin = "https://xalebxen99.github.io";
+  const origin = "https://study.thestone.co.za";
   const get = await bridge(t, {
     publicUrl: "https://bridge.example",
     bridgeToken: token,
@@ -290,6 +290,24 @@ test("supports authenticated GitHub Pages API calls and capability-based media C
   assert.equal(media.status, 200);
   assert.equal(media.headers.get("access-control-allow-origin"), origin);
   assert.equal(await media.text(), "media");
+});
+
+test("supports an explicitly configured frontend origin", async t => {
+  const token = "test-access-token-at-least-32-characters";
+  const origin = "https://xalebxen99.github.io";
+  const get = await bridge(t, {
+    publicUrl: "https://bridge.example",
+    bridgeToken: token,
+    frontendOrigin: origin
+  });
+  const response = await get("/api/status", {
+    headers: { Origin: origin, Authorization: "Bearer " + token }
+  });
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("access-control-allow-origin"), origin);
+  assert.equal((await get("/api/status", {
+    headers: { Origin: "https://study.thestone.co.za", Authorization: "Bearer " + token }
+  })).status, 403);
 });
 
 test("refuses an unsafe public bridge configuration", () => {
