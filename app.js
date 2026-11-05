@@ -154,6 +154,10 @@
   }
 
   function saveState() {
+    if (window.studyRoomCloudConfigured) {
+      notifyDocuments();
+      return;
+    }
     if (restoreFailed) {
       document.getElementById("document-status").textContent = "Stored drafts could not be restored and have not been overwritten. Download this document to keep a copy.";
       notifyDocuments();
@@ -220,6 +224,7 @@
     files.push({
       id: id, name: name, raw: raw, html: html, theme: active ? active.theme : lastAppliedTheme,
       libraryId: libraryId, origin: origin, closed: false,
+      cloudId: window.crypto ? window.crypto.randomUUID() : null, version: 0,
       savedRaw: origin === "upload" || origin === "bundled" ? raw : null,
       savedName: origin === "upload" || origin === "bundled" ? name : null
     });
@@ -703,12 +708,62 @@
     active: function () {
       var f = getActiveFile();
       if (!f) return null;
-      return { id: f.id, name: f.name, raw: f.raw, libraryId: f.libraryId };
+      return { id: f.id, cloudId: f.cloudId, version: f.version || 0, name: f.name, raw: f.raw, libraryId: f.libraryId };
     },
     list: function () {
       return files.filter(function (f) { return f.origin === "upload" || f.origin === "created"; }).map(function (f) {
         return { id: f.id, name: f.name, origin: f.origin, needsDownload: needsDownload(f), active: f.id === activeFileId };
       });
+    },
+    snapshot: function () {
+      return files.filter(function (f) { return f.origin !== "starter"; }).map(function (f) {
+        return {
+          id: f.id, cloudId: f.cloudId, version: f.version || 0,
+          name: f.name, raw: f.raw, origin: f.origin === "bundled" ? "upload" : f.origin,
+          theme: f.theme, closed: f.closed
+        };
+      });
+    },
+    acknowledge: function (cloudId, version) {
+      var file = files.find(function (f) { return f.cloudId === cloudId; });
+      if (file) file.version = version;
+    },
+    restoreRevision: function (cloudId, name, raw) {
+      flushActiveEdit();
+      var file = files.find(function (f) { return f.cloudId === cloudId; });
+      if (!file) throw new Error("This document is no longer available.");
+      file.name = name;
+      file.raw = raw;
+      file.html = renderMarkdown(raw);
+      file.closed = false;
+      activeFileId = file.id;
+      saveState();
+      renderTabs();
+      showViewer();
+    },
+    replaceWorkspace: function (entries, activeCloudId) {
+      clearTimeout(saveTimer);
+      isEditing = false;
+      files = entries.map(function (entry, index) {
+        return {
+          id: index + 1, cloudId: entry.id, version: entry.version,
+          name: entry.name, raw: entry.raw, origin: entry.origin, closed: entry.closed,
+          theme: validThemes.indexOf(entry.theme) === -1 ? lastSavedGlobal : entry.theme,
+          html: renderMarkdown(entry.raw), savedRaw: null, savedName: null
+        };
+      });
+      nextId = files.length + 1;
+      var open = files.filter(function (f) { return !f.closed; });
+      var selected = open.find(function (f) { return f.cloudId === activeCloudId; });
+      activeFileId = selected ? selected.id : open.length ? open[open.length - 1].id : null;
+      renderTabs();
+      if (activeFileId) {
+        applyTheme(getActiveFile().theme);
+        showViewer();
+      } else {
+        createDoc(true);
+      }
+      notifyDocuments();
     },
     open: addFile,
     activate: switchFile,
@@ -723,7 +778,7 @@
   var savedTheme = "default";
   try { savedTheme = localStorage.getItem("md-reader-theme") || "default"; } catch (e) {}
   var lastSavedGlobal = validThemes.indexOf(savedTheme) !== -1 ? savedTheme : "default";
-  loadState();
+  if (!window.studyRoomCloudConfigured) loadState();
   var initialFile = getActiveFile();
   applyTheme(initialFile ? initialFile.theme : lastSavedGlobal);
   renderTabs();

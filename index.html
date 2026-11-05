@@ -15,6 +15,7 @@
   <script src="assets/vendor/marked/marked.umd.js"></script>
   <script src="assets/vendor/highlight/highlight.min.js"></script>
   <script src="assets/vendor/katex/katex.min.js"></script>
+  <script src="cloud-config.js"></script>
 </head>
 <body data-theme="default">
   <div id="anime-background" class="anime-background" hidden aria-hidden="true">
@@ -32,6 +33,31 @@
     </button>
     <span>Study Room</span>
   </div>
+  <section class="account-panel" aria-labelledby="account-heading">
+    <h2 id="account-heading">Your study space</h2>
+    <p id="account-user" hidden></p>
+    <form id="account-form">
+      <label for="account-email">Email</label>
+      <input id="account-email" type="email" autocomplete="email" maxlength="254" required />
+      <label id="account-name-label" for="account-name" hidden>Name</label>
+      <input id="account-name" autocomplete="name" maxlength="100" hidden />
+      <label for="account-password">Password</label>
+      <input id="account-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required />
+      <button id="account-submit" type="submit">Sign in</button>
+      <button id="account-mode" type="button">Create an account</button>
+      <button id="account-send-code" type="button">Email a sign-in code</button>
+      <div id="account-code-fields" hidden>
+        <label for="account-code">Email code</label>
+        <input id="account-code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" />
+        <button id="account-verify-code" type="button">Sign in with code</button>
+      </div>
+    </form>
+    <button id="account-signout" type="button" hidden>Sign out</button>
+    <button id="cloud-retry" type="button" hidden>Retry saving</button>
+    <button id="cloud-import" type="button" hidden>Import this browser's old drafts</button>
+    <button id="cloud-import-tab" type="button" hidden>Import this tab's drafts</button>
+    <p id="cloud-status" class="library-status" role="status" aria-live="polite">Checking your account...</p>
+  </section>
   <aside id="library-panel" class="library-panel" aria-label="Study files">
     <button id="library-toggle" class="library-heading" type="button" aria-expanded="true" aria-controls="library-body">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -52,17 +78,21 @@
         <h2 id="library-created-heading" class="library-section-title">Created</h2>
         <ul id="library-created" class="library-files" aria-label="Created Markdown files"></ul>
       </section>
-      <div id="library-bundled" hidden>
-        <h2 class="library-section-title">Maths exam</h2>
-        <ul id="library-notes" class="library-files" aria-label="Maths study notes"></ul>
-        <h2 class="library-section-title">SDP exam</h2>
-        <ul id="library-sdp-notes" class="library-files" aria-label="SDP study notes"></ul>
-        <h2 class="library-section-title">OS book</h2>
-        <a id="book-download" class="library-download" href="https://github.com/XalebXEn99/study_room/releases/download/study-resources-2026/os-book.zip">Download book ZIP (194 MB)</a>
-      </div>
+      <p class="library-status">Sign in for private files and cloud autosave. Signed-out edits stay in this tab.</p>
       <p id="library-status" class="library-status" role="status" aria-live="polite"></p>
     </div>
   </aside>
+  <section id="cloud-history" class="account-panel" hidden aria-labelledby="cloud-history-heading">
+    <h2 id="cloud-history-heading">History</h2>
+    <h3>Document versions</h3>
+    <button id="cloud-versions-refresh" type="button">Show versions of this file</button>
+    <ol id="cloud-versions"></ol>
+    <button id="cloud-versions-more" type="button" hidden>Older versions</button>
+    <h3>Completed study sessions</h3>
+    <ol id="cloud-sessions"></ol>
+    <button id="cloud-sessions-more" type="button" hidden>Older sessions</button>
+    <p id="cloud-history-status" class="library-status" role="status" aria-live="polite"></p>
+  </section>
   <section class="checklist-panel" aria-labelledby="checklist-heading">
     <h2 id="checklist-heading">Study checklist</h2>
     <form id="checklist-form" class="checklist-form">
@@ -406,7 +436,7 @@ graph TD; A-->B; B-->C;
   <section class="timer-panel" aria-labelledby="timer-heading">
     <div class="timer-header">
       <h2 id="timer-heading" tabindex="-1">Study timer</h2>
-      <p class="library-status" role="status" aria-live="polite"><button id="timer-status" class="timer-status" type="button">Ready</button></p>
+      <p class="library-status" role="status" aria-live="polite"><span id="timer-status" class="timer-status">Ready</span></p>
     </div>
     <div class="timer-readout">
       <output id="timer-display" class="timer-display" aria-label="Time remaining">25:00</output>
@@ -471,6 +501,7 @@ graph TD; A-->B; B-->C;
   <script src="app.js"></script>
   <script type="module" src="anime-background.js"></script>
   <script type="module" src="library.js"></script>
+  <script type="module" src="cloud.js"></script>
   <script type="module" src="timer.js"></script>
   <script type="module" src="motivation.js"></script>
   <script src="spotify.js"></script>

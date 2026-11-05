@@ -1,8 +1,7 @@
-import { STUDY_NOTES, BOOK_DOWNLOAD, YOUTUBE_COLLECTION, SPOTIFY_COLLECTION } from "./study-data.js";
+import { YOUTUBE_COLLECTION, SPOTIFY_COLLECTION } from "./study-data.js";
 
 const $ = id => document.getElementById(id);
 const documents = window.studyRoomDocuments;
-const DRAG_TYPE = "application/x-study-room-note";
 const DOCUMENT_DRAG_TYPE = "application/x-study-room-document";
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 let busy = false;
@@ -26,16 +25,6 @@ async function run(action) {
     busy = false;
     $("library-panel").setAttribute("aria-busy", "false");
   }
-}
-
-async function openNote(id) {
-  const note = STUDY_NOTES.find(item => item.id === id);
-  if (!note) throw new Error("Choose a Markdown file from the study library.");
-  if (documents.activateLibraryFile(note.id)) return;
-  const response = await fetch(note.url, { cache: "no-cache", signal: AbortSignal.timeout(20000) });
-  if (!response.ok) throw new Error("Could not load " + note.name + " (HTTP " + response.status + "). Please retry.");
-  const raw = await response.text();
-  documents.open(note.name, raw, note.id);
 }
 
 async function openLocalFiles(files) {
@@ -155,6 +144,12 @@ function createDocumentRow(entry) {
 
 function renderCollections() {
   const entries = documents.list();
+  for (const [id, refs] of rows) {
+    if (!entries.some(entry => entry.id === id)) {
+      refs.row.remove();
+      rows.delete(id);
+    }
+  }
   for (const [origin, id] of [["upload", "uploads"], ["created", "created"]]) {
     const collection = entries.filter(entry => entry.origin === origin);
     $("library-" + id + "-section").hidden = collection.length === 0;
@@ -162,9 +157,13 @@ function renderCollections() {
       if (!rows.has(entry.id)) {
         const refs = createDocumentRow(entry);
         rows.set(entry.id, refs);
+      }
+      const refs = rows.get(entry.id);
+      if (refs.origin !== origin) {
+        refs.origin = origin;
         $("library-" + id).append(refs.row);
       }
-      const { button, warning, rename } = rows.get(entry.id);
+      const { button, warning, rename } = refs;
       button.textContent = entry.name;
       button.title = "Open " + entry.name;
       button.setAttribute("aria-current", String(entry.active));
@@ -176,38 +175,6 @@ function renderCollections() {
 }
 window.addEventListener("study-room-documents-change", renderCollections);
 renderCollections();
-window.addEventListener("study-room-reveal-bundled", () => {
-  $("library-bundled").hidden = false;
-  $("library-toggle").setAttribute("aria-expanded", "true");
-  $("library-body").classList.remove("hidden");
-  $("library-caret").textContent = "\u25be";
-});
-
-const noteLists = {
-  maths: $("library-notes"),
-  sdp: $("library-sdp-notes")
-};
-for (const note of STUDY_NOTES) {
-  const item = document.createElement("li");
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "library-file";
-  button.textContent = note.title;
-  button.title = "Open " + note.name;
-  button.draggable = true;
-  button.addEventListener("click", () => run(() => openNote(note.id)));
-  button.addEventListener("dragstart", event => {
-    event.dataTransfer.setData(DRAG_TYPE, note.id);
-    event.dataTransfer.effectAllowed = "copy";
-  });
-  item.append(button);
-  noteLists[note.collection].append(item);
-}
-
-const book = $("book-download");
-book.href = BOOK_DOWNLOAD.url;
-book.download = BOOK_DOWNLOAD.name;
-
 for (const [id, collection] of [["yt-saved", YOUTUBE_COLLECTION], ["sp-saved", SPOTIFY_COLLECTION]]) {
   for (const item of collection) {
     const option = document.createElement("option");
@@ -236,7 +203,7 @@ $("library-drop").addEventListener("keydown", event => {
 });
 for (const target of [$("library-panel"), document.querySelector(".app-wrapper")]) {
   target.addEventListener("dragover", event => {
-    if (!Array.from(event.dataTransfer.types).some(type => type === DRAG_TYPE || type === DOCUMENT_DRAG_TYPE || type === "Files")) return;
+    if (!Array.from(event.dataTransfer.types).some(type => type === DOCUMENT_DRAG_TYPE || type === "Files")) return;
     event.preventDefault();
     event.stopPropagation();
     target.classList.add("library-drag-over");
@@ -246,13 +213,12 @@ for (const target of [$("library-panel"), document.querySelector(".app-wrapper")
     if (!target.contains(event.relatedTarget)) target.classList.remove("library-drag-over");
   });
   target.addEventListener("drop", event => {
-    if (!Array.from(event.dataTransfer.types).some(type => type === DRAG_TYPE || type === DOCUMENT_DRAG_TYPE || type === "Files")) return;
+    if (!Array.from(event.dataTransfer.types).some(type => type === DOCUMENT_DRAG_TYPE || type === "Files")) return;
     event.preventDefault();
     event.stopPropagation();
     target.classList.remove("library-drag-over");
-    const id = event.dataTransfer.getData(DRAG_TYPE);
     const documentId = event.dataTransfer.getData(DOCUMENT_DRAG_TYPE);
     const files = Array.from(event.dataTransfer.files);
-    run(() => documentId ? documents.activate(Number(documentId)) : id ? openNote(id) : openLocalFiles(files));
+    run(() => documentId ? documents.activate(Number(documentId)) : openLocalFiles(files));
   }, true);
 }

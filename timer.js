@@ -7,18 +7,8 @@ const presets = Array.from(document.querySelectorAll(".timer-preset"));
 const panel = document.querySelector(".timer-panel");
 const floating = $("timer-floating");
 let state = newTimer(25 * 60 * 1000);
-let readyClicks = [];
-
-$("timer-status").addEventListener("click", () => {
-  if (state.status !== "idle" || $("timer-status").textContent !== "Ready") return;
-  const now = Date.now();
-  readyClicks = readyClicks.filter(time => now - time <= 2000);
-  readyClicks.push(now);
-  if (readyClicks.length >= 5) {
-    readyClicks = [];
-    window.dispatchEvent(new Event("study-room-reveal-bundled"));
-  }
-});
+let ownerId = window.studyRoomHistory?.ownerId || null;
+const storageKey = () => window.studyRoomCloudConfigured ? KEY + ":" + (ownerId || "guest") : KEY;
 
 new IntersectionObserver(([entry]) => {
   floating.classList.toggle("hidden", entry.isIntersecting && entry.intersectionRatio >= 1);
@@ -32,15 +22,26 @@ floating.addEventListener("click", () => {
 });
 
 function message(text, error = false) {
-  readyClicks = [];
   $("timer-status").textContent = text;
   $("timer-status").classList.toggle("error", error);
-  $("timer-status").disabled = state.status !== "idle" || text !== "Ready" || error;
 }
 
 function persist() {
+  if (state.status === "finished" && state.sessionId && state.historyOwner && !state.historyQueued) {
+    try {
+      window.studyRoomHistory.record({
+        id: state.sessionId, startedAt: state.startedAt,
+        finishedAt: state.finishedAt, durationMs: state.durationMs,
+        technique: state.technique
+      }, state.historyOwner);
+      state = { ...state, historyQueued: true };
+    } catch (error) {
+      console.error("Could not save study history:", error.message);
+      message("Time is up! Study history has not synced; sign in and retry.", true);
+    }
+  }
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(storageKey(), JSON.stringify(state));
   } catch (error) {
     console.error("Could not save timer:", error);
     message("Timer runs in this tab, but could not be saved for reload.", true);
@@ -73,7 +74,7 @@ function render() {
 function tick() {
   const updated = updateTimer(state, Date.now());
   if (updated !== state) {
-    state = updated;
+    state = { ...updated, finishedAt: new Date(state.deadline).toISOString() };
     message("Time is up!");
     persist();
   }
@@ -87,7 +88,16 @@ $("timer-form").addEventListener("submit", event => {
     return;
   }
   try {
-    if (state.status !== "paused") state = newTimer(parseDuration($("timer-minutes").value, $("timer-seconds").value));
+    if (state.status !== "paused") {
+      const durationMs = parseDuration($("timer-minutes").value, $("timer-seconds").value);
+      const preset = presets.find(item => Number(item.dataset.minutes) * 60000 === durationMs);
+      state = {
+        ...newTimer(durationMs),
+        sessionId: crypto.randomUUID(), startedAt: new Date(Date.now()).toISOString(),
+        historyOwner: ownerId,
+        technique: preset?.firstElementChild?.textContent.trim() || "Custom"
+      };
+    }
     state = startTimer(state, Date.now());
     message("Running");
     persist();
@@ -97,7 +107,8 @@ $("timer-form").addEventListener("submit", event => {
   }
 });
 $("timer-pause").addEventListener("click", () => {
-  state = pauseTimer(state, Date.now());
+  const updated = pauseTimer(state, Date.now());
+  state = updated.status === "finished" ? { ...updated, finishedAt: new Date(state.deadline).toISOString() } : updated;
   message(state.status === "finished" ? "Time is up!" : "Paused");
   persist();
   render();
@@ -126,17 +137,29 @@ dialog.addEventListener("close", () => {
   persist();
 });
 
-try {
-  const saved = localStorage.getItem(KEY);
-  if (saved) state = restoreTimer(JSON.parse(saved));
-  $("timer-minutes").value = String(Math.floor(state.durationMs / 60000));
-  $("timer-seconds").value = String((state.durationMs / 1000) % 60);
-  message(state.status === "running" ? "Running" : state.status === "paused" ? "Paused" : state.status === "finished" ? "Time is up!" : "Ready");
-} catch (error) {
-  console.error("Could not restore timer:", error);
-  message("The saved timer could not be restored. Set a new timer.", true);
+function restore() {
+  try {
+    state = newTimer(25 * 60 * 1000);
+    const saved = localStorage.getItem(storageKey());
+    if (saved) state = restoreTimer(JSON.parse(saved));
+    $("timer-minutes").value = String(Math.floor(state.durationMs / 60000));
+    $("timer-seconds").value = String((state.durationMs / 1000) % 60);
+    message(state.status === "running" ? "Running" : state.status === "paused" ? "Paused" : state.status === "finished" ? "Time is up!" : "Ready");
+  } catch (error) {
+    console.error("Could not restore timer:", error);
+    message("The saved timer could not be restored. Set a new timer.", true);
+  }
 }
+restore();
 tick();
+if (state.status === "finished" && !state.historyQueued && state.historyOwner === ownerId) persist();
+window.addEventListener("study-room-account-change", () => {
+  if (dialog.open) dialog.close();
+  ownerId = window.studyRoomHistory?.ownerId || null;
+  restore();
+  tick();
+  if (state.status === "finished" && !state.historyQueued && state.historyOwner === ownerId) persist();
+});
 setInterval(tick, 500);
 document.addEventListener("visibilitychange", tick);
 window.addEventListener("focus", tick);

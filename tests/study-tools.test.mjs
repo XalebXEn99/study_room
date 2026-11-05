@@ -62,7 +62,8 @@ function fixture(t, saved = {}, overrides = {}) {
   const globals = {
     document,
     window: {
-      addEventListener() {}, matchMedia: () => ({ matches: false }),
+      addEventListener: (name, callback) => node("window").addEventListener(name, callback),
+      matchMedia: () => ({ matches: false }),
       dispatchEvent: event => node("window").emit(event.type)
     },
     localStorage: {
@@ -150,39 +151,63 @@ test("both timer displays stay synchronized through start, pause, resume, expiry
   check("0:10", "Ready");
 });
 
-test("only five Ready clicks within two seconds reveal bundled files; timer transitions reset the gesture", async t => {
+test("Ready is a status label, not a hidden-files gesture", async t => {
   const ui = fixture(t);
   let reveals = 0;
   ui.node("window").addEventListener("study-room-reveal-bundled", () => reveals++);
-  await import("../timer.js?ready-unlock");
+  await import("../timer.js?no-ready-unlock");
   const ready = ui.node("timer-status");
-  const click = () => ready.emit("click");
-  assert.equal(ready.disabled, false);
-  for (let i = 0; i < 4; i++) {
-    await click();
-    ui.clock.now += 700;
-  }
-  await click();
+  for (let i = 0; i < 10; i++) await ready.emit("click");
   assert.equal(reveals, 0, "Slow clicks do not reveal the files.");
-  await ui.node("timer-reset").emit("click");
-  for (let i = 0; i < 4; i++) await click();
-  assert.equal(reveals, 0);
-  await click();
-  assert.equal(reveals, 1);
   await ui.node("timer-form").emit("submit", { preventDefault() {} });
-  assert.equal(ready.disabled, true);
-  for (let i = 0; i < 7; i++) await click();
-  assert.equal(reveals, 1, "Running is not an unlock target.");
-  await ui.node("timer-pause").emit("click");
-  for (let i = 0; i < 7; i++) await click();
-  assert.equal(reveals, 1, "Paused is not an unlock target.");
-  await ui.node("timer-reset").emit("click");
-  for (let i = 0; i < 4; i++) await click();
-  await ui.node("preset-20").emit("click");
-  await click();
-  assert.equal(reveals, 1, "Changing the preset clears partial clicks.");
-  for (let i = 0; i < 4; i++) await click();
-  assert.equal(reveals, 2);
+  assert.equal(ready.textContent, "Running");
+  assert.equal(reveals, 0);
+});
+
+test("completed timers queue history exactly once for the signed-in account", async t => {
+  const ui = fixture(t);
+  const history = [];
+  window.studyRoomCloudConfigured = true;
+  window.studyRoomHistory = { ownerId: "owner-a", record: (session, owner) => history.push({ session, owner }) };
+  await import("../timer.js?cloud-history");
+  ui.node("timer-minutes").value = "0";
+  ui.node("timer-seconds").value = "10";
+  await ui.node("timer-form").emit("submit", { preventDefault() {} });
+  ui.clock.now += 10000;
+  const tick = ui.intervals.find(item => item.delay === 500).callback;
+  tick();
+  tick();
+  await ui.node("timer-dismiss").emit("click");
+  assert.equal(history.length, 1);
+  assert.equal(history[0].owner, "owner-a");
+  assert.equal(history[0].session.durationMs, 10000);
+  assert.equal(Date.parse(history[0].session.finishedAt) - Date.parse(history[0].session.startedAt), 10000);
+  assert.equal(JSON.parse(ui.storage.get("study-room-timer:owner-a")).historyQueued, true);
+  await import("../timer.js?cloud-history-restored");
+  assert.equal(history.length, 1, "A restored completion must not be queued twice.");
+});
+
+test("account changes keep active timers and completion history separate", async t => {
+  const ui = fixture(t);
+  const history = [];
+  window.studyRoomCloudConfigured = true;
+  window.studyRoomHistory = { ownerId: "owner-a", record: (session, owner) => history.push({ session, owner }) };
+  await import("../timer.js?account-timers");
+  ui.node("timer-minutes").value = "0";
+  ui.node("timer-seconds").value = "10";
+  await ui.node("timer-form").emit("submit", { preventDefault() {} });
+  window.studyRoomHistory.ownerId = "owner-b";
+  await ui.node("window").emit("study-room-account-change");
+  assert.equal(ui.node("timer-display").textContent, "25:00");
+  assert.equal(ui.node("timer-status").textContent, "Ready");
+  ui.clock.now += 15000;
+  ui.intervals.find(item => item.delay === 500).callback();
+  assert.equal(history.length, 0, "Another account must not inherit the previous timer.");
+  window.studyRoomHistory.ownerId = "owner-a";
+  await ui.node("window").emit("study-room-account-change");
+  assert.equal(ui.node("timer-display").textContent, "0:00");
+  assert.equal(history.length, 1);
+  assert.equal(history[0].owner, "owner-a");
 });
 
 test("24 distinct encouragement clips contain playable MPEG data and publication attribution", async () => {

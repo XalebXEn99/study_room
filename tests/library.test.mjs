@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { runInNewContext } from "node:vm";
 import test from "node:test";
-import { STUDY_NOTES, BOOK_DOWNLOAD, YOUTUBE_COLLECTION, SPOTIFY_COLLECTION } from "../study-data.js";
+import { YOUTUBE_COLLECTION, SPOTIFY_COLLECTION } from "../study-data.js";
 
 const appSource = await readFile(new URL("../app.js", import.meta.url), "utf8");
 const librarySource = (await readFile(new URL("../library.js", import.meta.url), "utf8")).replace(/^import [^\n]+\n/, "");
@@ -84,7 +84,7 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
       readAsText(file) { this.onload({ target: { result: file.content } }); }
     },
     setTimeout: callback => timers.push(callback), clearTimeout() {},
-    STUDY_NOTES, BOOK_DOWNLOAD, YOUTUBE_COLLECTION, SPOTIFY_COLLECTION,
+    YOUTUBE_COLLECTION, SPOTIFY_COLLECTION,
     fetch: async () => { throw new Error("Unexpected network request"); },
     AbortSignal
   };
@@ -322,20 +322,13 @@ test("unreadable stored drafts are not overwritten by initialization or subseque
   }
 });
 
-test("bundled resources start hidden and the reveal event expands only their existing UI", async () => {
+test("private resources have no public catalogue or Ready reveal; saved media are unchanged", async () => {
   const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  assert.match(html, /id="library-bundled" hidden/);
+  assert.doesNotMatch(html, /id="library-bundled"|id="library-notes"|id="book-download"/);
+  assert.doesNotMatch(librarySource, /study-room-reveal-bundled|assets\/maths|assets\/sdp/);
   assert.match(html, /id="library-uploads-section" hidden/);
   assert.match(html, /id="library-created-section" hidden/);
   const ui = fixture({}, { library: true });
-  ui.element("library-bundled").hidden = true;
-  ui.element("library-body").classList.add("hidden");
-  await ui.window.emit("study-room-reveal-bundled");
-  assert.equal(ui.element("library-bundled").hidden, false);
-  assert.equal(ui.element("library-body").classList.contains("hidden"), false);
-  assert.equal(ui.element("library-notes").children.length, 8);
-  assert.equal(ui.element("library-sdp-notes").children.length, 1);
-  assert.equal(ui.element("book-download").href, BOOK_DOWNLOAD.url);
   for (const [id, collection] of [["yt-saved", YOUTUBE_COLLECTION], ["sp-saved", SPOTIFY_COLLECTION]]) {
     assert.deepEqual(ui.element(id).children.map(option => option.value), collection.map(item => item.url));
     assert.deepEqual(ui.element(id).children.map(option => option.textContent), collection.map(item => item.title));

@@ -3,8 +3,8 @@
 A browser-based study room with a Markdown reader, multiple themes, multi-file tabs, dedicated media panels, and study tools.
 
 Live at: **https://study.thestone.co.za/**
-
-GitHub Pages publishes `main` from the repository root. Keep `CNAME` set to
+GitHub Pages publishes the allowlisted Actions build from `main`, not the
+repository root. Keep `CNAME` set to
 `study.thestone.co.za`, with a DNS CNAME record for `study` pointing to
 `xalebxen99.github.io`. Enable **Enforce HTTPS** in the repository's Pages settings
 once DNS resolves and GitHub has issued the certificate.
@@ -21,7 +21,10 @@ Gitea copy: **https://sdp.ms.wits.ac.za/Xaleb/study_room**
 
 - **Git** and **Node.js 22 or newer**, plus a modern browser.
 - Access to Gitea for the initial clone and later updates. No npm install,
-  database, API key, Docker or build is needed for the current study app.
+  API key, Docker or build is needed to run the checked-in reader locally.
+- An internet connection and a Study Room account for private cloud files and
+  history. The signed-out editor works without the cloud, but its drafts stay
+  in the current tab: download a copy before closing it.
 - Check the installed tools with `git --version` and `node --version`.
   If either command is unavailable, install the approved tools beforehand
   or ask the lab staff.
@@ -112,31 +115,36 @@ command with this one, then follow the same platform-specific steps:
 git clone https://github.com/XalebXEn99/study_room.git
 ```
 
-This serves the same static files as GitHub Pages. **GitHub Pages remains a
-static HTML/CSS/JavaScript deployment**: no server, database or build was added
-to its hosting. The existing Node server is only a local serving option; the
-archived movie tools are not part of this workflow. Serve the app over HTTP
-with the command above rather than opening `index.html` directly from disk.
+This serves the same frontend as GitHub Pages. **GitHub Pages remains static**;
+Neon Functions hosts the authenticated API, with Managed Better Auth, Lakebase
+Postgres and a private Object Storage bucket. The Pages workflow builds an
+allowlisted `dist` artifact, not the repository root. The existing Node server
+is a local serving option; the archived movie tools are not part of this flow.
+Serve over HTTP rather than opening `index.html` directly from disk.
 
 ### Find your notes and understand offline limits
 
-With the timer idle, click **Ready five times within two seconds** to reveal
-the bundled maths and SDP notes. Open a note by clicking or dragging it into
-the editor, or browse your own Markdown files.
+Sign in from **Your study space** to see your private files directly. The
+five-click Ready gesture has been removed. Before studying offline, download
+the notes you need while signed in, then reopen those local Markdown copies.
+New accounts have separate, empty workspaces; they cannot read another
+account's notes.
 
-Core reader libraries, syntax themes, KaTeX fonts, notes, artwork and
+Core reader libraries, syntax themes, KaTeX fonts, artwork and
 encouragement audio are checked into Git. Markdown rendering, sanitisation,
 maths, diagrams, themes, the timer and checklist work without external CDNs.
-**External features still need network access:** Google Fonts may fall back
+**Cloud login, saving and history require network access.** Other external
+features still need network access: Google Fonts may fall back
 to installed fonts; Spotify, YouTube and external links require their
-services. The OS-book ZIP is a GitHub Release asset, **not part of the clone**;
-download it separately beforehand if permitted. Test the local copy before
-the exam and follow the exam's rules; Gitea availability is not guaranteed.
+services. Private notes and the OS-book ZIP are not part of new clones or
+the Pages artifact. Test the local copy before the exam and follow the exam's
+rules; Gitea availability is not guaranteed.
 
-Browser storage is per origin. Live-site drafts/settings do not automatically
-appear on localhost or another machine. **`localhost` and `127.0.0.1` also have
-separate storage, as do different ports.** Use the same browser address
-consistently. Download important Markdown drafts and reopen them locally.
+Signed-in files, revisions and completed timer history follow the account
+across devices. Settings, checklist and active timer state are still per
+browser origin. **`localhost` and `127.0.0.1` have separate local storage, as do
+different ports.** Old local drafts can be imported explicitly after signing
+in; the original browser data is retained as a backup.
 
 ### Maintaining bundled reader libraries
 
@@ -158,9 +166,9 @@ does **not** require running this download command.
 - **Study quotes** -- 24 motivational messages rotate every 12 seconds above the timer in an italic serif font. Rotation pauses while the tab is hidden and never starts audio.
 - **Book encouragement** -- Click the book beside the logo for a comic-style speech bubble and a matching Sam Sumit - Calm & Friendly recording from ElevenLabs. One more works through a shuffled deck without repeating until all 24 messages have been shown. Replay voice repeats the current recording; Voice on/off is saved on this device. Closing the popup, pressing Escape or leaving the tab stops its voice.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
-- **Multi-file Tabs** -- Open multiple Markdown files at once and switch between them with tabs. Local collections and drafts persist in localStorage across refreshes. Closing a tab does not delete its collection item; click or drag it from Study files to reopen the same document. Storage failures are shown explicitly; unreadable stored drafts are not overwritten by a blank starter.
+- **Multi-file Tabs** -- Open multiple Markdown files at once and switch between tabs. Signed-in files autosave to private cloud storage and survive reloads and device changes. Closing a tab does not delete the file; click or drag it from Study files to reopen it. Storage failures and cross-device edit conflicts are shown explicitly. Pending edits have account-scoped device recovery; unreadable recovery data is not overwritten.
 - **Study files** -- Initially shows only the local Markdown drop/browse area. Uploaded files populate **Uploads**; New documents populate **Created**. The automatic blank starter appears in Created only after writing or renaming it. Use each row's pencil to rename a file (Enter confirms, Escape cancels); names retain a `.md` extension. A download icon marks created files and uploads changed from their original/last-downloaded content or filename. Untouched uploads have no icon. Download initiates a copy and clears the indicator; later changes restore it. Browser downloads cannot confirm that a copy was retained, and local autosave does not write to the original disk file. Older drafts without a known save baseline conservatively require a download.
-- **Bundled resources** -- Click **Ready** five times within two seconds while the timer is idle to reveal eight maths notes, the SDP exam tips note and the OS-book ZIP link. The reveal lasts for this page visit; it is a UI Easter egg, not access control, and the bundled resources remain public. Notes still open by clicking or dragging into the editor. The SDP note includes stack/database choices, local setup instructions, a short safety checklist and Docker essentials.
+- **Private accounts and history** -- Managed Better Auth provides email/password and emailed-code login. Each account owns its documents and immutable content/name revisions. Restore an older version without deleting newer history. Completed study timers sync to the same account. The former public notes are migrated to the owner's private workspace, with no Ready gesture or public note-serving path.
 - **Study timer** -- Sizes naturally to its own contents, independently of the left-hand panels, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
 - **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
 - **Saved media** -- YouTube contains four playlists: SDP - Software Development Party, Bakugan New Vestroia Full Episodes, Bakugan Gundalian Invaders and THE FIRST TAKE. Spotify contains ten saved playlists labelled with their published titles, including Flow and Love. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
@@ -273,38 +281,91 @@ current `main` branch for studying and follow the exam's permitted-tool rules.
 
 ## Study library and downloads
 
-The left panel contains eight maths notes in `assets/maths/`, including
-[AA practice](assets/maths/AA-Practice.md) with its progress table and revision map,
-and [SDP exam tips](assets/sdp/SDP-Exam-Tips.md) in a separate SDP section.
-The SDP note summarises the supplied SvelteKit/PostgreSQL containerisation lab;
-the original lab files, credentials and private paths are not published.
-Click a note or drag it into the middle to open an editable tab. Reopening an
-already-open note switches to its existing draft without replacing edits.
-Drafts and their library associations survive reloads in this browser.
-Editing does not modify the published notes: use the Download button to export.
-Local Markdown files can still be dropped into the library or editor (5 MB limit).
-Imported Markdown is sanitized and Mermaid uses strict mode.
+Sign in to populate **Uploads** and **Created**, then click a file or drag it
+into the editor. Markdown uploads are limited to 5 MB of UTF-8 content.
+Autosave stores bytes in the private `study-files` bucket and owner/version
+metadata in Postgres. Only authenticated, owner-scoped API requests can read
+documents or revisions. Storage and database credentials never enter the
+frontend. Imported Markdown is sanitized and Mermaid uses strict mode.
 
-The complete OS book archive is hosted as the
-[os-book.zip release asset](https://github.com/XalebXEn99/study_room/releases/download/study-resources-2026/os-book.zip)
-because its 203,715,562 bytes exceed GitHub's 100 MB per-file Git limit. The
-archive contains 564 files, including original attribution and notices, and
-was published with the repository owner's confirmation of redistribution
-permission. Extract it and open `os-book/index.html`; keep the complete folder
-together. The local packaging copy `assets/os-book.zip` is intentionally ignored
-by Git. SHA-256:
-`72b447f2cd1c192f2ea15f4cb0d1590f92c6b5f40c971b15c67e4ad41596f8a8`.
+The download icon still means "download a disk copy", not "not saved to the
+cloud". **History** shows saved versions of the active file; restoring creates
+a new revision. A stale-device conflict never silently overwrites another
+device's content: download current edits, then reload before retrying.
+
+The former note originals are preserved locally under ignored `private-notes/`
+for migration, not served by the local server or included in Pages. Removing
+them now does **not** make old Git commits, forks, caches or previously published
+release assets private. Cleaning those historical copies is a separate task;
+the application no longer links to the old public book release.
 
 No Google Drive credentials or authorization are required. Settings has a
 standalone text reverser. Its input/output are not persisted or sent anywhere
 and are cleared on closing Settings. Reversing text is not encryption.
+
+## Neon setup and deployment
+
+The linked Study Room project is
+[weathered-tooth-39900667](https://console.neon.tech/app/projects/weathered-tooth-39900667/)
+in organization `thestoneorg` (`org-red-bread-31559441`), Frankfurt.
+`neon.ts` declares Managed Better Auth, the private `study-files` bucket and
+the `studyapi` Function. The public service URLs live in `cloud-config.js`.
+
+For backend work, use Node.js 24 and run:
+
+```powershell
+npm ci
+neon link --project-id weathered-tooth-39900667 -y
+neon checkout dev-my-change --create
+npm run db:migrate
+npm run build:auth
+npm test
+neon deploy
+```
+
+`.neon`, `.env.local` and all database/storage credentials are ignored by Git.
+Use the direct `DATABASE_URL_UNPOOLED` for the committed Drizzle migrations.
+Test a migration on a child branch before applying it to `main`.
+To regenerate a schema migration after changing `cloud/schema.mjs`, run
+`npm run db:generate`. For a live verification branch with password sign-up
+enabled and email verification disabled:
+
+```powershell
+$env:RUN_CLOUD_LIVE = "1"
+node --env-file=.env.local --test tests\cloud-live.test.mjs
+Remove-Item Env:\RUN_CLOUD_LIVE
+```
+
+That test creates disposable accounts and private data; never point it at a
+production branch. Delete the verification branch afterward.
+
+The owner can sign in using an email code at the same email address as their
+Neon account. To migrate local note originals to an existing app user:
+
+```powershell
+npm run cloud:import -- --owner <managed-better-auth-user-id>
+```
+
+The importer skips existing filenames and never overwrites edits.
+Production password sign-in requires verified email; shared SMTP handles
+getting-started codes, but configure custom SMTP before relying on production
+email delivery. Add any additional frontend origins with
+`neon neon-auth domain add https://your-app.example`.
+
+GitHub Pages must use **GitHub Actions** as its source. The Pages workflow
+builds the auth client and uploads only the allowlisted `dist` directory.
+`npm run build:site` reproduces the artifact locally. The frontend remains
+vanilla JavaScript; a framework migration is not needed.
 
 ## Timer
 
 Set a duration from one second to 24 hours. Start begins the countdown, Pause
 preserves the remainder, Resume continues it, and Reset restores the configured
 duration. Running timers use a wall-clock deadline, so background throttling and
-reloads do not restart the countdown. Timer state is local to this browser.
+reloads do not restart the countdown. Active timer state is local to this
+browser and separated by signed-in account; completed sessions persist in
+Postgres and appear in **History** across devices. A completion is retried
+idempotently if the network is unavailable.
 Keep the site open: if it is closed or suspended, the completion overlay appears
 when the page next opens or resumes. Dismiss (or Escape) closes the full-screen
 "Hey your time is up!" message. It does not navigate away or discard documents.
@@ -333,6 +394,8 @@ See [ElevenLabs' publication terms](https://elevenlabs.io/docs/help-center/legal
 ## Tech Stack
 
 - HTML / CSS / Vanilla JavaScript
+- Neon Managed Better Auth, Lakebase Postgres, private Object Storage and Functions
+- Drizzle ORM/migrations and node-postgres for server-side data access
 - [marked](https://github.com/markedjs/marked) -- Markdown parsing
 - [highlight.js](https://highlightjs.org/) -- Code syntax highlighting
 - [KaTeX](https://katex.org/) -- LaTeX math rendering

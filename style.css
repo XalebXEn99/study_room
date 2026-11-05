@@ -44,7 +44,7 @@ a:hover { text-decoration: underline; }
 .brand-book:hover { transform: rotate(-6deg); }
 .brand-book:focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 3px; }
 /* ===== Study library and timer ===== */
-.library-panel, .timer-panel, .checklist-panel {
+.library-panel, .timer-panel, .checklist-panel, .account-panel {
   width: 100%; display: flex; flex-direction: column; min-width: 0;
   color: var(--sp-text, #1f2328); background: var(--sp-surface, #fff);
   border: 1px solid var(--sp-border, #d0d7de); border-radius: var(--sp-radius, 10px);
@@ -81,6 +81,21 @@ a:hover { text-decoration: underline; }
 .library-status { margin-top: 0.5rem; font-size: 0.75rem; overflow-wrap: anywhere; }
 .library-status:empty { display: none; }
 .library-status.error, .document-status { color: var(--sp-error); }
+.account-panel { padding: 1rem; gap: 0.5rem; }
+.account-panel[hidden], .account-panel [hidden] { display: none; }
+.account-panel h2 { font-size: 0.85rem; }
+.account-panel h3 { font-size: 0.76rem; margin-top: 0.5rem; }
+.account-panel form { display: flex; flex-direction: column; gap: 0.4rem; }
+.account-panel input, .account-panel button {
+  min-width: 0; width: 100%; padding: 0.45rem; border: 1px solid var(--sp-border, #d0d7de);
+  border-radius: 6px; background: var(--sp-surface, #fff); color: inherit; font: inherit;
+}
+.account-panel button { cursor: pointer; }
+.account-panel button:hover:not(:disabled) { background: color-mix(in srgb, currentColor 8%, transparent); }
+.account-panel button:disabled { opacity: 0.6; cursor: wait; }
+.account-panel ol { padding-left: 1.1rem; max-height: 240px; overflow-y: auto; overflow-wrap: anywhere; }
+.account-panel li { margin-block: 0.45rem; font-size: 0.72rem; }
+.account-panel :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 2px; }
 .document-status { font-size: 0.75rem; }
 .study-quote {
   display: flex; align-items: center; justify-content: center;
@@ -94,7 +109,7 @@ a:hover { text-decoration: underline; }
 .timer-panel h2, .checklist-panel h2 { font-size: 0.82rem; }
 .timer-header { display: flex; align-items: start; justify-content: space-between; gap: 0.5rem; }
 .timer-header .library-status { margin: 0; max-width: 55%; text-align: right; font-size: 0.7rem; }
-.timer-status { color: inherit; background: transparent; border: 0; padding: 0; font: inherit; text-align: inherit; cursor: pointer; }
+.timer-status { color: inherit; background: transparent; border: 0; padding: 0; font: inherit; text-align: inherit; }
 .timer-panel .timer-status:disabled { opacity: 1; cursor: default; }
 .timer-readout { display: flex; flex: 1; flex-direction: column; justify-content: center; padding: 1.5rem 0; }
 .timer-display { display: block; font-family: ui-monospace, Consolas, monospace; font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; margin: 0.65rem 0; line-height: 1.3; }

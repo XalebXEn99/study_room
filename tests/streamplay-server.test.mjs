@@ -6,7 +6,6 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createBridge } from "../tools/streamplay-server.mjs";
 import { isPublicIpv4, validatePublicUrl } from "../tools/public-fetch.mjs";
-import { STUDY_NOTES } from "../study-data.js";
 import { MOTIVATION_QUOTES } from "../motivation-data.js";
 import { ANIME_BACKGROUNDS } from "../anime-background-data.js";
 import readerAssets from "../assets/vendor/manifest.json" with { type: "json" };
@@ -41,7 +40,7 @@ test("localhost serves the study app and permits only its own host and origin", 
   const status = await get("/api/status", { headers });
   assert.equal(status.status, 200);
   assert.equal(status.headers.get("access-control-allow-origin"), origin);
-  for (const path of ["/assets/sdp/SDP-Exam-Tips.md", "/assets/vendor/marked/marked.umd.js"]) {
+  for (const path of ["/cloud.js", "/assets/vendor/marked/marked.umd.js"]) {
     assert.equal((await get(path, { headers })).status, 200, path);
   }
   for (const invalidHeaders of [
@@ -102,8 +101,8 @@ test("serves the real application and exposes explicit search setup status", asy
   const home = await get("/");
   const html = await home.text();
   assert.match(html, /checklist-panel/);
-  assert.match(html, /id="library-notes"[^>]*aria-label="Maths study notes"/);
-  assert.match(html, /id="library-sdp-notes"[^>]*aria-label="SDP study notes"/);
+  assert.match(html, /id="account-form"/);
+  assert.match(html, /id="cloud-history"/);
   assert.match(html, /id="timer-floating"/);
   assert.match(html, /id="motivation-dialog"/);
   assert.match(html, /data-family="graphic-design"[\s\S]*data-theme="gd-90s-anime"/);
@@ -151,11 +150,9 @@ test("serves the real application and exposes explicit search setup status", asy
   assert.equal((await get("/tools/streamplay-server.mjs")).status, 404);
   assert.equal((await get("/.env")).status, 404);
   assert.equal((await get("/drive.js")).status, 404);
-  for (const note of STUDY_NOTES) {
-    const response = await get("/" + note.url);
-    assert.equal(response.status, 200);
-    assert.match(response.headers.get("content-type"), /text\/markdown/);
-    assert.match(await response.text(), /^#/);
+  for (const path of ["/assets/maths/Study-Plan.md", "/assets/sdp/SDP-Exam-Tips.md",
+    "/private-notes/maths/Study-Plan.md", "/assets/os-book.zip", "/cloud/index.mjs", "/.env.local"]) {
+    assert.equal((await get(path)).status, 404, path);
   }
 });
 

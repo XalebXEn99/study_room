@@ -10,10 +10,32 @@
     "start": "node ./tools/streamplay-server.mjs",
     "helper": "node ./tools/start-local-helper.mjs",
     "vendor:reader": "node ./tools/vendor-reader.mjs",
+    "build:auth": "node ./tools/build-auth.mjs",
+    "build:site": "node ./tools/build-site.mjs",
+    "db:generate": "drizzle-kit generate --config=drizzle.config.mjs",
+    "db:migrate": "node --env-file=.env.local ./tools/migrate-cloud.mjs",
+    "cloud:import": "node --env-file=.env.local ./tools/import-private-notes.mjs",
     "test": "node --test"
   },
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
+    "@neon/config": "^1.11.3",
+    "@neon/env": "^1.6.15",
+    "@neon/auth": "^0.8.2",
+    "@neon/functions": "^0.11.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/s3-presigned-post": "^3.0.0",
+    "@aws-sdk/s3-request-presigner": "^3.0.0",
+    "files-sdk": "^3.1.2",
+    "drizzle-orm": "^0.44.0",
+    "jose": "^6.0.0",
+    "pg": "^8.0.0",
     "hls.js": "^1.6.16"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0",
+    "esbuild": "^0.25.0"
   }
 }
