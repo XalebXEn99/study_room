@@ -119,6 +119,14 @@
   var settingsBtn = document.getElementById("settings-btn");
   var settingsModal = document.getElementById("settings-modal");
   var settingsModalClose = document.getElementById("settings-modal-close");
+  var apiKeyInput = document.getElementById("api-key-input");
+  var settingsSavedMsg = document.getElementById("settings-saved-msg");
+  var aiFloatBtn = document.getElementById("ai-float-btn");
+  var aiModal = document.getElementById("ai-modal");
+  var aiSelectionPreview = document.getElementById("ai-selection-preview");
+  var aiQuestionInput = document.getElementById("ai-question-input");
+  var aiSendBtn = document.getElementById("ai-send-btn");
+  var aiResponse = document.getElementById("ai-response");
   var hljsLink = document.getElementById("hljs-theme");
   var addTabBtn = document.getElementById("add-tab-btn");
   var fileInput2 = document.getElementById("file-input-2");
@@ -135,6 +143,8 @@
 
   var files = [];
   var activeFileId = null;
+  var selectedText = "";
+  var aiRequest = null;
   var nextId = 1;
   var isEditing = false;      // editor mode for the active tab (transient UI state)
   var saveTimer = null;
@@ -488,8 +498,142 @@
     reader.readAsText(file);
   }
 
+  // ===== Gemini: selected text only =====
+  function updateAiSelection(event) {
+    if (aiModal.open || aiFloatBtn.contains(event.target)) return;
+    setTimeout(function () {
+      if (aiModal.open) return;
+      var selection = window.getSelection();
+      var text = selection ? selection.toString().trim() : "";
+      if (!isEditing && text.length > 2 && selection.rangeCount &&
+          markdownOutput.contains(selection.anchorNode) && markdownOutput.contains(selection.focusNode)) {
+        selectedText = text;
+        var rect = selection.getRangeAt(0).getBoundingClientRect();
+        var width = aiFloatBtn.offsetWidth || 110;
+        var height = aiFloatBtn.offsetHeight || 32;
+        var top = rect.bottom + 8;
+        if (top + height > window.innerHeight) top = rect.top - height - 8;
+        aiFloatBtn.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)) + "px";
+        aiFloatBtn.style.top = Math.max(8, top) + "px";
+        aiFloatBtn.classList.remove("hidden");
+      } else {
+        selectedText = "";
+        aiFloatBtn.classList.add("hidden");
+      }
+    }, 10);
+  }
+  document.addEventListener("mouseup", updateAiSelection);
+  document.addEventListener("keyup", updateAiSelection);
+
+  function resetAi() {
+    if (aiRequest) aiRequest.abort();
+    aiRequest = null;
+    selectedText = "";
+    aiSelectionPreview.textContent = "";
+    aiQuestionInput.value = "";
+    aiQuestionInput.readOnly = false;
+    aiSendBtn.disabled = false;
+    aiResponse.textContent = "";
+    aiResponse.className = "ai-response hidden";
+    aiFloatBtn.classList.add("hidden");
+  }
+  aiFloatBtn.addEventListener("click", function () {
+    aiFloatBtn.classList.add("hidden");
+    aiSelectionPreview.textContent = selectedText;
+    aiModal.showModal();
+    aiQuestionInput.focus();
+  });
+  document.getElementById("ai-modal-close").addEventListener("click", function () { aiModal.close(); });
+  aiModal.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      aiModal.close();
+    }
+  });
+  aiModal.addEventListener("close", resetAi);
+  aiModal.addEventListener("click", function (event) {
+    if (event.target !== aiModal) return;
+    var bounds = aiModal.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right ||
+        event.clientY < bounds.top || event.clientY > bounds.bottom) aiModal.close();
+  });
+  window.addEventListener("study-room-account-change", function () {
+    aiModal.close();
+    resetAi();
+  });
+
+  function showAiResponse(text, state) {
+    aiResponse.textContent = text;
+    aiResponse.className = "ai-response" + (state ? " " + state : "");
+  }
+
+  async function sendAiQuery() {
+    if (aiRequest) return;
+    var request;
+    try {
+      var question = aiQuestionInput.value.trim();
+      if (!question) throw new Error("Enter a question about the selected text.");
+      if (!selectedText) throw new Error("Select text in the Markdown preview first.");
+      var apiKey = localStorage.getItem("md-gemini-key");
+      if (!apiKey) throw new Error("Add your Gemini API key in Settings before asking AI.");
+      request = new AbortController();
+      aiRequest = request;
+      aiSendBtn.disabled = true;
+      aiQuestionInput.readOnly = true;
+      aiQuestionInput.focus();
+      showAiResponse("Thinking...", "loading");
+      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(60000)]),
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: "Explain the selected Markdown passage and answer the user's question concisely.\n\nSelected text:\n" +
+            selectedText + "\n\nQuestion:\n" + question }] }],
+          generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
+        })
+      });
+      var data = await response.json();
+      if (!response.ok || (data && data.error)) {
+        throw new Error((data && data.error && data.error.message) || "Gemini request failed (HTTP " + response.status + ").");
+      }
+      var candidate = data && data.candidates && data.candidates[0];
+      var parts = candidate && candidate.content && candidate.content.parts;
+      var answer = Array.isArray(parts) ? parts.filter(function (part) {
+        return !part.thought && typeof part.text === "string";
+      }).map(function (part) { return part.text; }).join("\n").trim() : "";
+      if (!answer) throw new Error("Gemini returned no text. Try rephrasing your question.");
+      if (aiRequest === request) showAiResponse(answer);
+    } catch (error) {
+      if (request && aiRequest !== request) return;
+      console.error("Gemini request:", error.message);
+      showAiResponse(error.message, "error");
+    } finally {
+      if (aiRequest === request) {
+        aiRequest = null;
+        aiSendBtn.disabled = false;
+        aiQuestionInput.readOnly = false;
+      }
+    }
+  }
+  document.getElementById("ai-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    return sendAiQuery();
+  });
+
   // ===== Settings =====
+  function settingsMessage(text, error) {
+    settingsSavedMsg.textContent = text;
+    settingsSavedMsg.classList.remove("hidden");
+    settingsSavedMsg.classList.toggle("error", Boolean(error));
+  }
   settingsBtn.addEventListener("click", function () {
+    settingsSavedMsg.classList.add("hidden");
+    try {
+      apiKeyInput.value = localStorage.getItem("md-gemini-key") || "";
+    } catch (error) {
+      console.error("Gemini settings:", error.message);
+      settingsMessage("Could not read the saved Gemini key: " + error.message, true);
+    }
     settingsModal.classList.remove("hidden");
   });
   settingsModalClose.addEventListener("click", function () {
@@ -498,10 +642,22 @@
   settingsModal.addEventListener("click", function (e) {
     if (e.target === settingsModal) settingsModal.classList.add("hidden");
   });
+  document.getElementById("save-api-key-btn").addEventListener("click", function () {
+    var key = apiKeyInput.value.trim();
+    try {
+      if (key) localStorage.setItem("md-gemini-key", key);
+      else localStorage.removeItem("md-gemini-key");
+      settingsMessage(key ? "Gemini key saved in this browser." : "Gemini key removed from this browser.");
+    } catch (error) {
+      console.error("Gemini settings:", error.message);
+      settingsMessage("Could not save the Gemini key: " + error.message, true);
+    }
+  });
   document.getElementById("reverse-text-btn").addEventListener("click", function () {
     document.getElementById("reverse-output").value = Array.from(document.getElementById("reverse-input").value).reverse().join("");
   });
   function clearReverseText() {
+    apiKeyInput.value = "";
     document.getElementById("reverse-input").value = "";
     document.getElementById("reverse-output").value = "";
   }

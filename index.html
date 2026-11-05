@@ -33,31 +33,6 @@
     </button>
     <span>Study Room</span>
   </div>
-  <section class="account-panel" aria-labelledby="account-heading">
-    <h2 id="account-heading">Your study space</h2>
-    <p id="account-user" hidden></p>
-    <form id="account-form">
-      <label for="account-email">Email</label>
-      <input id="account-email" type="email" autocomplete="email" maxlength="254" required />
-      <label id="account-name-label" for="account-name" hidden>Name</label>
-      <input id="account-name" autocomplete="name" maxlength="100" hidden />
-      <label for="account-password">Password</label>
-      <input id="account-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required />
-      <button id="account-submit" type="submit">Sign in</button>
-      <button id="account-mode" type="button">Create an account</button>
-      <button id="account-send-code" type="button">Email a sign-in code</button>
-      <div id="account-code-fields" hidden>
-        <label for="account-code">Email code</label>
-        <input id="account-code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" />
-        <button id="account-verify-code" type="button">Sign in with code</button>
-      </div>
-    </form>
-    <button id="account-signout" type="button" hidden>Sign out</button>
-    <button id="cloud-retry" type="button" hidden>Retry saving</button>
-    <button id="cloud-import" type="button" hidden>Import this browser's old drafts</button>
-    <button id="cloud-import-tab" type="button" hidden>Import this tab's drafts</button>
-    <p id="cloud-status" class="library-status" role="status" aria-live="polite">Checking your account...</p>
-  </section>
   <aside id="library-panel" class="library-panel" aria-label="Study files">
     <button id="library-toggle" class="library-heading" type="button" aria-expanded="true" aria-controls="library-body">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -78,7 +53,8 @@
         <h2 id="library-created-heading" class="library-section-title">Created</h2>
         <ul id="library-created" class="library-files" aria-label="Created Markdown files"></ul>
       </section>
-      <p class="library-status">Sign in for private files and cloud autosave. Signed-out edits stay in this tab.</p>
+      <p id="cloud-status" class="library-status" role="status" aria-live="polite">Checking your account...</p>
+      <button id="cloud-retry" class="library-download" type="button" hidden>Retry saving</button>
       <p id="library-status" class="library-status" role="status" aria-live="polite"></p>
     </div>
   </aside>
@@ -216,6 +192,11 @@
             <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </button>
+        <button id="profile-btn" class="icon-btn" type="button" title="Profile" aria-label="Profile" aria-haspopup="dialog" aria-controls="account-dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>
+          </svg>
+        </button>
         <div class="theme-dropdown">
           <button id="theme-toggle" class="icon-btn" title="Theme">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
@@ -326,6 +307,25 @@
       <article id="markdown-output" class="markdown-body"></article>
     </div>
 
+    <button id="ai-float-btn" class="ai-float-btn hidden" type="button" title="Ask AI about selection" aria-haspopup="dialog" aria-controls="ai-modal">Ask AI</button>
+
+    <dialog id="ai-modal" class="modal modal-dialog" aria-labelledby="ai-heading" aria-describedby="ai-privacy">
+      <div class="modal-header">
+        <h3 id="ai-heading">Ask AI</h3>
+        <button id="ai-modal-close" class="modal-close" type="button" aria-label="Close AI assistant">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="ai-selection-preview" class="ai-selection-preview"></div>
+        <p id="ai-privacy" class="settings-hint">Only this selection and your question are sent to Google when you press Send.</p>
+        <label class="settings-label" for="ai-question-input">Your question</label>
+        <form id="ai-form" class="ai-input-row">
+          <input id="ai-question-input" type="text" placeholder="Ask about the selected text..." required />
+          <button id="ai-send-btn" class="ai-send-btn" type="submit">Send</button>
+        </form>
+        <div id="ai-response" class="ai-response hidden" role="status" aria-live="polite"></div>
+      </div>
+    </dialog>
+
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal-overlay hidden">
       <div class="modal">
@@ -334,6 +334,14 @@
           <button id="settings-modal-close" class="modal-close">&times;</button>
         </div>
         <div class="modal-body">
+          <label class="settings-label" for="api-key-input">Google Gemini API key</label>
+          <p id="gemini-key-hint" class="settings-hint">Get a key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>. It is saved only in this browser, not in your Study Room account. Clear the field and save to remove it.</p>
+          <div class="ai-input-row">
+            <input id="api-key-input" type="password" autocomplete="off" spellcheck="false" aria-describedby="gemini-key-hint" placeholder="Paste your Gemini API key..." />
+            <button id="save-api-key-btn" class="ai-send-btn" type="button">Save key</button>
+          </div>
+          <p id="settings-saved-msg" class="settings-saved hidden" role="status" aria-live="polite"></p>
+          <hr class="settings-sep" />
           <label class="settings-label" for="reverse-input">Text reverser</label>
           <p class="settings-hint">Local utility only. Text is not saved or sent anywhere. Reversing text is not encryption.</p>
           <textarea id="reverse-input" class="settings-text" rows="3" placeholder="Text to reverse..." autocomplete="off" spellcheck="false"></textarea>
@@ -467,6 +475,36 @@ graph TD; A-->B; B-->C;
     <span class="timer-floating-label">Study timer <span id="timer-floating-status">Ready</span></span>
     <span id="timer-floating-display" class="timer-floating-display">25:00</span>
   </button>
+
+  <dialog id="account-dialog" class="modal modal-dialog account-dialog" aria-labelledby="account-heading">
+    <div class="modal-header">
+      <h3 id="account-heading">Your profile</h3>
+      <button id="account-close" class="modal-close" type="button" aria-label="Close profile">&times;</button>
+    </div>
+    <section class="modal-body account-panel" aria-label="Your study space">
+      <p id="account-user" hidden></p>
+      <form id="account-form">
+        <label for="account-email">Email</label>
+        <input id="account-email" type="email" autocomplete="email" maxlength="254" required />
+        <label id="account-name-label" for="account-name" hidden>Name</label>
+        <input id="account-name" autocomplete="name" maxlength="100" hidden />
+        <label for="account-password">Password</label>
+        <input id="account-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required />
+        <button id="account-submit" type="submit">Sign in</button>
+        <button id="account-mode" type="button">Create an account</button>
+        <button id="account-send-code" type="button">Email a sign-in code</button>
+        <div id="account-code-fields" hidden>
+          <label for="account-code">Email code</label>
+          <input id="account-code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" />
+          <button id="account-verify-code" type="button">Sign in with code</button>
+        </div>
+      </form>
+      <button id="account-signout" type="button" hidden>Sign out</button>
+      <button id="cloud-import" type="button" hidden>Import this browser's old drafts</button>
+      <button id="cloud-import-tab" type="button" hidden>Import this tab's drafts</button>
+      <p id="account-status" class="library-status" role="status" aria-live="polite">Checking your account...</p>
+    </section>
+  </dialog>
 
   <dialog id="motivation-dialog" class="motivation-dialog" aria-labelledby="motivation-heading" aria-describedby="motivation-text">
     <div class="motivation-comic">

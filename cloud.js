@@ -4,6 +4,7 @@ import { createWorkspaceSync, readRecovery } from "./cloud-sync.js";
 const $ = id => document.getElementById(id);
 const config = window.studyRoomCloudConfig;
 const documents = window.studyRoomDocuments;
+const accountDialog = $("account-dialog");
 let auth;
 let user = null;
 let sync = null;
@@ -18,8 +19,10 @@ let pendingSessions = [];
 let sessionReadFailed = false;
 
 function status(text, error = false) {
-  $("cloud-status").textContent = text;
-  $("cloud-status").classList.toggle("error", error);
+  for (const id of ["cloud-status", "account-status"]) {
+    $(id).textContent = text;
+    $(id).classList.toggle("error", error);
+  }
   $("cloud-retry").hidden = !user || !error;
 }
 
@@ -52,6 +55,8 @@ async function api(path, { method = "GET", body } = {}) {
 }
 
 function updateAccount() {
+  $("profile-btn").title = user ? "Profile: " + user.email : "Profile - sign in";
+  $("profile-btn").setAttribute("aria-label", user ? "Profile: " + user.email : "Profile");
   $("account-form").hidden = Boolean(user);
   $("account-user").hidden = !user;
   $("account-user").textContent = user ? user.email : "";
@@ -65,7 +70,7 @@ function updateAccount() {
 async function run(action) {
   if (busy) return;
   busy = true;
-  document.querySelectorAll(".account-panel button, .account-panel input").forEach(node => { node.disabled = true; });
+  document.querySelectorAll(".account-panel button, .account-panel input, #cloud-retry").forEach(node => { node.disabled = true; });
   try {
     await action();
   } catch (error) {
@@ -73,7 +78,7 @@ async function run(action) {
     status(error.message, true);
   } finally {
     busy = false;
-    document.querySelectorAll(".account-panel button, .account-panel input").forEach(node => { node.disabled = false; });
+    document.querySelectorAll(".account-panel button, .account-panel input, #cloud-retry").forEach(node => { node.disabled = false; });
   }
 }
 
@@ -236,6 +241,29 @@ window.addEventListener("online", () => {
   });
 });
 
+$("profile-btn").addEventListener("click", () => {
+  if (!accountDialog.open) accountDialog.showModal();
+  $(user ? "account-signout" : "account-email").focus();
+});
+$("account-close").addEventListener("click", () => accountDialog.close());
+accountDialog.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    accountDialog.close();
+  }
+});
+accountDialog.addEventListener("close", () => {
+  $("account-password").value = "";
+  $("account-code").value = "";
+  $("profile-btn").focus({ preventScroll: true });
+});
+accountDialog.addEventListener("click", event => {
+  if (event.target !== accountDialog) return;
+  const bounds = accountDialog.getBoundingClientRect();
+  if (event.clientX < bounds.left || event.clientX > bounds.right ||
+      event.clientY < bounds.top || event.clientY > bounds.bottom) accountDialog.close();
+});
+
 $("account-mode").addEventListener("click", () => {
   signingUp = !signingUp;
   $("account-name-label").hidden = !signingUp;
@@ -255,6 +283,7 @@ $("account-form").addEventListener("submit", event => {
       : auth.signIn.email(credentials)));
     $("account-password").value = "";
     await loadAccount();
+    if (user) accountDialog.close();
     if (!user && signingUp) status("Account created. Click Email a sign-in code to verify your email and sign in.");
   });
 });
@@ -272,6 +301,7 @@ $("account-verify-code").addEventListener("click", () => run(async () => {
   $("account-code").value = "";
   $("account-code-fields").hidden = true;
   await loadAccount();
+  if (user) accountDialog.close();
 }));
 $("account-signout").addEventListener("click", () => run(async () => {
   if (sync?.ready) await sync.flush();

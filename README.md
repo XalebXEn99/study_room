@@ -124,7 +124,7 @@ Serve over HTTP rather than opening `index.html` directly from disk.
 
 ### Find your notes and understand offline limits
 
-Sign in from **Your study space** to see your private files directly. The
+Open **Profile** beside Settings and Theme to sign in and see your private files directly. The
 five-click Ready gesture has been removed. Before studying offline, download
 the notes you need while signed in, then reopen those local Markdown copies.
 New accounts have separate, empty workspaces; they cannot read another
@@ -135,7 +135,7 @@ encouragement audio are checked into Git. Markdown rendering, sanitisation,
 maths, diagrams, themes, the timer and checklist work without external CDNs.
 **Cloud login, saving and history require network access.** Other external
 features still need network access: Google Fonts may fall back
-to installed fonts; Spotify, YouTube and external links require their
+to installed fonts; Spotify, YouTube, Gemini and external links require their
 services. Private notes and the OS-book ZIP are not part of new clones or
 the Pages artifact. Test the local copy before the exam and follow the exam's
 rules; Gitea availability is not guaranteed.
@@ -163,14 +163,14 @@ does **not** require running this download command.
 ## Features
 
 - **Blank Editor** -- Start writing immediately in an empty document, with a quiet placeholder instead of a central title or upload box. New documents and closing the last tab also return to a blank editor.
-- **Study quotes** -- 24 motivational messages rotate every 12 seconds above the timer in an italic serif font. Rotation pauses while the tab is hidden and never starts audio.
+- **Study quotes** -- 24 motivational messages rotate every 12 seconds above the timer on desktop and above the editor on mobile, in an italic serif font. Rotation pauses while the tab is hidden and never starts audio.
 - **Book encouragement** -- Click the book beside the logo for a comic-style speech bubble and a matching Sam Sumit - Calm & Friendly recording from ElevenLabs. One more works through a shuffled deck without repeating until all 24 messages have been shown. Replay voice repeats the current recording; Voice on/off is saved on this device. Closing the popup, pressing Escape or leaving the tab stops its voice.
 - **Upload & Render** -- Drag and drop or browse to select `.md` files, rendered instantly with GitHub-style formatting
 - **Multi-file Tabs** -- Open multiple Markdown files at once and switch between tabs. Signed-in files autosave to private cloud storage and survive reloads and device changes. Closing a tab does not delete the file; click or drag it from Study files to reopen it. Storage failures and cross-device edit conflicts are shown explicitly. Pending edits have account-scoped device recovery; unreadable recovery data is not overwritten.
 - **Study files** -- Initially shows only the local Markdown drop/browse area. Uploaded files populate **Uploads**; New documents populate **Created**. The automatic blank starter appears in Created only after writing or renaming it. Use each row's pencil to rename a file (Enter confirms, Escape cancels); names retain a `.md` extension. A download icon marks created files and uploads changed from their original/last-downloaded content or filename. Untouched uploads have no icon. Download initiates a copy and clears the indicator; later changes restore it. Browser downloads cannot confirm that a copy was retained, and local autosave does not write to the original disk file. Older drafts without a known save baseline conservatively require a download.
 - **Private accounts and history** -- Managed Better Auth provides email/password and emailed-code login. Each account owns its documents and immutable content/name revisions. Restore an older version without deleting newer history. Completed study timers sync to the same account. The former public notes are migrated to the owner's private workspace, with no Ready gesture or public note-serving path.
 - **Study timer** -- Sizes naturally to its own contents, independently of the left-hand panels, with its status at the top-right. Choose Pomodoro (25 min), Feynman (20 min), Deep work (50 min), Break (5 min), or a custom duration, then Start. Presets pause selection during an active session; Reset unlocks them. Breaks are started manually. Pause/Resume and the full-screen "Hey your time is up!" overlay still work.
-- **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device.
+- **Study checklist** -- Add study goals beneath Study files, tick them off, or remove them. Goals and completion are saved on this device. On mobile, the editor comes first, with Study files and the checklist underneath.
 - **Saved media** -- YouTube contains four playlists: SDP - Software Development Party, Bakugan New Vestroia Full Episodes, Bakugan Gundalian Invaders and THE FIRST TAKE. Spotify contains ten saved playlists labelled with their published titles, including Flow and Love. Playlist choices collapse when music starts; expand Playlists to change them. External links remain available.
 - **Compact players** -- Music and YouTube switch to player-only views after media loads. The up arrow expands settings; the down arrow returns to the player. Minus minimises to the corner button without unloading media. With nothing loaded, opening a player shows its setup controls.
 - **Icon-only media buttons** -- Music and YouTube use compact corner icons with accessible labels and tooltips. While Spotify reports active playback, an animated equalizer replaces the music icon and appears beside the track title in the open player. It stops on pause, playback loss/errors or logout; reduced-motion users get a static indicator. This is a playback indicator, not an audio-frequency visualizer.
@@ -260,16 +260,19 @@ that move the fixed media players or floating timer. Cityscape preserves the
 previous pastel SVG theme separately. Existing saved 90s Anime selections now
 use this rebuilt design without changing document content.
 
-## Archived AI feature
+## Gemini AI setup
 
-The Gemini integration, Ask AI interface and Google API-key settings are removed
-from the live site and the Gitea study copy. The current app does not read or
-save Gemini keys or send requests to Google's AI API.
+1. Get your Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey).
+2. Open **Settings**, paste the key and select **Save key**.
+3. In **Preview**, highlight a passage, choose **Ask AI**, enter a question and select **Send**.
 
-The previous implementation is preserved on GitHub's
-[archive/gemini-ai branch](https://github.com/XalebXEn99/study_room/tree/archive/gemini-ai).
-It is a source archive, not an enabled feature of the current app. Use the
-current `main` branch for studying and follow the exam's permitted-tool rules.
+The assistant uses Gemini 3.8 Flash. Your key stays in this browser's localStorage,
+not in the Study Room database or file storage. Clear the key field and save to
+remove it. Previously saved keys on the same origin continue to work.
+Only the selected text and your question are sent directly to Google when you
+select Send; the rest of the document is not included. Closing the assistant
+cancels an in-flight request. Gemini requires internet access and may incur
+charges under your Google account's plan. Follow your exam's permitted-tool rules.
 
 ## Usage
 
@@ -278,6 +281,8 @@ current `main` branch for studying and follow the exam's permitted-tool rules.
 3. The file renders with full GitHub-style Markdown formatting
 4. Use the theme dropdown (top right) to switch visual themes
 5. Open additional files with the + button next to your tabs
+6. Open Profile for sign-in, account creation, email-code login, imports or sign-out
+7. Highlight text in Preview and choose Ask AI to use Gemini
 
 ## Study library and downloads
 

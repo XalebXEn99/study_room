@@ -18,7 +18,7 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
     const classes = new Set();
     const listeners = new Map();
     const node = {
-      id, textContent: "", value: "", dataset: {}, attributes: {}, children: [], hidden: false, style: {},
+      id, textContent: "", value: "", dataset: {}, attributes: {}, children: [], hidden: false, style: {}, open: false, disabled: false,
       classList: {
         add: (...names) => names.forEach(name => classes.add(name)),
         remove: (...names) => names.forEach(name => classes.delete(name)),
@@ -48,6 +48,9 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
       querySelectorAll() { return []; },
       contains(node) { return this === node || this.children.some(child => child.contains?.(node)); },
       focus() { document.activeElement = this; },
+      showModal() { this.open = true; },
+      close() { this.open = false; void this.emit("close"); },
+      getBoundingClientRect() { return { left: 20, right: 520, top: 50, bottom: 550 }; },
       select() {},
       setCustomValidity(value) { this.validityMessage = value; },
       reportValidity() { this.validityReported = true; },
@@ -66,6 +69,8 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
   document.createElementNS = (_, tag) => document.createElement(tag);
   document.createTextNode = text => ({ textContent: text });
   const window = element("window");
+  window.innerWidth = 1280;
+  window.innerHeight = 800;
   const context = {
     document, window, Event, Blob,
     localStorage: {
@@ -73,7 +78,8 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
       setItem(key, value) {
         if (storageFailure) throw new Error("Storage is full");
         storage.set(key, value);
-      }
+      },
+      removeItem: key => storage.delete(key)
     },
     console: { error: (...args) => errors.push(args) },
     URL: { createObjectURL: () => "blob:test", revokeObjectURL() {} },
@@ -86,12 +92,12 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
     setTimeout: callback => timers.push(callback), clearTimeout() {},
     YOUTUBE_COLLECTION, SPOTIFY_COLLECTION,
     fetch: async () => { throw new Error("Unexpected network request"); },
-    AbortSignal
+    AbortSignal, AbortController
   };
   runInNewContext(appSource, context, { filename: "app.js" });
   if (library) runInNewContext(librarySource, context, { filename: "library.js" });
   return {
-    element, document, window, storage, errors, downloads,
+    element, document, window, storage, errors, downloads, context,
     documents: window.studyRoomDocuments,
     savedFiles: () => JSON.parse(storage.get("md-files")),
     async edit(raw) {
@@ -107,11 +113,132 @@ function fixture(saved = {}, { library = false, storageFailure = false } = {}) {
   };
 }
 
-test("the current reader has no Gemini UI, API-key handling or AI requests", async () => {
+async function openAi(ui, text = "A selected study passage") {
+  ui.documents.open("Gemini.md", "# Notes\n\n" + text + "\n\nNever send this unselected paragraph.");
+  await ui.element("preview-mode-btn").emit("click");
+  const output = ui.element("markdown-output");
+  ui.window.getSelection = () => ({
+    anchorNode: output, focusNode: output, rangeCount: 1,
+    toString: () => text,
+    getRangeAt: () => ({ getBoundingClientRect: () => ({ left: 200, top: 100, bottom: 125 }) })
+  });
+  await ui.document.emit("mouseup", { target: output });
+  ui.persist();
+  assert.equal(ui.element("ai-float-btn").classList.contains("hidden"), false);
+  await ui.element("ai-float-btn").emit("click");
+}
+
+test("the restored Gemini interface exposes local key settings and a selected-text modal", async () => {
   const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  assert.doesNotMatch(html, /Ask AI|Google Gemini|aistudio\.google\.com/);
-  assert.doesNotMatch(html, /\bid="(?:ai-[^"]+|api-key-input|save-api-key-btn|settings-saved-msg)"/);
-  assert.doesNotMatch(appSource, /generativelanguage|md-gemini-key|sendAiQuery|aiFloatBtn|apiKeyInput/);
+  assert.match(html, /Google Gemini API key/);
+  assert.match(html, /<dialog id="ai-modal"[^>]+aria-labelledby="ai-heading"/);
+  assert.match(html, /Only this selection and your question are sent to Google/);
+  assert.match(html, /id="api-key-input" type="password"/);
+});
+
+test("Gemini settings restore existing keys, save locally, and remove cleared keys", async () => {
+  const ui = fixture({ "md-gemini-key": "old-test-key" });
+  await ui.element("settings-btn").emit("click");
+  assert.equal(ui.element("api-key-input").value, "old-test-key");
+  ui.element("api-key-input").value = "  new-test-key  ";
+  await ui.element("save-api-key-btn").emit("click");
+  assert.equal(ui.storage.get("md-gemini-key"), "new-test-key");
+  assert.match(ui.element("settings-saved-msg").textContent, /saved in this browser/);
+  await ui.element("settings-modal-close").emit("click");
+  assert.equal(ui.element("api-key-input").value, "");
+  await ui.element("settings-btn").emit("click");
+  ui.element("api-key-input").value = "";
+  await ui.element("save-api-key-btn").emit("click");
+  assert.equal(ui.storage.has("md-gemini-key"), false);
+  assert.match(ui.element("settings-saved-msg").textContent, /removed/);
+});
+
+test("Gemini key-storage errors are visible rather than reported as saved", async () => {
+  const ui = fixture({}, { storageFailure: true });
+  ui.element("api-key-input").value = "test-key";
+  await ui.element("save-api-key-btn").emit("click");
+  assert.match(ui.element("settings-saved-msg").textContent, /Could not save.*Storage is full/);
+  assert.equal(ui.element("settings-saved-msg").classList.contains("error"), true);
+  assert.equal(ui.storage.has("md-gemini-key"), false);
+});
+
+test("Gemini sends only the selected passage after explicit submission and keeps the key out of the URL", async () => {
+  const ui = fixture({ "md-gemini-key": "synthetic-test-key" });
+  const requests = [];
+  ui.context.fetch = async (url, options) => {
+    requests.push({ url, options });
+    return { ok: true, json: async () => ({
+      candidates: [{ content: { parts: [{ text: "First answer." }, { text: "Second answer." }] } }]
+    }) };
+  };
+  await openAi(ui);
+  assert.equal(requests.length, 0);
+  assert.equal(ui.element("ai-modal").open, true);
+  ui.element("ai-question-input").value = "Explain this.";
+  await ui.element("ai-form").emit("submit", { preventDefault() {} });
+  assert.equal(requests.length, 1);
+  assert.match(requests[0].url, /gemini-3\.8-flash:generateContent$/);
+  assert.doesNotMatch(requests[0].url, /key|synthetic-test-key/);
+  assert.equal(requests[0].options.headers["x-goog-api-key"], "synthetic-test-key");
+  const body = JSON.parse(requests[0].options.body);
+  assert.match(body.contents[0].parts[0].text, /A selected study passage/);
+  assert.match(body.contents[0].parts[0].text, /Explain this/);
+  assert.doesNotMatch(body.contents[0].parts[0].text, /Never send this unselected paragraph/);
+  assert.equal(ui.element("ai-response").textContent, "First answer.\nSecond answer.");
+  assert.equal(ui.element("ai-send-btn").disabled, false);
+});
+
+test("Gemini reports missing keys, HTTP failures, and empty model responses explicitly", async () => {
+  for (const [key, response, message] of [
+    ["", null, /Add your Gemini API key in Settings/],
+    ["test-key", { ok: false, status: 403, json: async () => ({ error: { message: "Invalid test key" } }) }, /Invalid test key/],
+    ["test-key", { ok: true, json: async () => ({ candidates: [] }) }, /Gemini returned no text/]
+  ]) {
+    const ui = fixture({ "md-gemini-key": key });
+    ui.context.fetch = async () => {
+      assert.ok(response, "A missing key must not cause a network request.");
+      return response;
+    };
+    await openAi(ui);
+    ui.element("ai-question-input").value = "Explain.";
+    await ui.element("ai-form").emit("submit", { preventDefault() {} });
+    assert.match(ui.element("ai-response").textContent, message);
+    assert.equal(ui.element("ai-response").classList.contains("error"), true);
+    assert.equal(ui.element("ai-send-btn").disabled, false);
+    assert.ok(ui.errors.length);
+  }
+});
+
+test("closing Gemini or changing accounts cancels requests and clears private selection text", async () => {
+  const ui = fixture({ "md-gemini-key": "test-key" });
+  let finish;
+  let signal;
+  ui.context.fetch = (_, options) => {
+    signal = options.signal;
+    return new Promise(resolve => { finish = resolve; });
+  };
+  await openAi(ui);
+  ui.element("ai-question-input").value = "Explain.";
+  const pending = ui.element("ai-form").emit("submit", { preventDefault() {} });
+  assert.equal(ui.element("ai-send-btn").disabled, true);
+  assert.equal(ui.element("ai-question-input").readOnly, true);
+  assert.equal(ui.document.activeElement.id, "ai-question-input");
+  await ui.element("ai-modal-close").emit("click");
+  assert.equal(signal.aborted, true);
+  assert.equal(ui.element("ai-selection-preview").textContent, "");
+  finish({ ok: true, json: async () => ({ candidates: [{ content: { parts: [{ text: "Late response" }] } }] }) });
+  await pending;
+  assert.equal(ui.element("ai-response").textContent, "");
+  assert.equal(ui.element("ai-send-btn").disabled, false);
+  assert.equal(ui.element("ai-question-input").readOnly, false);
+  await openAi(ui);
+  await ui.element("ai-modal").emit("keydown", { key: "Escape", preventDefault() {} });
+  assert.equal(ui.element("ai-modal").open, false);
+  assert.equal(ui.element("ai-selection-preview").textContent, "");
+  await openAi(ui);
+  await ui.window.emit("study-room-account-change");
+  assert.equal(ui.element("ai-modal").open, false);
+  assert.equal(ui.element("ai-selection-preview").textContent, "");
 });
 
 test("settings retains the local text reverser and clears it on close", async () => {

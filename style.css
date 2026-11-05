@@ -82,7 +82,7 @@ a:hover { text-decoration: underline; }
 .library-status:empty { display: none; }
 .library-status.error, .document-status { color: var(--sp-error); }
 .account-panel { padding: 1rem; gap: 0.5rem; }
-.account-panel[hidden], .account-panel [hidden] { display: none; }
+.account-panel[hidden], .account-panel [hidden], #cloud-retry[hidden] { display: none; }
 .account-panel h2 { font-size: 0.85rem; }
 .account-panel h3 { font-size: 0.76rem; margin-top: 0.5rem; }
 .account-panel form { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -421,6 +421,11 @@ a:hover { text-decoration: underline; }
 }
 .modal-close:hover { background: #f3f4f6; color: #1f2328; }
 .modal-body { padding: 1.2rem; overflow-y: auto; }
+.modal-dialog { margin: auto; padding: 0; border: 1px solid var(--sp-border, #d0d7de); color: var(--sp-text, #1f2328); }
+.modal-dialog:not([open]) { display: none; }
+.modal-dialog::backdrop { background: rgba(0,0,0,0.4); }
+.modal-dialog :focus-visible { outline: 2px solid var(--sp-accent, #0969da); outline-offset: 2px; }
+.account-dialog .account-panel { border: 0; border-radius: 0; box-shadow: none; font-size: 0.9rem; }
 
 /* AI modal specifics */
 .ai-selection-preview {
@@ -442,6 +447,7 @@ a:hover { text-decoration: underline; }
   cursor: pointer; transition: background 0.15s; white-space: nowrap;
 }
 .ai-send-btn:hover { background: #0860ca; }
+.ai-send-btn:disabled { opacity: 0.6; cursor: wait; }
 .ai-response {
   margin-top: 1rem; padding: 0.8rem 1rem;
   background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px;
@@ -456,6 +462,7 @@ a:hover { text-decoration: underline; }
 .settings-hint { font-size: 0.8rem; color: #656d76; margin-bottom: 0.8rem; }
 .settings-hint a { color: #0969da; }
 .settings-saved { margin-top: 0.6rem; font-size: 0.8rem; color: #1a7f37; font-weight: 500; }
+.settings-saved.error { color: var(--sp-error, #cf222e); }
 
 /* ===== Editor Toolbar ===== */
 .editor-bar {
@@ -1377,8 +1384,11 @@ body[data-theme="gameboy"] .markdown-body details[open] > summary { border-botto
   .music-slot { width: min(220px, calc(50vw - 24px)); }
 }
 @media (max-width: 760px) {
-  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-areas: "left" "main" "media"; padding: 16px; }
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-areas: "quote" "main" "left" "media"; padding: 16px; }
   .workspace-rail { gap: 16px; }
+  .right-rail { display: contents; }
+  .study-quote { grid-area: quote; }
+  .timer-panel { grid-area: media; }
   .library-files { max-height: 300px; }
 }
 @media (max-width: 640px) {

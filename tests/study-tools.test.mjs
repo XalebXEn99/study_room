@@ -92,6 +92,16 @@ function fixture(t, saved = {}, overrides = {}) {
   return { node, intervals, observations, storage, played, clock, document };
 }
 
+test("the mobile layout puts the quote above the editor and study panels below, without changing desktop columns", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  const mobile = css.slice(css.indexOf("@media (max-width: 760px)"), css.indexOf("@media (max-width: 640px)"));
+  assert.match(mobile, /grid-template-areas:\s*"quote"\s*"main"\s*"left"\s*"media"/);
+  assert.match(mobile, /\.right-rail\s*\{\s*display:\s*contents/);
+  assert.match(mobile, /\.study-quote\s*\{\s*grid-area:\s*quote/);
+  assert.match(mobile, /\.timer-panel\s*\{\s*grid-area:\s*media/);
+  assert.match(css, /grid-template-areas:\s*"left main media"/);
+});
+
 test("the timer initializes independently of the left column without a height observer", async t => {
   const ui = fixture(t);
   t.mock.method(ui.document, "querySelector", selector => {
