@@ -92,10 +92,13 @@ function fixture(t, saved = {}, overrides = {}) {
   return { node, intervals, observations, storage, played, clock, document };
 }
 
-test("the mobile layout puts the quote above the editor and study panels below, without changing desktop columns", async () => {
+test("the mobile layout starts with the logo and quote, then the editor and study panels, without changing desktop columns", async () => {
   const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
   const mobile = css.slice(css.indexOf("@media (max-width: 760px)"), css.indexOf("@media (max-width: 640px)"));
-  assert.match(mobile, /grid-template-areas:\s*"quote"\s*"main"\s*"left"\s*"media"/);
+  assert.match(mobile, /grid-template-areas:\s*"brand"\s*"quote"\s*"main"\s*"left"\s*"media"/);
+  assert.match(mobile, /\.left-rail\s*\{\s*display:\s*contents/);
+  assert.match(mobile, /\.site-brand\s*\{\s*grid-area:\s*brand/);
+  assert.match(mobile, /\.left-rail-content\s*\{\s*grid-area:\s*left/);
   assert.match(mobile, /\.right-rail\s*\{\s*display:\s*contents/);
   assert.match(mobile, /\.study-quote\s*\{\s*grid-area:\s*quote/);
   assert.match(mobile, /\.timer-panel\s*\{\s*grid-area:\s*media/);

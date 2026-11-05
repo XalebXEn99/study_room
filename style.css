@@ -1384,8 +1384,11 @@ body[data-theme="gameboy"] .markdown-body details[open] > summary { border-botto
   .music-slot { width: min(220px, calc(50vw - 24px)); }
 }
 @media (max-width: 760px) {
-  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-areas: "quote" "main" "left" "media"; padding: 16px; }
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "quote" "main" "left" "media"; padding: 16px; }
   .workspace-rail { gap: 16px; }
+  .left-rail { display: contents; }
+  .site-brand { grid-area: brand; }
+  .left-rail-content { grid-area: left; }
   .right-rail { display: contents; }
   .study-quote { grid-area: quote; }
   .timer-panel { grid-area: media; }
